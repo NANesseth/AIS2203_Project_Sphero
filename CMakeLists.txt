@@ -15,7 +15,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 #       [///]    DEPENDENCIES    [\\\]
 
-# find_package(opencv REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system)
 
 
 #       [///]    TARGETS    [\\\]
