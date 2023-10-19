@@ -4,6 +4,5 @@
 
 int main() {
     std::cout << "Hello, World!" << std::endl;
-    raspCam();
     return 0;
 }
