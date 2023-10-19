@@ -1,0 +1,9 @@
+{
+  "name" : "ais2203-project-sphero",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "486a4640db740f5994e492eb60748111dfc48de7",
+  "dependencies" : [ {
+    "name" : "opencv",
+    "version>=" : "4.8.0"
+  } ]
+}
