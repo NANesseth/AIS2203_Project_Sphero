@@ -1,28 +1,13 @@
 #ifndef AIS2203_PROJECT_SPHERO_ROBOTCONTROLS_HPP
 #define AIS2203_PROJECT_SPHERO_ROBOTCONTROLS_HPP
-
+#include <boost/asio.hpp>
 #include <iostream>
 
 class RobotControls{
 public:
-    void move(char command);
-private:
-    void motorLForward() {
-        std::cout << "Motor L forward\n";
-        //send forward to server
+    RobotControls(boost::asio::ip::udp::socket& serverSocket,  boost::asio::ip::udp::endpoint serverTuple){
+        recieveAndSendInput(serverSocket, serverTuple);
     }
-    void motorRForward() {
-        std::cout << "Motor R forward\n";
-        //send forward to server
-    }
-    void motorLBackward() {
-        std::cout << "Motor L backward\n";
-        //send backward to server
-    }
-    void motorRBackward() {
-        std::cout << "Motor R backward\n";
-        //send backward to server
-    }
+    void recieveAndSendInput(boost::asio::ip::udp::socket& serverSocket, boost::asio::ip::udp::endpoint serverTuple);
 };
-
 #endif //AIS2203_PROJECT_SPHERO_ROBOTCONTROLS_HPP
