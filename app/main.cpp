@@ -21,5 +21,8 @@ int main() {
     // Initialize RobotControls.
     RobotControls robotControls(*socket, serverEndpoint);
 
+    // Start running the RobotControls instance.
+    robotControls.run();
+
     return 0;
 }
