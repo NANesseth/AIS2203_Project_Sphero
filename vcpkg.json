@@ -1,9 +1,12 @@
 {
   "name" : "ais2203-project-sphero",
   "version-string" : "1.0.0",
-  "builtin-baseline" : "486a4640db740f5994e492eb60748111dfc48de7",
+  "builtin-baseline" : "c6d6efed3e9b4242765bfe1b5c5befffd85f7b92",
   "dependencies" : [ {
-    "name" : "opencv",
-    "version>=" : "4.8.0"
+    "name" : "opencv4",
+    "version>=" : "4.8.0#7"
+  }, {
+    "name" : "boost-asio",
+    "version>=" : "1.83.0"
   } ]
 }
