@@ -1,12 +1,25 @@
 #include "sphero/controls/RobotControls.hpp"
 #include <opencv2/opencv.hpp>
 #include "boost/asio.hpp"
+#include "sphero/utils/udpClient.hpp"
 
 #include <iostream>
 
-void RobotControls::sendInput(std::string msg , boost::asio::ip::udp::socket& serverSocket, boost::asio::ip::udp::endpoint serverTuple) {
-    serverSocket.send_to(boost::asio::buffer(msg), serverTuple);
+RobotControls::RobotControls(UdpClient& client)
+    : udpClient(client) {}
+
+void RobotControls::run(){
+    std::string msg;
+    do {
+        msg = keyboardInput();
+        if (msg != "exit") {
+            udpClient.sendMessage(msg);
+        } else {
+            std::cout << "Exiting application.\n";
+        }
+    } while (msg != "exit");
 }
+
 
 std::string RobotControls::keyboardInput() {
     cv::namedWindow("Control Window");

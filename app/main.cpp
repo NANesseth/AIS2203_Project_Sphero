@@ -16,10 +16,10 @@ int main() {
     boost::asio::ip::udp::endpoint serverEndpoint = *resolver.resolve(boost::asio::ip::udp::v4(), serverIP, serverPort);
 
     // Create a UDP client.
-    auto socket = startUdpClient(12346);
+    UdpClient udpClient(12346, serverEndpoint);
 
     // Initialize RobotControls.
-    RobotControls robotControls(*socket, serverEndpoint);
+    RobotControls robotControls(udpClient);
 
     // Start running the RobotControls instance.
     robotControls.run();
