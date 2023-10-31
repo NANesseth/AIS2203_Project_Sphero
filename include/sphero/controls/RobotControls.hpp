@@ -3,16 +3,18 @@
 #include <boost/asio.hpp>
 #include <iostream>
 #include "sphero/utils/udpClient.hpp"
+#include "sphero/controls/keyboardInput.hpp"
 
 class RobotControls {
 
-private:
-    UdpClient& udpClient;
 
 public:
     RobotControls(UdpClient& client);
     void run();
-    std::string keyboardInput();
+
+
+private:
+    UdpClient& udpClient;
 
 
 };

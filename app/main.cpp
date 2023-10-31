@@ -1,6 +1,7 @@
 #include "sphero/cameras/RaspberryCamera.hpp"
 #include "sphero/controls/RobotControls.hpp"
 #include "sphero/utils/udpClient.hpp"
+#include "sphero/utils/UserInterface.hpp"
 #include <iostream>
 
 int main() {
@@ -18,11 +19,23 @@ int main() {
     // Create a UDP client.
     UdpClient udpClient(12346, serverEndpoint);
 
+    // Initialize UserInterface.
+    UserInterface userInterface(udpClient);
+
     // Initialize RobotControls.
     RobotControls robotControls(udpClient);
 
-    // Start running the RobotControls instance.
+    // Initialize RaspberryCamera.
+    RaspberryCamera raspberryCamera(udpClient);
+
+    // Run RaspberryCamera on a new thread.
+    std::thread cameraThread([&]() { raspberryCamera.run(); });
+
+    // Run RobotControls.
     robotControls.run();
+
+    // Wait for the RaspberryCamera thread to finish.
+    cameraThread.join();
 
     return 0;
 }
