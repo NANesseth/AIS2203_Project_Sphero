@@ -12,9 +12,9 @@ class UserInterface {
 private:
     UdpClient& udpClient;
     const std::string windowName = "Control Window";
-    std::thread inputThread;
+    //std::thread inputThread;
     std::thread videoThread;
-    bool inputRunning = false;
+    //bool inputRunning = false;
     bool videoRunning = false;
 
 public:
@@ -24,29 +24,29 @@ public:
 
     ~UserInterface() {
         cv::destroyWindow(windowName);
-        stop();
+        stopThreads();
     }
 
     void startThreads(){
-        if (!inputRunning){
-            inputThread = std::thread(&UserInterface::input, this->inputThread);
-            this -> inputRunning = true;
-        }
+      // if (!inputRunning){
+      //     inputThread = std::thread(&UserInterface::input, this);
+      //     this -> inputRunning = true;
+      // }
         if  (!videoRunning){
-            videoThread = std::thread(&UserInterface::displayFrame(), this-> videoThread);
+            videoThread = std::thread(&UserInterface::displayFrame, this);
             this -> videoRunning = true;
         }
     }
 
     void stopThreads(){
-        if(inputRunning){
-            running = false;
-            if(inputThread.joinable()){
-                inputThread.join();
-            }
-        }
+    //   if(inputRunning){
+    //       inputRunning = false;
+    //       if(inputThread.joinable()){
+    //           inputThread.join();
+    //       }
+    //    }
         if(videoRunning){
-            running = false;
+            videoRunning = false;
             if(videoThread.joinable()){
                 videoThread.join();
             }
@@ -56,7 +56,7 @@ public:
 
     void input() {
         std::string msg;
-        while (inputRunning){
+        //while (inputRunning){
             msg = keyboardInput();
             if (msg != "exit") {
                 udpClient.sendMessage(msg);
@@ -66,15 +66,17 @@ public:
             }
             if (msg == "video"){
                 this -> videoRunning = true;
-            }
+         //   }
         }
     }
 
     void displayFrame() {
-        cv::Mat frame = udpClient.receiveFrame();
-        cv::putText(frame, "Control Message: " + udpClient.getLastMessage(), cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
-        cv::imshow(this -> windowName, frame);
-        cv::waitKey(1);
+        while (videoRunning) {
+                cv::Mat frame = udpClient.receiveFrame();
+                cv::putText(frame, "Control Message: " + udpClient.getLastMessage(), cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
+                cv::imshow(this->windowName, frame);
+                cv::waitKey(1);
+        }
     }
 };
 

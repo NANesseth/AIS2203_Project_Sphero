@@ -2,7 +2,6 @@
 #include "sphero/utils/udpClient.hpp"
 #include "sphero/utils/UserInterface.hpp"
 #include <iostream>
-#include <threading>
 
 
 int main() {
@@ -22,7 +21,12 @@ int main() {
 
     // Initialize UserInterface.
     UserInterface userInterface(udpClient);
+    std::cout << "a" << std::endl;
     userInterface.startThreads();
+    std::cout << "b" << std::endl;
+    userInterface.input();
+    std::cout << "c" << std::endl;
+
 
     return 0;
 }

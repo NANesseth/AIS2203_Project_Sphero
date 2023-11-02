@@ -17,6 +17,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
+find_package(Threads REQUIRED)
 
 
 #       [///]    TARGETS    [\\\]

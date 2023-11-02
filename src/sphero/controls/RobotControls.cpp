@@ -7,5 +7,4 @@ RobotControls::RobotControls(UdpClient& client)
 
 void RobotControls::run(){
     UserInterface userInterface(udpClient);
-    userInterface.run();
 }
