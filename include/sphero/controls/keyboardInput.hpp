@@ -26,7 +26,6 @@ inline std::string keyboardInput() {
             case 'c':
                 msg = "stop_video";
                 break;
-
             case 'g':
                 msg = "gas";
                 break;
