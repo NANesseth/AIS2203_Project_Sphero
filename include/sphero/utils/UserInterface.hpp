@@ -12,10 +12,9 @@ class UserInterface {
 private:
     UdpClient& udpClient;
     const std::string windowName = "Control Window";
-    //std::thread inputThread;
     std::thread videoThread;
-    //bool inputRunning = false;
     bool videoRunning = false;
+
 
 public:
     UserInterface(UdpClient& client) : udpClient(client) {
@@ -28,23 +27,15 @@ public:
     }
 
     void startThreads(){
-      // if (!inputRunning){
-      //     inputThread = std::thread(&UserInterface::input, this);
-      //     this -> inputRunning = true;
-      // }
         if  (!videoRunning){
             videoThread = std::thread(&UserInterface::displayFrame, this);
+            std::cout<<"video thread started"<<std::endl;
             this -> videoRunning = true;
         }
     }
 
     void stopThreads(){
-    //   if(inputRunning){
-    //       inputRunning = false;
-    //       if(inputThread.joinable()){
-    //           inputThread.join();
-    //       }
-    //    }
+        std::cout<<"STOP THREADS"<<std::endl;
         if(videoRunning){
             videoRunning = false;
             if(videoThread.joinable()){
@@ -56,27 +47,45 @@ public:
 
     void input() {
         std::string msg;
-        //while (inputRunning){
+        while(true) {
             msg = keyboardInput();
             if (msg != "exit") {
                 udpClient.sendMessage(msg);
-                displayFrame();
+                std::cout<<msg<<" sent"<<std::endl;
             } else {
                 std::cout << "Exiting application.\n";
+                this -> videoRunning = false;
+                break;
             }
-            if (msg == "video"){
-                this -> videoRunning = true;
-         //   }
+            if (msg == "video") {
+                this->videoRunning = true;
+            }
         }
     }
 
     void displayFrame() {
+        std::cout<<"entered display frame"<<"\n";
+        cv::namedWindow("Video window");
         while (videoRunning) {
-                cv::Mat frame = udpClient.receiveFrame();
+            std::cout<<"does the code stop here?"<<"\n";
+            cv::Mat frame = udpClient.receiveFrame();
+            std::cout<<"or here?"<<std::endl;
+            if (!frame.empty()) {
+                std::cout<<"Frame is not empty"<<std::endl;
                 cv::putText(frame, "Control Message: " + udpClient.getLastMessage(), cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
-                cv::imshow(this->windowName, frame);
-                cv::waitKey(1);
+                std::cout<<"text is put"<<std::endl;
+                cv::imshow("Video window", frame); // Corrected window name
+                std::cout<<"frame displayed"<<std::endl;
+                if (cv::waitKey(1) == 27) { // Break the loop if the user presses 'Esc'
+                    stopThreads();
+                    break;
+                }
+                std::cout<<"imshow done"<<std::endl;
+            }else{
+                std::cout<<"Frame is empty"<<std::endl;
+            }
         }
+        cv::destroyWindow("Video window"); // Clean up after the loop finishes
     }
 };
 

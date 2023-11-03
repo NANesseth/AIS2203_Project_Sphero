@@ -6,6 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <opencv2/opencv.hpp>
+#include <mutex>
 
 using namespace cv;
 
@@ -20,38 +21,40 @@ inline std::string getLocalIp() {
 
 class UdpClient {
 private:
-    std::unique_ptr<boost::asio::ip::udp::socket> socket;
+    std::mutex mtx;
+    std::unique_ptr<boost::asio::io_service> io_service; // Moved to here
+    std::unique_ptr<boost::asio::ip::udp::socket> socket; // Moved to here
     boost::asio::ip::udp::endpoint serverEndpoint;
     std::string lastMessage;
 
 public:
     UdpClient(int port, const boost::asio::ip::udp::endpoint& serverEndpoint)
-        : socket(startUdpClient(port)), serverEndpoint(serverEndpoint) {}
-
-    std::unique_ptr<boost::asio::ip::udp::socket> startUdpClient(int port) {
-        auto io_service = std::make_unique<boost::asio::io_service>();
-        auto socket = std::make_unique<boost::asio::ip::udp::socket>(*io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port));
+            : io_service(std::make_unique<boost::asio::io_service>()),
+              socket(std::make_unique<boost::asio::ip::udp::socket>(*io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port))),
+              serverEndpoint(serverEndpoint) {
         std::string ip = getLocalIp();
         std::cout << "Client started at " << ip << ":" << port << "\n";
-
-        return socket;
     }
 
     void sendMessage(const std::string& message) {
+        std::lock_guard<std::mutex> lock(mtx);
+        std::cout<<"locked string, sending message"<<std::endl;
         socket->send_to(boost::asio::buffer(message), serverEndpoint);
         lastMessage = message;
     }
 
     cv::Mat receiveFrame() {
+        std::lock_guard<std::mutex> lock(mtx);
+        std::cout<<"recieving frame"<<std::endl;
         boost::array<char, 65536> recv_buf;
         boost::asio::ip::udp::endpoint remoteEndpoint;
-
         int len = socket->receive_from(boost::asio::buffer(recv_buf), remoteEndpoint);
 
         // Decode received frame
+        std::cout<<"decoding frame"<<std::endl;
         std::vector<uchar> decode_buf(recv_buf.begin(), recv_buf.begin() + len);
         cv::Mat frame = cv::imdecode(decode_buf, 1);
-
+        std::cout<<"decoded frame"<<std::endl;
         return frame;
     }
 
