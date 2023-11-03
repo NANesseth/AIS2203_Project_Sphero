@@ -20,11 +20,7 @@ int main() {
 
         // Initialize UserInterface.
         UserInterface userInterface(udpClient);
-        std::cout << "Starting threads" << std::endl;
-        userInterface.startThreads();
-        std::cout << "Threads started" << std::endl;
-
-        userInterface.input();
+        userInterface.run();
 
     } catch (const std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;

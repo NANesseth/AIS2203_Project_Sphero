@@ -12,7 +12,7 @@ const char ESC_KEY = 27;
 inline std::string keyboardInput() {
     std::string msg;
     while (true) {
-        char key = (char)cv::waitKey(20);
+        char key = (char)cv::waitKey(0);
 
         // Check if the key is one of the command keys
         switch(key) {

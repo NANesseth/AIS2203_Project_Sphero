@@ -37,21 +37,18 @@ public:
     }
 
     void sendMessage(const std::string& message) {
-        std::lock_guard<std::mutex> lock(mtx);
+        std::unique_lock<std::mutex> lock(mtx);
         std::cout<<"locked string, sending message"<<std::endl;
         socket->send_to(boost::asio::buffer(message), serverEndpoint);
         lastMessage = message;
     }
 
     cv::Mat receiveFrame() {
-        std::lock_guard<std::mutex> lock(mtx);
-        std::cout<<"recieving frame"<<std::endl;
+        std::unique_lock<std::mutex> lock(mtx);
         boost::array<char, 65536> recv_buf;
-        boost::asio::ip::udp::endpoint remoteEndpoint;
-        int len = socket->receive_from(boost::asio::buffer(recv_buf), remoteEndpoint);
-
+        int len = socket->receive_from(boost::asio::buffer(recv_buf), this->serverEndpoint);
+        //TODO: make a timeout on the function above. if no frame is recieved, this one is stuck forever. currently running on another thread. is that ok?
         // Decode received frame
-        std::cout<<"decoding frame"<<std::endl;
         std::vector<uchar> decode_buf(recv_buf.begin(), recv_buf.begin() + len);
         cv::Mat frame = cv::imdecode(decode_buf, 1);
         std::cout<<"decoded frame"<<std::endl;
