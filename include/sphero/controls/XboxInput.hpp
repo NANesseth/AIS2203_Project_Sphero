@@ -196,15 +196,15 @@ void run(){
                 drive(speed, steering, stopflag, message);
                 // Now you would use drive_message for sending commands to the robot
             }
-            // Output the left and right joystick position
-            std::cout << "Left Joystick X: " << Player1->getLeftJoystickX() << std::endl;
-            std::cout << "Left Joystick Y: " << Player1->getLeftJoystickY() << std::endl;
-            std::cout << "Right Joystick X: " << Player1->getRightJoystickX() << std::endl;
-            std::cout << "Right Joystick Y: " << Player1->getRightJoystickY() << std::endl;
+         //  // Output the left and right joystick position
+         //  std::cout << "Left Joystick X: " << Player1->getLeftJoystickX() << std::endl;
+         //  std::cout << "Left Joystick Y: " << Player1->getLeftJoystickY() << std::endl;
+         //  std::cout << "Right Joystick X: " << Player1->getRightJoystickX() << std::endl;
+         //  std::cout << "Right Joystick Y: " << Player1->getRightJoystickY() << std::endl;
 
-            //Output the right and left trigger position
-            std::cout << "Right Trigger: " << static_cast<int>(Player1->getRightTrigger() ) << "\n";
-            std::cout << "Left Trigger: " << static_cast<int>(Player1->getLeftTrigger() ) << "\n";
+         //  //Output the right and left trigger position
+         //  std::cout << "Right Trigger: " << static_cast<int>(Player1->getRightTrigger() ) << "\n";
+         //  std::cout << "Left Trigger: " << static_cast<int>(Player1->getLeftTrigger() ) << "\n";
 
         }
         else
