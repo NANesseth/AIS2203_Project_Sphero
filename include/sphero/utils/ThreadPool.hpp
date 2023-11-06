@@ -1,7 +1,3 @@
-//
-// Created by nikol on 02.10.2023.
-//
-
 #ifndef AIS2203_PROJECT_SPHERO_THREADPOOL_HPP
 #define AIS2203_PROJECT_SPHERO_THREADPOOL_HPP
 

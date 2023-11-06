@@ -3,7 +3,6 @@
 #include <windows.h>
 #include <XInput.h>
 #include <iostream>
-#include "sphero/controls/XboxInput.hpp"
 #pragma comment(lib, "XInput.lib")
 
 // XBOX Controller Class Definition
@@ -37,6 +36,42 @@ public:
     // Add the leftTrigger
     BYTE getLeftTrigger();
 };
+
+void drive(float speed, float turn, bool stopflag, std::string& message){
+    if (speed > 0) {
+        message[0] = "drive";
+        message[1] = speed;
+        message[2] = turn;
+    } else if (speed < 0) {
+        message[0] = "drive";
+        message[1] = speed;
+        message[2] = turn;
+    } else {
+        message[0] = "stop";
+    }
+}
+
+float mapJoystickToSteering(int joystickX, int joystickY) {
+    float steering = 0;
+    if (joystickX > 0) {
+        steering = ((float)joystickX / 32767) * 180;  //her tenke ej mapping frå -180 til 180 grade heading 360 blir for mykje.
+    } else if (joystickX < 0) {
+        steering = ((float)joystickX / 32768) * 180;
+    } else if (joystickY > 0) {
+        steering = ((float)joystickY / 32767) * 180;
+    } else if (joystickY < 0) {
+        steering = ((float)joystickY / 32768) * 180;
+    }
+    return steering;
+}
+
+float mapTriggerToAcceleration(BYTE trigger) {
+    float speed = 0;
+    if (trigger > 0) {
+        speed = (float)trigger / 255;
+    }
+    return speed;
+}
 
 CXBOXController::CXBOXController(int playerNumber)
 {
@@ -154,6 +189,6 @@ void run(){
             break;
         }
 }
-
+}
 
 #endif//AIS2203_PROJECT_SPHERO_XBOXINPUT_HPP
