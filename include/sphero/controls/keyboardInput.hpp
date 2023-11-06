@@ -11,7 +11,7 @@ class KeyBoardInput{
             : speed(initialSpeed), heading(initialHeading) {
         }
 
-        std::string KeyboardInput(std::atomic<bool>& videoRunning, std::condition_variable &frameCondition, bool &stopflag){
+        void keyboardInput(std::atomic<bool>& videoRunning, std::condition_variable &frameCondition, bool &stopflag){
         char key;
         std::string msg;
         const char ESC_KEY = 27;
@@ -19,12 +19,27 @@ class KeyBoardInput{
 
         switch (key) {
             case 'w': message[0] = "drive"; break;
-            case 's': message[0] =  "drive_reverse"; break;
-            case 'a': message[2] = heading - headingIncrement break;
-            case 'd': message[2] = heading + headingIncrement; break;
-            case 'p': message[1] = speed + speedIncrement;break;//plus speed
-            case 'm': message[1] = speed - speedIncrement; break;//minus speed
-            case ' ': message[1] = 0;                   break;//press space to stop driving
+            case 's': message[0] = "drive_reverse"; break;
+            case ' ': message[1] = "0"; break;//press space to stop driving
+            case 'a':
+                heading = (heading - headingIncrement) % 360;
+                if (heading < 0) heading += 360;  // Correct negative values
+                message[2] = std::to_string(heading);
+                break;
+            case 'd':
+                heading = (heading + headingIncrement) % 360;
+                message[2] = std::to_string(heading);
+                break;
+            case 'p':
+                speed += speedIncrement;
+                if (speed > maxSpeed) speed = maxSpeed;
+                message[1] = std::to_string(speed);
+                break;
+            case 'm':
+                speed -= speedIncrement;
+                if (speed < 0) speed = 0;
+                message[1] = std::to_string(speed);
+                break;
             case 'v':
                 if (!videoRunning.load()) {
                     message[0] = "video";
@@ -51,16 +66,31 @@ class KeyBoardInput{
         }
     }
 
+    Controller selectController(Controller& controller){//TODO: fix this controller stuff
+        char key;
+        const char ESC_KEY = 27;
+
+        key = (char)cv::waitKey(10);
+        switch (key) {
+            case '1': controller = controller::KEYBOARD; break;
+            case '2': controller = controller::XBOX; break;
+            case ESC_KEY: controller = controller::NOCONTROLLER; break;
+            default: break;
+        }
+        return controller;
+    }
+
     std::string getMessage(){
-        message = this->msg[0] + "," + this->msg[1] + "," + this->msg[2];
-        return message;
+        auto msg = this->message[0] + "," + this->message[1] + "," + this->message[2];
+        return msg;
     }
 
 private:
     int speed = 0;
-    int speedIncrement = 10;
+    static constexpr int speedIncrement = 10;
+    static constexpr int maxSpeed = 255;
     int heading = 0;
-    int headingIncrement = 10;
+    static constexpr int headingIncrement = 10;
     std::array<std::string, 3> message = {"move", "0", "0"};
 
 };

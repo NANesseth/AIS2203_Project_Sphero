@@ -10,6 +10,7 @@
 #include <queue>
 #include <mutex>
 #include <condition_variable>
+#include "sphero/utils/DisplayBuilder.hpp"
 
 class UserInterface {
 private:
@@ -23,16 +24,17 @@ private:
     std::mutex queueMutex;
     std::condition_variable frameCondition;
 
+    DisplayBuilder displayBuilder;
 
     enum Controller {
         KEYBOARD,
-        XBOX
+        XBOX,
+        NOCONTROLLER
     };
     Controller controller = KEYBOARD;
 
-
     void uiLoop() { //TODO: split this into smaller parts
-
+        KeyBoardInput kbInput;
         cv::namedWindow("controlWindow");
         std::string message;
         bool stopflag=false;
@@ -40,20 +42,27 @@ private:
         if (this -> controller == KEYBOARD){
             while (!stopflag) {
                 // Handle input
-                message = keyboardInput(videoRunning, frameCondition, stopflag);//skal returnere en string som e slik: "msg,speed,heading"
+                kbInput.keyboardInput(videoRunning, frameCondition, stopflag);//skal returnere en string som e slik: "msg,speed,heading"
+                message = kbInput.getMessage();
                 send_input(message);
             }
             cv::destroyWindow(windowName);
         }
-        elif (this -> controller == XBOX){
-            continue; // TODO: implement xbox controller
+        else if (this -> controller == XBOX){
+            // TODO: implement xbox controller
+        }else{
+            displayBuilder.buildMainMenu();
+
+            while(this->controller == NOCONTROLLER){
+                this->controller = kbInput.selectController(this->controller);
+
+            }
         }
     }
 
 
     void displayFrame(cv::Mat& frame) {
         std::cout << "display"<<std::endl;
-
         if (!frame.empty()) {
             cv::imshow(windowName, frame);
             cv::waitKey(1);
@@ -139,7 +148,6 @@ public:
                     if (!videoRunning) {
                         break;
                     }
-                    // Get the new frame from the queue
 
                     frame = std::move(frameQueue.front());
                     std::cout << "retrieved frame from queue" << std::endl;
@@ -147,7 +155,6 @@ public:
 
                 }
                 displayFrame(frame);
-
             }
         }
 
