@@ -24,58 +24,16 @@ private:
     std::condition_variable frameCondition;
 
     void uiLoop() { //TODO: split this into smaller parts
-        char key;
-        std::string msg;
-        const char ESC_KEY = 27;
+
         cv::namedWindow("controlWindow");
+        std::string message;
+        bool stopflag=false;
 
-        while (true) {
+        while (!stopflag) {
             // Handle input
-            key = (char)cv::waitKey(10);
-            if (key == ESC_KEY || key == 'v' || key == 'c' || key == 'w' || key == 's' || key == 'a' || key == 'd' || key == 'g') {
-                std::cout << key << " is pressed" << std::endl;
-            }
-            switch (key) {
-                case 'w': msg = "forward"; break;
-                case 's': msg = "backward"; break;
-                case 'a': msg = "left"; break;
-                case 'd': msg = "right"; break;
-                case 'p': msg = "+,10"; break;//plus speed
-                case 'm': msg = "-,10"; break;//minus speed
-                case 'v':
-                    if (!videoRunning.load()) {
-                        msg = "video";
-                        videoRunning.store(true);
-                    }
-                    break;
-                case 'c':
-                    if (videoRunning.load()) {
-                        msg = "stop_video";
-                        videoRunning.store(false);
-                        frameCondition.notify_all(); // Wake up any waiting threads
-                    }
-                    break;
-                case 'g': msg = "gas"; break;
-                case ESC_KEY:
-                    std::cout << "ESC key pressed. Exiting.\n";
-                    msg = "exit";
-                    videoRunning.store(false);
-                    break;
-                default:
-                    if (key != -1) { // -1 corresponds to no key being pressed
-                        std::cout << "no command\n";
-                    }
-                    break;
-            }
-            send_input(msg);
-
-            if (msg == "exit") {
-                break;
-            }
-
-            msg.clear(); // Clear the message for the next input
+            message = keyboardInput(videoRunning, frameCondition, stopflag);
+            send_input(message);
         }
-
         cv::destroyWindow(windowName);
     }
 
@@ -158,8 +116,6 @@ public:
                 cv::Mat frame;
                 {
                     std::unique_lock<std::mutex> lock(queueMutex);
-                    std::cout << "testr" << std::endl;
-
                     // Wait for the condition variable to notify that there's a new frame or the video stops running
                     frameCondition.wait(lock, [&]() { return !frameQueue.empty() || !videoRunning; });
                     if (!videoRunning) {
@@ -170,10 +126,8 @@ public:
                     frame = std::move(frameQueue.front());
                     std::cout << "retrieved frame from queue" << std::endl;
                     frameQueue.pop();
-                    std::cout << "testeepoped" << std::endl;
 
                 }
-                std::cout << "testeeaweed" << std::endl;
                 displayFrame(frame);
 
             }
