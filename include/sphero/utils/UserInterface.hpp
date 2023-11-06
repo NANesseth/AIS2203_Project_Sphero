@@ -40,6 +40,8 @@ private:
                 case 's': msg = "backward"; break;
                 case 'a': msg = "left"; break;
                 case 'd': msg = "right"; break;
+                case 'p': msg = "+,10"; break;//plus speed
+                case 'm': msg = "-,10"; break;//minus speed
                 case 'v':
                     if (!videoRunning.load()) {
                         msg = "video";
