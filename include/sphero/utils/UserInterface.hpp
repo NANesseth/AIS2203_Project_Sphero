@@ -23,19 +23,33 @@ private:
     std::mutex queueMutex;
     std::condition_variable frameCondition;
 
+
+    enum Controller {
+        KEYBOARD,
+        XBOX
+    };
+    Controller controller = KEYBOARD;
+
+
     void uiLoop() { //TODO: split this into smaller parts
 
         cv::namedWindow("controlWindow");
         std::string message;
         bool stopflag=false;
 
-        while (!stopflag) {
-            // Handle input
-            message = keyboardInput(videoRunning, frameCondition, stopflag);//skal returnere en string som e slik: "msg,speed,heading"
-            send_input(message);
+        if (this -> controller == KEYBOARD){
+            while (!stopflag) {
+                // Handle input
+                message = keyboardInput(videoRunning, frameCondition, stopflag);//skal returnere en string som e slik: "msg,speed,heading"
+                send_input(message);
+            }
+            cv::destroyWindow(windowName);
         }
-        cv::destroyWindow(windowName);
+        elif (this -> controller == XBOX){
+            continue; // TODO: implement xbox controller
+        }
     }
+
 
     void displayFrame(cv::Mat& frame) {
         std::cout << "display"<<std::endl;
@@ -63,6 +77,10 @@ public:
             networkThread.join();
         }
         cv::destroyWindow(windowName);
+    }
+
+    void setController(Controller controller) {
+        this->controller = controller;
     }
 
     void send_input(std::string& input) {

@@ -4,15 +4,14 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <utility>
-class keyBoardInput(){
+class KeyBoardInput{
 
     public:
-        keyBoardInput(int initialSpeed = 0, int initialHeading = 0)
+        KeyBoardInput(int initialSpeed = 0, int initialHeading = 0)
             : speed(initialSpeed), heading(initialHeading) {
         }
 
-
-        std::string keyboardInput(std::atomic<bool>& videoRunning, std::condition_variable &frameCondition, bool &stopflag){
+        std::string KeyboardInput(std::atomic<bool>& videoRunning, std::condition_variable &frameCondition, bool &stopflag){
         char key;
         std::string msg;
         const char ESC_KEY = 27;
@@ -20,14 +19,15 @@ class keyBoardInput(){
 
         switch (key) {
             case 'w': message[0] = "drive"; break;
-            case 's': message[0] = speed = ; break;
-            case 'a': message[2] = heading+headingConstant break;
-            case 'd': message[2] = "right"; break;
-            case 'p': message[1] = speed + speedConstant ;break;//plus speed
-            case 'm': message[1] = speed - speedConstant; break;//minus speed
+            case 's': message[0] =  "drive_reverse"; break;
+            case 'a': message[2] = heading - headingIncrement break;
+            case 'd': message[2] = heading + headingIncrement; break;
+            case 'p': message[1] = speed + speedIncrement;break;//plus speed
+            case 'm': message[1] = speed - speedIncrement; break;//minus speed
+            case ' ': message[1] = 0;                   break;//press space to stop driving
             case 'v':
                 if (!videoRunning.load()) {
-                    msg = "video";
+                    message[0] = "video";
                     videoRunning.store(true);
                 }
                 break;
@@ -36,12 +36,9 @@ class keyBoardInput(){
                     message[0] = "stop_video";
                     frameCondition.notify_all(); // Wake up any waiting threads
                     videoRunning.store(false);
-
                 }
                 break;
-            case 'g': msg = "gas"; break;
             case ESC_KEY:
-                std::cout << "ESC key pressed. Exiting.\n";
                 message[0] = "exit";
                 videoRunning.store(false);
                 stopflag = true;
@@ -52,15 +49,19 @@ class keyBoardInput(){
                 }
                 break;
         }
-        return msg;
+    }
+
+    std::string getMessage(){
+        message = this->msg[0] + "," + this->msg[1] + "," + this->msg[2];
+        return message;
     }
 
 private:
     int speed = 0;
-    int speedConstant = 10;
+    int speedIncrement = 10;
     int heading = 0;
-    int headingConstant = 10;
-    std::array<std::string,int,int> message = ["move",0,0];
+    int headingIncrement = 10;
+    std::array<std::string, 3> message = {"move", "0", "0"};
 
 };
 
