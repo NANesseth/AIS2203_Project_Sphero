@@ -31,7 +31,7 @@ private:
 
         while (!stopflag) {
             // Handle input
-            message = keyboardInput(videoRunning, frameCondition, stopflag);
+            message = keyboardInput(videoRunning, frameCondition, stopflag);//skal returnere en string som e slik: "msg,speed,heading"
             send_input(message);
         }
         cv::destroyWindow(windowName);
