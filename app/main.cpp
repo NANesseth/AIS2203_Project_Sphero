@@ -1,5 +1,4 @@
-#include "sphero/cameras/RaspberryCamera.hpp"
-
+#include "sphero/sphero.hpp"
 #include <iostream>
 
 int main() {
