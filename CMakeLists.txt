@@ -5,6 +5,7 @@ project(AIS2203_Project_Sphero)
 
 option(SPHERO_BUILD_APP "Build application" ON)
 option(SPHERO_BUILD_TESTS "Build test suite" ON)
+option(SPHERO_BUILD_DEMOS "Build demo suite" ON)
 
 
 #       [///]    GLOBAL INTERNAL    [\\\]
@@ -31,6 +32,10 @@ add_subdirectory(src)
 
 if (SPHERO_BUILD_APP)
     add_subdirectory(app)
+endif ()
+
+if (SPHERO_BUILD_DEMOS)
+    add_subdirectory(demos)
 endif ()
 
 if (SPHERO_BUILD_TESTS)
