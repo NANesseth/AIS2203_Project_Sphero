@@ -13,70 +13,10 @@
 #include "sphero/utils/DisplayBuilder.hpp"
 
 class UserInterface {
-private:
-    UdpClient& udpClient;
-    const std::string windowName = "Control Window";
-    std::thread uiThread;
-    std::thread networkThread;
-    std::atomic<bool> videoRunning = false;
-
-    std::queue<cv::Mat> frameQueue;
-    std::mutex queueMutex;
-    std::condition_variable frameCondition;
-
-    DisplayBuilder displayBuilder;
-
-    enum Controller {
-        KEYBOARD,
-        XBOX,
-        NOCONTROLLER
-    };
-    Controller controller = KEYBOARD;
-
-    void uiLoop() { //TODO: split this into smaller parts
-        KeyBoardInput kbInput;
-        cv::namedWindow("controlWindow");
-        std::string message;
-        bool stopflag=false;
-
-        if (this -> controller == KEYBOARD){
-            while (!stopflag) {
-                // Handle input
-                kbInput.keyboardInput(videoRunning, frameCondition, stopflag);//skal returnere en string som e slik: "msg,speed,heading"
-                message = kbInput.getMessage();
-                send_input(message);
-            }
-            cv::destroyWindow(windowName);
-        }
-        else if (this -> controller == XBOX){
-            // TODO: implement xbox controller
-        }else{
-            displayBuilder.buildMainMenu();
-
-            while(this->controller == NOCONTROLLER){
-                this->controller = kbInput.selectController(this->controller);
-
-            }
-        }
-    }
-
-
-    void displayFrame(cv::Mat& frame) {
-        std::cout << "display"<<std::endl;
-        if (!frame.empty()) {
-            cv::imshow(windowName, frame);
-            cv::waitKey(1);
-        } else {
-            std::cerr << "Empty or invalid frame received.\n";
-        }
-    }
-
-
 public:
-    UserInterface(UdpClient& client) : udpClient(client) {
+    explicit UserInterface(UdpClient& client) : udpClient(client), controller(Controller::NOCONTROLLER) {
         cv::namedWindow(windowName);
     }
-
     ~UserInterface() {
         videoRunning.store(false);
         if (uiThread.joinable()) {
@@ -87,6 +27,11 @@ public:
         }
         cv::destroyWindow(windowName);
     }
+    enum Controller {
+        KEYBOARD,
+        XBOX,
+        NOCONTROLLER
+    };
 
     void setController(Controller controller) {
         this->controller = controller;
@@ -166,6 +111,62 @@ public:
         }
         std::cout<<"threads joined"<<std::endl;
     }
+
+private:
+    UdpClient& udpClient;
+    const std::string windowName = "Control Window";
+    std::thread uiThread;
+    std::thread networkThread;
+    std::atomic<bool> videoRunning = false;
+
+    std::queue<cv::Mat> frameQueue;
+    std::mutex queueMutex;
+    std::condition_variable frameCondition;
+
+    DisplayBuilder displayBuilder;
+    UserInterface::Controller controller;
+
+
+
+
+    void uiLoop() {
+        KeyboardInput kbInput; //TODO: wtf e gale
+        cv::namedWindow("controlWindow");
+        std::string message;
+        bool stopflag=false;
+
+        if (this -> controller == KEYBOARD){
+            while (!stopflag) {
+                // Handle input
+                kbInput.getKeyboardInput(videoRunning, frameCondition, stopflag);//skal returnere en string som e slik: "msg,speed,heading"
+                message = kbInput.getMessage();
+                send_input(message);
+            }
+            cv::destroyWindow(windowName);
+        }
+        else if (this -> controller == XBOX){
+            // TODO: implement xbox controller
+        }else{
+            displayBuilder.buildMainMenu();
+
+            while(this->controller == NOCONTROLLER){
+                this->controller = kbInput.selectController(this->controller);
+
+            }
+        }
+    }
+
+
+    void displayFrame(cv::Mat& frame) {
+        std::cout << "display"<<std::endl;
+        if (!frame.empty()) {
+            cv::imshow(windowName, frame);
+            cv::waitKey(1);
+        } else {
+            std::cerr << "Empty or invalid frame received.\n";
+        }
+    }
+
 };
 
 #endif // AIS2203_PROJECT_SPHERO_USERINTERFACE_HPP

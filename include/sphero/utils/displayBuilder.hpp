@@ -47,7 +47,7 @@ public:
         addText("v - start video", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
         addText("c - stop video", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
         addText("ESC - exit", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
-        text_y = 0
+        text_y = 0;
         try {
             cv::imshow(windowName, frame);
             cv::waitKey(1);
