@@ -4,12 +4,12 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <utility>
-#include "sphero/utils/UserInterface.hpp"
+#include "sphero/utils/enums.hpp"
 
 
 class KeyboardInput{
     public:
-        KeyboardInput(int initialSpeed = 0, int initialHeading = 0)
+        explicit KeyboardInput(int initialSpeed = 0, int initialHeading = 0)
             : speed(initialSpeed), heading(initialHeading) {
         }
 
@@ -68,15 +68,15 @@ class KeyboardInput{
             }
     }
 
-    UserInterface::Controller selectController(UserInterface::Controller& controller){//TODO: fix this controller stuff
+    enums::Controller selectController(enums::Controller& controller){//TODO: fix this controller stuff
         char key;
         const char ESC_KEY = 27;
 
         key = (char)cv::waitKey(10);
         switch (key) {
-            case '1': controller = UserInterface::KEYBOARD; break;
-            case '2': controller = UserInterface::XBOX; break;
-            case ESC_KEY: controller = UserInterface::NOCONTROLLER; break;
+            case '1': controller = enums::KEYBOARD; break;
+            case '2': controller = enums::XBOX; break;
+            case ESC_KEY: controller = enums::NOCONTROLLER; break;
             default: break;
         }
         return controller;

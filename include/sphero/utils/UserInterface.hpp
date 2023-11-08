@@ -10,11 +10,12 @@
 #include <queue>
 #include <mutex>
 #include <condition_variable>
+#include "sphero/utils/enums.hpp"
 #include "sphero/utils/DisplayBuilder.hpp"
 
 class UserInterface {
 public:
-    explicit UserInterface(UdpClient& client) : udpClient(client), controller(Controller::NOCONTROLLER) {
+    explicit UserInterface(UdpClient& client) : udpClient(client), controller(enums::Controller::NOCONTROLLER) {
         cv::namedWindow(windowName);
     }
     ~UserInterface() {
@@ -26,15 +27,6 @@ public:
             networkThread.join();
         }
         cv::destroyWindow(windowName);
-    }
-    enum Controller {
-        KEYBOARD,
-        XBOX,
-        NOCONTROLLER
-    };
-
-    void setController(Controller controller) {
-        this->controller = controller;
     }
 
     void send_input(std::string& input) {
@@ -124,38 +116,47 @@ private:
     std::condition_variable frameCondition;
 
     DisplayBuilder displayBuilder;
-    UserInterface::Controller controller;
+    enums::Controller controller;
 
 
 
 
     void uiLoop() {
         KeyboardInput kbInput; //TODO: wtf e gale
-        cv::namedWindow("controlWindow");
+
         std::string message;
         bool stopflag=false;
-
+        using namespace enums;
+        std::cout<<controller<<std::endl;
         if (this -> controller == KEYBOARD){
+            displayBuilder.buildKeyboardMenu();
+            cv::waitKey(1);
             while (!stopflag) {
                 // Handle input
                 kbInput.getKeyboardInput(videoRunning, frameCondition, stopflag);//skal returnere en string som e slik: "msg,speed,heading"
                 message = kbInput.getMessage();
                 send_input(message);
             }
-            cv::destroyWindow(windowName);
+            displayBuilder.destroyWindow();
         }
         else if (this -> controller == XBOX){
-            // TODO: implement xbox controller
+            displayBuilder.buildXboxMenu();
+            while(!stopflag){
+                // TODO: implement xbox controller
+            }
+            displayBuilder.destroyWindow();
         }else{
             displayBuilder.buildMainMenu();
-
+            cv::waitKey(1);
             while(this->controller == NOCONTROLLER){
                 this->controller = kbInput.selectController(this->controller);
+                std::cout<<"controller is "<< controller <<std::endl;
 
             }
+            displayBuilder.destroyWindow();
+
         }
     }
-
 
     void displayFrame(cv::Mat& frame) {
         std::cout << "display"<<std::endl;
@@ -166,7 +167,6 @@ private:
             std::cerr << "Empty or invalid frame received.\n";
         }
     }
-
 };
 
 #endif // AIS2203_PROJECT_SPHERO_USERINTERFACE_HPP
