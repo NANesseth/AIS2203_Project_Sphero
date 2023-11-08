@@ -123,40 +123,42 @@ private:
 
     void uiLoop() {
         KeyboardInput kbInput; //TODO: wtf e gale
-
+        bool stopflag = false;
         std::string message;
-        bool stopflag=false;
         using namespace enums;
-        std::cout<<controller<<std::endl;
-        if (this -> controller == KEYBOARD){
-            displayBuilder.buildKeyboardMenu();
-            cv::waitKey(1);
-            while (!stopflag) {
-                // Handle input
-                kbInput.getKeyboardInput(videoRunning, frameCondition, stopflag);//skal returnere en string som e slik: "msg,speed,heading"
-                message = kbInput.getMessage();
-                send_input(message);
-            }
-            displayBuilder.destroyWindow();
-        }
-        else if (this -> controller == XBOX){
-            displayBuilder.buildXboxMenu();
-            while(!stopflag){
-                // TODO: implement xbox controller
-            }
-            displayBuilder.destroyWindow();
-        }else{
-            displayBuilder.buildMainMenu();
-            cv::waitKey(1);
-            while(this->controller == NOCONTROLLER){
-                this->controller = kbInput.selectController(this->controller);
-                std::cout<<"controller is "<< controller <<std::endl;
 
+        while (!stopflag){
+            std::cout<<controller<<std::endl;
+            if (this -> controller == KEYBOARD){
+                displayBuilder.buildKeyboardMenu();
+                cv::waitKey(1);
+                while (this->controller == KEYBOARD) {
+                    // Handle input
+                    kbInput.getKeyboardInput(videoRunning, frameCondition,  this->controller);//skal returnere en string som e slik: "msg,speed,heading"
+                    message = kbInput.getMessage();
+                    std::cout<<"Controller is "<< controller <<std::endl;
+                    send_input(message);
+                }
+                displayBuilder.destroyWindow();
             }
-            displayBuilder.destroyWindow();
+            else if (this -> controller == XBOX){
+                displayBuilder.buildXboxMenu();
+                while(this-> controller == XBOX){
+                    // TODO: implement xbox controller
+                }
+                displayBuilder.destroyWindow();
 
+            }else{
+                displayBuilder.buildMainMenu();
+                cv::waitKey(1);
+                while(this->controller == NOCONTROLLER && !stopflag){
+                    stopflag = kbInput.selectController(this->controller);
+                    std::cout<<"controller is "<< controller <<std::endl;
+                }
+                displayBuilder.destroyWindow();
+                }
+            }
         }
-    }
 
     void displayFrame(cv::Mat& frame) {
         std::cout << "display"<<std::endl;

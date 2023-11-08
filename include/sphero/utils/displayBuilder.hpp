@@ -35,19 +35,17 @@ public:
     }
 
     void destroyWindow(){
+        cv::Mat blackFrame = cv::Mat::zeros(windowWidth,windowHeight,CV_8UC3);
+        cv::Mat frame = cv::Mat::zeros(windowWidth,windowHeight,CV_8UC3);
+        cv::imshow(windowName, blackFrame);
+        cv::waitKey(1);
         cv::destroyWindow(this->windowName);
     }
 
     void buildKeyboardMenu() {
         this -> windowName = "Keyboard Menu";
-        // Reset y position for each menu build
-        try {
-            cv::imshow(windowName, frame);
-
-        } catch (const cv::Exception& e) {
-            std::cerr << "OpenCV error occurred: " << e.what() << std::endl;
-        }
         frame = blackFrame;
+
         addText("w - forward", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
         addText("s - reverse", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
         addText("a - left", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
@@ -59,13 +57,18 @@ public:
         addText("c - stop video", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
         addText("ESC - exit", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
         text_y = 0;
-        cv::waitKey(1);
-
+        try {
+            cv::imshow(windowName, frame);
+            cv::waitKey(1);
+        } catch (const cv::Exception& e) {
+            std::cerr << "OpenCV error occurred: " << e.what() << std::endl;
+        }
     }
 
     void buildMainMenu(){
         this-> windowName = "Main Menu";
         frame = blackFrame;
+
         addText("1 for keyboard controls", cv::Point(5, this->text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
         addText("2 for Xbox controls", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
         text_y=0;
@@ -75,13 +78,14 @@ public:
         } catch (const cv::Exception& e) {
             std::cerr << "OpenCV error occurred: " << e.what() << std::endl;
         }
-
     }
 
 private:
     const int lineDistance = 15;
     int text_y = lineDistance;
-    cv::Mat blackFrame = cv::Mat::zeros(100,100,CV_8UC3);
+    int windowWidth = 500;
+    int windowHeight = 500;
+    cv::Mat blackFrame = cv::Mat::zeros(windowWidth,windowHeight,CV_8UC3);
     cv::Mat frame = cv::Mat::zeros(100,100,CV_8UC3);
     std::string windowName;
 

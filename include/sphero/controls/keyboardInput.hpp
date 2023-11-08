@@ -13,7 +13,7 @@ class KeyboardInput{
             : speed(initialSpeed), heading(initialHeading) {
         }
 
-        void getKeyboardInput(std::atomic<bool>& videoRunning, std::condition_variable &frameCondition, bool &stopflag){
+        void getKeyboardInput(std::atomic<bool>& videoRunning, std::condition_variable &frameCondition, enums::Controller& controller){
             char key;
             std::string msg;
             const char ESC_KEY = 27;
@@ -58,7 +58,7 @@ class KeyboardInput{
                 case ESC_KEY:
                     message[0] = "exit";
                     videoRunning.store(false);
-                    stopflag = true;
+                    controller = enums::NOCONTROLLER;
                     break;
                 default:
                     if (key != -1) { // -1 corresponds to no key being pressed
@@ -68,18 +68,19 @@ class KeyboardInput{
             }
     }
 
-    enums::Controller selectController(enums::Controller& controller){//TODO: fix this controller stuff
+    bool selectController(enums::Controller& controller){//TODO: fix this controller stuff
         char key;
         const char ESC_KEY = 27;
+        bool stopflag = false;
 
         key = (char)cv::waitKey(10);
         switch (key) {
             case '1': controller = enums::KEYBOARD; break;
             case '2': controller = enums::XBOX; break;
-            case ESC_KEY: controller = enums::NOCONTROLLER; break;
+            case ESC_KEY: stopflag = true; break;
             default: break;
         }
-        return controller;
+        return stopflag;
     }
 
     std::string getMessage(){
@@ -94,6 +95,7 @@ private:
     int heading = 0;
     static constexpr int headingIncrement = 10;
     std::array<std::string, 3> message = {"move", "0", "0"};
+    bool stopflag = false;
 
 };
 
