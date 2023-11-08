@@ -13,12 +13,19 @@ class CXBOXController
 private:
     XINPUT_STATE _controllerState;
     int _controllerNum;
+    int speed = 0;
+    int heading = 0;
+    static constexpr int maxSpeed = 255;
+
 public:
     CXBOXController(int playerNumber);
     XINPUT_STATE GetState();
     bool IsConnected();
     void Vibrate(int leftVal = 0, int rightVal = 0);
     bool videoRunning = false;
+    std::array<std::string, 3> message = {"drive", "0", "0"};
+
+
 
     // Remove the parameters from the getLeftJoystickX method
     short getLeftJoystickX();
@@ -33,21 +40,28 @@ public:
     short getRightJoystickY();
 
     // Add the rightTrigger
-    BYTE getRightTrigger();
+    unsigned char getRightTrigger();
 
     // Add the leftTrigger
-    BYTE getLeftTrigger();
+    unsigned char getLeftTrigger();
+
+    //Get message
+    std::string getMessage(){
+        auto msg = this->message[0] + "," + this->message[1] + "," + this->message[2];
+        return msg;
+    }
 };
 
-std::vector<std::string> message = {"move"};
-void drive(float speed, float turn, bool stopflag, std::vector<std::string>& message){
+void drive(float speed, float heading, bool stopflag, std::vector<std::string>& message){
     message.clear(); // clear messages
     if (stopflag || (speed == 0)) {
-        message.push_back("stop");
+        message.push_back("drive");
+        message.push_back("0");
+        message.push_back("0");
     } else {
         message.push_back("drive");
         message.push_back(std::to_string(speed));
-        message.push_back(std::to_string(turn));
+        message.push_back(std::to_string(heading));
     }
 }
 
@@ -146,6 +160,8 @@ BYTE CXBOXController::getLeftTrigger(){
     return _controllerState.Gamepad.bLeftTrigger;
 }
 
+
+
 CXBOXController* Player1;
 
 void run(){
@@ -176,12 +192,12 @@ void run(){
                 // to clear previous drive commands
                 message.clear();
 
-                float steering = 0;
+                float heading = 0;
                 float speed = 0;
                 bool stopflag = false;
 
                 // Map the joystick X and Y to steering
-                steering = mapJoystickToSteering(Player1->getLeftJoystickX(), Player1->getLeftJoystickY());
+                heading = mapJoystickToSteering(Player1->getLeftJoystickX(), Player1->getLeftJoystickY());
 
                 // Map the R trigger to acceleration
                 float acceleration = mapTriggerToAcceleration(Player1->getRightTrigger());
@@ -193,19 +209,10 @@ void run(){
                 speed = acceleration - deceleration;
 
                 // Drive using the mapped speed and steering
-                drive(speed, steering, stopflag, message);
-                // Now you would use drive_message for sending commands to the robot
+                drive(speed, heading, stopflag, message);
+
+                message.push_back(Player1->getMessage());
             }
-         //  // Output the left and right joystick position
-         //  std::cout << "Left Joystick X: " << Player1->getLeftJoystickX() << std::endl;
-         //  std::cout << "Left Joystick Y: " << Player1->getLeftJoystickY() << std::endl;
-         //  std::cout << "Right Joystick X: " << Player1->getRightJoystickX() << std::endl;
-         //  std::cout << "Right Joystick Y: " << Player1->getRightJoystickY() << std::endl;
-
-         //  //Output the right and left trigger position
-         //  std::cout << "Right Trigger: " << static_cast<int>(Player1->getRightTrigger() ) << "\n";
-         //  std::cout << "Left Trigger: " << static_cast<int>(Player1->getLeftTrigger() ) << "\n";
-
         }
         else
         {
