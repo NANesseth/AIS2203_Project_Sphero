@@ -15,9 +15,8 @@ private:
     int _controllerNum;
     int speed = 0;
     int heading = 0;
-    static constexpr int maxSpeed = 255;
-    bool videoRunning = false;
-    std::array<std::string, 3> message = {"drive", "0", "0"};
+    static constexpr int maxSpeed = 100;
+    std::string msg = "empty";
 
 public:
 
@@ -75,58 +74,79 @@ public:
     }
 
     std::string getMessage(){
-        auto msg = this->message[0] + "," + this->message[1] + "," + this->message[2];
-        return msg;
-    }
-
-    void createMessage(int speed, int heading, bool stopflag){
-        if (stopflag || (speed == 0)) {
-            this->message[0] = "drive";
-            this->message[1] = "0";
-            this->message[2] = "0";
-        } else {
-            this->message[0] = "drive";
-            this->message[1] = std::to_string(speed);
-            this->message[2] = std::to_string(heading);
-        }
+        std::string message = msg + "," + std::to_string(speed) + "," + std::to_string(heading);
+        return message;
     }
 
     float mapJoystickToSteering(int joystickX, int joystickY) {
-        float steering = 0;
-        if (joystickX > 0) {
-            steering = ((float)joystickX / 32767) * 180;
-        } else if (joystickX < 0) {
-            steering = ((float)joystickX / 32768) * 180;
-        } else if (joystickY > 0) {
-            steering = ((float)joystickY / 32767) * 180;
-        } else if (joystickY < 0) {
-            steering = ((float)joystickY / 32768) * 180;
+        // Maximum change in angle per call
+        const float maxTurnRate = 10.0; // Can be tuned for finer control
+
+        float turnRate = 0.0f;
+
+        // Calculate turnRate based on how far the joystick is pushed to the side.
+        std::cout << "joystickX: " << joystickX << std::endl;
+        if (joystickX > 10000) {
+            float normalizedX = ((float)joystickX - 10000) / (32767 - 10000);
+            turnRate = maxTurnRate * normalizedX;
+            heading += turnRate;
         }
-        return steering;
+        else if (joystickX < -10000) {
+            float normalizedX = ((float)joystickX + 10000) / (32768 - 10000);
+            turnRate = maxTurnRate * normalizedX;
+            heading += turnRate;
+        }
+
+        // Correction to keep heading in the range [0, 360)
+        if (heading >= 360.0) heading -= 360.0;
+        else if (heading < 0.0) heading += 360.0;
+
+        return heading;
     }
 
-    float mapTriggerToAcceleration(BYTE trigger) {
-        float speed = 0;
-        if (trigger > 0) {
-            speed = (float)trigger / 255;
+    float mapTriggerToRtrigger(BYTE trigger) {
+        if (trigger > 10) {
+            msg = "drive";
+            speed = (BYTE)trigger;
+            if (speed > maxSpeed) speed = maxSpeed;
+        }
+        else {
+            speed = 0;
         }
         return speed;
     }
-    void run(){
+    float mapTriggerToLtrigger(BYTE trigger) {
+        if (trigger > 0) {
+            msg = "drive_reverse";
+            speed = (BYTE) trigger;
+            if (speed > maxSpeed) speed = maxSpeed;
+        }
+        return speed;
+    }
+    void run(std::atomic<bool>& videoRunning, std::condition_variable &frameCondition, enums::Controller& controller){
             if(IsConnected())
             {
                 if(GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A)
                 {
-                    videoRunning = true;
-                    std::cout << "video";
-                    message[0] = "video";
+                    if (!videoRunning.load()){
+                        std::cout << "video";
+                        msg = "video";
+                        videoRunning.store(true);
+                    }
                 }
 
                 if(GetState().Gamepad.wButtons & XINPUT_GAMEPAD_B)
                 {
-                    videoRunning = false;
-                    std::cout << "stop_video";
-                    message[0] = "stop_video";
+                    if (videoRunning.load()) {
+                        msg = "stop_video";
+                        frameCondition.notify_all(); // Wake up any waiting threads
+                        videoRunning.store(false);
+                    }
+                }
+                if(GetState().Gamepad.wButtons & XINPUT_GAMEPAD_START){
+                    msg = "exit";
+                    videoRunning.store(false);
+                    controller = enums::NOCONTROLLER;
                 }
 
 
@@ -136,17 +156,23 @@ public:
                     // Map the joystick X and Y to steering
                     this->heading = mapJoystickToSteering(getLeftJoystickX(), getLeftJoystickY());
 
-                    // Map the R trigger to acceleration
-                    float acceleration = mapTriggerToAcceleration(getRightTrigger());
+                    float acceleration = mapTriggerToRtrigger(getRightTrigger());
 
                     // Map the L trigger to deceleration
-                    float deceleration = mapTriggerToAcceleration(getLeftTrigger());
+                    float deceleration = mapTriggerToLtrigger(getLeftTrigger());
+
+                    // Map the R trigger to acceleration
+                    if(acceleration > deceleration){
+                        speed  = mapTriggerToRtrigger(getRightTrigger());
+                    }
+                    else{
+                        speed = mapTriggerToLtrigger(getLeftTrigger());
+                    }
+
 
                     // Deduct deceleration from acceleration to get the final speed
-                    this->speed = acceleration - deceleration;
+                    std::cout << "speed: " << speed << std::endl;
 
-                    // Drive using the mapped speed and steering
-                    createMessage(this->speed, this->heading, stopflag);
                 }
             }
             else

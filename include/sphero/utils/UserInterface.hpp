@@ -84,19 +84,25 @@ public:
             if (videoRunning.load()) {
                 cv::Mat frame;
                 {
+                    std::cout << "entered display mut next" << std::endl;
                     std::unique_lock<std::mutex> lock(queueMutex);
+                    std::cout << "locked mutex display" << std::endl;
                     // Wait for the condition variable to notify that there's a new frame or the video stops running
                     frameCondition.wait(lock, [&]() { return !frameQueue.empty() || !videoRunning; });
                     if (!videoRunning) {
                         break;
                     }
+                    std::cout << "got frame from queue" << std::endl;
+
 
                     frame = std::move(frameQueue.front());
                     std::cout << "retrieved frame from queue" << std::endl;
                     frameQueue.pop();
 
                 }
+                std::cout << "displaying frame" << std::endl;
                 displayFrame(frame);
+                std::cout << "frame displayed" << std::endl;
             }
         }
 
@@ -152,11 +158,12 @@ private:
                 cv::waitKey(1);
                 while(this-> controller == XBOX){
                     // TODO: implement xbox controller
-                    xboxController.run();
+                    xboxController.run(videoRunning, frameCondition, this->controller);
                     // Get the message from controller
                     message = xboxController.getMessage();
 
                     send_input(message);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 }
                 displayBuilder.destroyWindow();
 
