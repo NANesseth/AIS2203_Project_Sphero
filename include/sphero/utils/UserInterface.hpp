@@ -47,17 +47,21 @@ public:
 
     void networking() {
         while(true) {//TODO: make this smarter. need a stopflag
-            std::cout << "entered networkin" << std::endl;
+            std::cout << "entered networking" << std::endl;
             while (videoRunning.load()) {
+                std::cout << "loaded video running" << std::endl;
                 cv::Mat newFrame = udpClient.receiveFrame();
                 {
                     std::unique_lock<std::mutex> lock(queueMutex);
+                    std::cout << "locked mutex net" << std::endl;
                     if(frameQueue.size() >= 10){
                         frameQueue.pop();
                     }
                     frameQueue.push(std::move(newFrame));
+                    std::cout << "frame added to queue" << std::endl;
                     // Notify the display thread that a new frame is available
                     frameCondition.notify_one();
+                    std::cout << "notified frame condition" << std::endl;
                 }
                 std::cout << "frame added to queue" << std::endl;
             }

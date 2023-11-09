@@ -38,12 +38,14 @@ public:
 
     void sendMessage(const std::string& message) {
         std::unique_lock<std::mutex> lock(mtx);
-        std::cout<<"locked string, sending message"<<std::endl;
+        std::cout<<"locked thread, sending message"<<std::endl;
         socket->send_to(boost::asio::buffer(message), serverEndpoint);
         lastMessage = message;
+        std::cout<<"unlocked thread, sent message"<<std::endl;
     }
 
     cv::Mat receiveFrame() {
+        std::cout<<"entered receive frame"<<std::endl;
         std::unique_lock<std::mutex> lock(mtx);
         boost::array<char, 65536> recv_buf;
         int len = socket->receive_from(boost::asio::buffer(recv_buf), this->serverEndpoint);
