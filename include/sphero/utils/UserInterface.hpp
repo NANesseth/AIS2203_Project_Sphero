@@ -12,6 +12,7 @@
 #include <condition_variable>
 #include "sphero/utils/enums.hpp"
 #include "sphero/utils/DisplayBuilder.hpp"
+#include "sphero/controls/XboxInput.hpp"
 
 class UserInterface {
 public:
@@ -122,7 +123,8 @@ private:
 
 
     void uiLoop() {
-        KeyboardInput kbInput; //TODO: wtf e gale
+        KeyboardInput kbInput;
+        CXBOXController xboxController(1);
         bool stopflag = false;
         std::string message;
         using namespace enums;
@@ -145,10 +147,17 @@ private:
                 displayBuilder.buildXboxMenu();
                 while(this-> controller == XBOX){
                     // TODO: implement xbox controller
+                    std::thread t1([&] { xboxController.run(); });
+                    t1.detach();
+                    // Get the message from controller
+                    message = xboxController.getMessage();
+
+                    send_input(message);
                 }
                 displayBuilder.destroyWindow();
 
-            }else{
+            }
+            else{
                 displayBuilder.buildMainMenu();
                 cv::waitKey(1);
                 while(this->controller == NOCONTROLLER && !stopflag){

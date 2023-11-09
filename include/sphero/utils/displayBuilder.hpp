@@ -23,9 +23,17 @@ public:
     void buildXboxMenu() {
         this -> windowName = "Xbox Controller Menu";
         frame = blackFrame;
-        addText("F1 for how to to something", cv::Point(5, 15), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
-        addText("l1 for plapla", cv::Point(5, 30), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
-        text_y=0;
+
+
+        addText("RT - Drive forward", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
+        addText("Lt - Drive Backwards", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
+        addText("Left joystick for steering", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
+        addText("Right joystick for camera control", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
+        addText("A - Video ON", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
+        addText("B - Video OFF", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
+        addText("ESC - exit to Main Menu", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
+
+        text_y=15;
         try {
             cv::imshow(windowName, frame);
             cv::waitKey(1);
@@ -55,7 +63,7 @@ public:
         addText("space - stop", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
         addText("v - start video", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
         addText("c - stop video", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
-        addText("ESC - exit", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
+        addText("ESC - exit to Main Menu", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
         text_y = 15;
         try {
             cv::imshow(windowName, frame);
@@ -70,7 +78,7 @@ public:
         frame = blackFrame;
 
         addText("1 for keyboard controls", cv::Point(5, this->text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
-        addText("2 for Xbox controls", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
+        addText("2 for Xbox controls", cv::Point(5, this->text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
         text_y=15;
         try {
             cv::imshow(windowName, frame);
