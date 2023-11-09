@@ -145,10 +145,10 @@ private:
             }
             else if (this -> controller == XBOX){
                 displayBuilder.buildXboxMenu();
+                cv::waitKey(1);
                 while(this-> controller == XBOX){
                     // TODO: implement xbox controller
-                    std::thread t1([&] { xboxController.run(); });
-                    t1.detach();
+                    xboxController.run(videoRunning, frameCondition, this->controller);
                     // Get the message from controller
                     message = xboxController.getMessage();
 

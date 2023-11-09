@@ -17,9 +17,9 @@ private:
     int heading = 0;
     static constexpr int maxSpeed = 255;
     bool videoRunning = false;
+    std::array<std::string, 3> message = {"drive", "0", "0"};
 
 public:
-    std::array<std::string, 3> message = {"drive", "0", "0"};
 
     CXBOXController(int playerNumber) {
         _controllerNum = playerNumber - 1;
@@ -79,15 +79,15 @@ public:
         return msg;
     }
 
-    void drive(float speed, float heading, bool stopflag, std::array<std::string,3>& message){
+    void createMessage(int speed, int heading, bool stopflag){
         if (stopflag || (speed == 0)) {
-            message[0] = "drive";
-            message[1] = "0";
-            message[2] = "0";
+            this->message[0] = "drive";
+            this->message[1] = "0";
+            this->message[2] = "0";
         } else {
-            message[0] = "drive";
-            message[1] = std::to_string(speed);
-            message[2] = std::to_string(heading);
+            this->message[0] = "drive";
+            this->message[1] = std::to_string(speed);
+            this->message[2] = std::to_string(heading);
         }
     }
 
@@ -113,8 +113,6 @@ public:
         return speed;
     }
     void run(){
-        while(true)
-        {
             if(IsConnected())
             {
                 if(GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A)
@@ -134,12 +132,9 @@ public:
 
                 if(IsConnected())
                 {
-                    float heading = 0;
-                    float speed = 0;
                     bool stopflag = false;
-
                     // Map the joystick X and Y to steering
-                    heading = mapJoystickToSteering(getLeftJoystickX(), getLeftJoystickY());
+                    this->heading = mapJoystickToSteering(getLeftJoystickX(), getLeftJoystickY());
 
                     // Map the R trigger to acceleration
                     float acceleration = mapTriggerToAcceleration(getRightTrigger());
@@ -148,12 +143,10 @@ public:
                     float deceleration = mapTriggerToAcceleration(getLeftTrigger());
 
                     // Deduct deceleration from acceleration to get the final speed
-                    speed = acceleration - deceleration;
+                    this->speed = acceleration - deceleration;
 
                     // Drive using the mapped speed and steering
-                    drive(speed, heading, stopflag, message);
-
-                    getMessage();
+                    createMessage(this->speed, this->heading, stopflag);
                 }
             }
             else
@@ -161,9 +154,8 @@ public:
                 std::cout << "\n\tERROR! PLAYER 1 - XBOX 360 Controller Not Found!\n";
                 std::cout << "Press Any Key To Exit.";
                 std::cin.get();
-                break;
             }
-        }
+
     }
 };
 
