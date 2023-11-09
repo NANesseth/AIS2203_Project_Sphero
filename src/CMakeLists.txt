@@ -9,8 +9,8 @@ set(sources
         sphero/math/MathUtils.cpp
 
         # Utils
-        sphero/utils/TaskQueue.cpp
-        sphero/utils/ThreadPool.cpp
+        sphero/utils/Observer.cpp
+        sphero/utils/TaskManager.cpp
 )
 
 add_library(sphero ${sources})
