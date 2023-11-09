@@ -148,7 +148,7 @@ private:
                 cv::waitKey(1);
                 while(this-> controller == XBOX){
                     // TODO: implement xbox controller
-                    xboxController.run(videoRunning, frameCondition, this->controller);
+                    xboxController.run();
                     // Get the message from controller
                     message = xboxController.getMessage();
 
