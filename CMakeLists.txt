@@ -22,6 +22,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 #       [///]    DEPENDENCIES    [\\\]
 
 find_package(OpenCV REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system)
+find_package(Threads REQUIRED)
 
 include(FetchContent)
 
@@ -50,3 +52,5 @@ if (SPHERO_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif ()
+
+#target_link_libraries(main PUBLIC sphero)
