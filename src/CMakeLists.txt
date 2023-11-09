@@ -12,7 +12,7 @@ set(sources
         sphero/utils/Observer.cpp
         sphero/utils/TaskManager.cpp
 
-        ../tests/cameras/RaspberryCamera_test.cpp
+        #../tests/cameras/RaspberryCamera_test.cpp
 )
 
 add_library(sphero ${sources})

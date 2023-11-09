@@ -23,35 +23,11 @@ class MyThreadedClass {
 public:
     MyThreadedClass() : started_(false) {}
 
-    void start() {
-        std::lock_guard<std::mutex> lock(start_stop_mutex_);
-        if (!started_) {
-            started_ = true;
-            stop_ = false;
-            t_ = std::thread(&MyThreadedClass::run, this);
-        }
-    }
+    void start();
+    void stop();
 
-    void stop() {
-        std::lock_guard<std::mutex> lock(start_stop_mutex_);
-        if (started_) {
-            stop_ = true;
-            if (t_.joinable()) {
-                t_.join();
-            }
-            started_ = false;
-        }
-    }
-
-    void addObserver(Observer *observer) {
-        std::lock_guard<std::mutex> lock(observers_mutex_);
-        observers.emplace_back(observer);
-    }
-
-    void removeObserver(Observer *observer) {
-        std::lock_guard<std::mutex> lock(observers_mutex_);
-        observers.erase(std::remove(observers.begin(), observers.end(), observer), observers.end());
-    }
+    void addObserver(Observer *observer);
+    void removeObserver(Observer *observer);
 
 private:
     std::thread t_;
@@ -61,27 +37,13 @@ private:
     std::vector<Observer *> observers;
     std::mutex observers_mutex_;
 
-    void run() {
-        while (!stop_) {
-            // Check for controller input or perform regular actions
-            // ....
+    void run();
 
-            // When some change happens:
-            notifyObservers();
-        }
-    }
+    void notifyObservers();
 
-    void notifyObservers() {
-        std::vector<Observer *> observers_copy;
-        {
-            std::lock_guard<std::mutex> lock(observers_mutex_);
-            observers_copy = observers; // Make a copy to avoid deadlock
-        }
-
-        for (auto *observer : observers_copy) {
-            observer->onChange();
-        }
-    }
+public:
+    bool hasObservers();
+    bool isRunning() const;
 };
 
 #endif//AIS2203_PROJECT_SPHERO_OBSERVER_HPP
