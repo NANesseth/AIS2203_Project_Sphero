@@ -2,20 +2,20 @@
 #include <chrono>
 #include <iostream>
 
-// Class MyThreadedClass
+// Class ThreadedTimerClass
 // =================================================================================================
 // Public methods
 
-void MyThreadedClass::start() {
+void ThreadedTimerClass::start() {
     std::lock_guard<std::mutex> lock(start_stop_mutex_);
     if (!started_) {
         started_ = true;
         stop_ = false;
-        t_ = std::thread(&MyThreadedClass::run, this);
+        t_ = std::thread(&ThreadedTimerClass::runTimer, this);
     }
 }
 
-void MyThreadedClass::stop() {
+void ThreadedTimerClass::stop() {
     std::lock_guard<std::mutex> lock(start_stop_mutex_);
     if (started_) {
         stop_ = true;
@@ -26,30 +26,30 @@ void MyThreadedClass::stop() {
     }
 }
 
-void MyThreadedClass::addObserver(Observer *observer) {
+void ThreadedTimerClass::addObserver(Observer *observer) {
     std::lock_guard<std::mutex> lock(observers_mutex_);
     observers.emplace_back(observer);
 }
 
-void MyThreadedClass::removeObserver(Observer *observer) {
+void ThreadedTimerClass::removeObserver(Observer *observer) {
     std::lock_guard<std::mutex> lock(observers_mutex_);
     observers.erase(std::remove(observers.begin(), observers.end(), observer), observers.end());
 }
 
-bool MyThreadedClass::hasObservers(){
+bool ThreadedTimerClass::hasObservers(){
     std::lock_guard<std::mutex> lock(observers_mutex_);
     return !observers.empty();
 }
 
 // Method to check if the thread is running
-bool MyThreadedClass::isRunning() const {
+bool ThreadedTimerClass::isRunning() const {
     return started_;
 }
 
 // =================================================================================================
 // Private methods
 
-void MyThreadedClass::run() {
+void ThreadedTimerClass::runTimer() {
     auto startTime = std::chrono::high_resolution_clock::now();
     auto lastNotificationTime = startTime;
     long long secondsPassed = 0;
@@ -59,7 +59,7 @@ void MyThreadedClass::run() {
 
         auto current_time = std::chrono::high_resolution_clock::now();
 
-        // Notify observers every second
+        // Notify observers every sec ond
         if (current_time - lastNotificationTime >= std::chrono::seconds(1)) {
             lastNotificationTime = current_time;  // Reset the last notification time
 
@@ -75,8 +75,7 @@ void MyThreadedClass::run() {
     }
 }
 
-
-void MyThreadedClass::notifyObservers() {
+void ThreadedTimerClass::notifyObservers() {
     std::vector<Observer *> observers_copy;
     {
         std::lock_guard<std::mutex> lock(observers_mutex_);

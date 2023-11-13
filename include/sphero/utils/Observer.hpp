@@ -12,16 +12,16 @@ public:
     virtual ~Observer() = default;
 };
 
-class MyObserver : public Observer {
+class SpecificObserver: public Observer {
 public:
     void onChange() override {
         // do something when change is observed
     }
 };
 
-class MyThreadedClass {
+class ThreadedTimerClass {
 public:
-    MyThreadedClass() : started_(false) {}
+    ThreadedTimerClass() : started_(false) {}
 
     void start();
     void stop();
@@ -37,7 +37,7 @@ private:
     std::vector<Observer *> observers;
     std::mutex observers_mutex_;
 
-    void run();
+    void runTimer();
 
     void notifyObservers();
 
