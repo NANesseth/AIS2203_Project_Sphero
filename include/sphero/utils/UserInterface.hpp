@@ -129,11 +129,13 @@ private:
     DisplayBuilder displayBuilder;
     enums::Controller controller;
 
+    CameraControl cameraControl;
+
 
 
 
     void uiLoop() {
-        KeyboardInput kbInput;
+        KeyboardInput kbInput(cameraControl);
         CXBOXController xboxController(1);
         bool stopflag = false;
         std::string message;

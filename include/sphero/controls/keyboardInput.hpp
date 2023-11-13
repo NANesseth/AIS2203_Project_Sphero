@@ -10,18 +10,14 @@
 
 class KeyboardInput{
     public:
-        explicit KeyboardInput(int initialSpeed = 0, int initialHeading = 0)
-            : speed(initialSpeed), heading(initialHeading) {
+        explicit KeyboardInput(CameraControl& camera_control, int initialSpeed = 0, int initialHeading = 0)
+    : speed(initialSpeed), heading(initialHeading), cameraControl(camera_control) {
         }
 
         void getKeyboardInput(std::atomic<bool>& videoRunning, std::condition_variable &frameCondition, enums::Controller& controller){
             int key;
             const char ESC_KEY = 27;
-            const int ARROW_UP = 0x260000;
-            const int ARROW_DOWN = 0x270000;
-            const int ARROW_LEFT = 0x250000;
-            const int ARROW_RIGHT = 0x280000;
-            key = cv::waitKey(0) & 0xFF;
+            key = cv::waitKey(0);
 
             switch (key) {
                 case 'w': msg = "drive"; break;
@@ -55,21 +51,27 @@ class KeyboardInput{
                         videoRunning.store(false);
                     }
                     break;
-                case ARROW_UP: // arrow up
+                case 'i': // cam up
                     std::cout << "Up key pressed\n";
                     cameraControl.setTiltPosition(cameraControl.getTiltPosition() + tiltIncrement);
                     break;
-                case ARROW_DOWN: // arrow down
+                case 'k': // cam down
                     cameraControl.setTiltPosition(cameraControl.getTiltPosition() - tiltIncrement);
                     break;
-                case ARROW_LEFT: // arrow left
+                case 'j': // cam left
                     std::cout << "Left key pressed\n";
                     cameraControl.setPanPosition(cameraControl.getPanPosition() - panIncrement);
                     break;
-                case ARROW_RIGHT: // arrow right
+                case 'l': // cam right
                     std::cout << "Right key pressed\n";
                     cameraControl.setPanPosition(cameraControl.getPanPosition() + panIncrement);
                     break;
+                case ESC_KEY:
+                    msg = "exit";
+                    videoRunning.store(false);
+                    controller = enums::NOCONTROLLER;
+                    break;
+
             }
         }
 
@@ -101,7 +103,7 @@ private:
     bool stopflag = false;
     static constexpr int panIncrement = 10;
     static constexpr int tiltIncrement = 10;
-    CameraControl cameraControl;
+    CameraControl& cameraControl;
 };
 
 
