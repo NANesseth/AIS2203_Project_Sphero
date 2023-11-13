@@ -5,6 +5,8 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <utility>
+#include "sphero/controls/CameraControls.hpp"
+
 #pragma comment(lib, "XInput.lib")
 
 // XBOX Controller Class Definition
@@ -18,10 +20,14 @@ private:
     static constexpr int maxSpeed = 100;
     std::string msg = "empty";
 
+
+    CameraControl cameraControl;
+
 public:
 
-    CXBOXController(int playerNumber) {
-        _controllerNum = playerNumber - 1;
+    CXBOXController(int playerNumber)
+        : _controllerNum(playerNumber - 1), cameraControl() {
+        // initialize cameraControl in constructor
     }
 
     XINPUT_STATE GetState() {
@@ -74,7 +80,7 @@ public:
     }
 
     std::string getMessage(){
-        std::string message = msg + "," + std::to_string(speed) + "," + std::to_string(heading);
+        std::string message = msg + "," + std::to_string(speed) + "," + std::to_string(heading) + "," + std::to_string(cameraControl.getPanPosition()) + "," + std::to_string(cameraControl.getTiltPosition());
         return message;
     }
 
@@ -123,6 +129,20 @@ public:
         }
         return speed;
     }
+
+    void updateCameraControl() {
+        int panPositionScaled = scaleJoystickValue(getRightJoystickX());
+        int tiltPositionScaled = scaleJoystickValue(getRightJoystickY());
+        cameraControl.setPanPosition(panPositionScaled);
+        cameraControl.setTiltPosition(tiltPositionScaled);
+    }
+
+    // Scale joystick values from [-32767, 32767] to [-100, 100]
+    int scaleJoystickValue(int val) {
+        double scaledVal = (val / 32767.0) * 100.0;
+        return static_cast<int>(scaledVal);
+    }
+
     void run(std::atomic<bool>& videoRunning, std::condition_variable &frameCondition, enums::Controller& controller){
             if(IsConnected())
             {
@@ -161,6 +181,9 @@ public:
                     // Map the L trigger to deceleration
                     float deceleration = mapTriggerToLtrigger(getLeftTrigger());
 
+                    // Update camera control after getting joystick inputs
+                    updateCameraControl();
+
                     // Map the R trigger to acceleration
                     if(acceleration > deceleration){
                         speed  = mapTriggerToRtrigger(getRightTrigger());
@@ -169,8 +192,6 @@ public:
                         speed = mapTriggerToLtrigger(getLeftTrigger());
                     }
 
-
-                    // Deduct deceleration from acceleration to get the final speed
                     std::cout << "speed: " << speed << std::endl;
 
                 }
