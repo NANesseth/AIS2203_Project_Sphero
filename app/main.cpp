@@ -1,8 +1,9 @@
-#include "sphero/controls/RobotControls.hpp"
-#include "sphero/utils/udpClient.hpp"
-#include "sphero/utils/UserInterface.hpp"
-#include <iostream>
+//#include "sphero/controls/RobotControls.hpp"
+//#include "sphero/utils/udpClient.hpp"
+//#include "sphero/utils/UserInterface.hpp"
+#include "sphero/sphero.hpp"
 
+#include <iostream>
 
 int main() {
     try {
