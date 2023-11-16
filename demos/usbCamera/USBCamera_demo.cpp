@@ -2,7 +2,7 @@
 #include <opencv2/highgui.hpp>
 
 int main() {
-    USBCamera camera; // Initialize the USB camera. Assumes camera at index 0.
+    USBCamera camera(0); // Initialize the USB camera with the device index
     camera.start();   // Start capturing
 
     cv::namedWindow("Camera Feed", cv::WINDOW_AUTOSIZE); // Create a window

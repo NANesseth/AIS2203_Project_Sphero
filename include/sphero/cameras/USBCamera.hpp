@@ -8,9 +8,10 @@
 #include <atomic>
 #include <queue>
 
+
 class USBCamera {
 public:
-    USBCamera(int cameraIndex = 0) : cameraIndex_(cameraIndex), stop_(false) {}
+    USBCamera(int cameraIndex) : cameraIndex_(cameraIndex), stop_(false) {}
 
     ~USBCamera() {
         stop();
