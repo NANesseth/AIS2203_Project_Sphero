@@ -3,22 +3,17 @@
 
 int main() {
     USBCamera camera(0); // Initialize the USB camera with the device index
-    camera.start();   // Start capturing
+    camera.start();
 
-    cv::namedWindow("Camera Feed", cv::WINDOW_AUTOSIZE); // Create a window
+    cv::namedWindow("Camera Feed", cv::WINDOW_AUTOSIZE);
 
-    while (true) {
+    while (cv::waitKey(1) != 'q') {
         cv::Mat frame;
-        if (camera.getFrame(frame)) { // Try to get a new frame from the camera
-            cv::imshow("Camera Feed", frame); // Display the frame
-        }
-
-        // Check for 'q' key to quit the loop
-        if (cv::waitKey(1) == 'q') {
-            break;
+        if (camera.getFrame(frame)) {
+            cv::imshow("Camera Feed", frame);
         }
     }
 
-    camera.stop(); // Stop capturing before exiting
+    camera.stop();
     return 0;
 }
