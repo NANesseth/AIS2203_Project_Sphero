@@ -11,9 +11,6 @@ set(sources
         # Utils
         sphero/utils/TaskQueue.cpp
         sphero/utils/ThreadPool.cpp
-
-        ../tests/cameras/RaspberryCamera_test.cpp
-        ../include/sphero/controls/CameraControls.hpp
 )
 
 add_library(sphero ${sources})

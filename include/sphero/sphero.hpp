@@ -3,6 +3,7 @@
 
 // Cameras
 #include "cameras/RaspberryCamera.hpp"
+#include "cameras/USBCamera.hpp"
 
 // Controls
 #include "controls/CameraControls.hpp"

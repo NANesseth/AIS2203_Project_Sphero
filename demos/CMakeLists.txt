@@ -1,1 +1,2 @@
 add_subdirectory(taskQueue)
+add_subdirectory(usbCamera)
