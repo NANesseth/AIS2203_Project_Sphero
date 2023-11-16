@@ -12,6 +12,9 @@
 #include "controls/RobotControls.hpp"
 #include "controls/XboxInput.hpp"
 
+// Core
+#include "core/ImageFetcher.hpp"
+
 // Math
 #include "math/MathUtils.hpp"
 

@@ -1,4 +1,4 @@
-#include "sphero/sphero.hpp"
+#include "sphero/cameras/USBCamera.hpp"
 #include <opencv2/highgui.hpp>
 
 int main() {
