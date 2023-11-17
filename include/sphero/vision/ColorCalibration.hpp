@@ -2,8 +2,10 @@
 #define AIS2203_PROJECT_SPHERO_COLORCALIBRATION_HPP
 
 #include <opencv2/opencv.hpp>
-//#include <nlohmann/json.hpp>
+#include <nlohmann/json.hpp>
 #include <string>
+#include <fstream>
+#include <iostream>
 
 class ColorCalibrator {
 public:
@@ -30,21 +32,21 @@ public:
         cv::waitKey(1);
     }
 
-//    void saveColorRange(const std::string& filename) {
-//        nlohmann::json json;
-//
-//        json["min_color"] = {minRed, minGreen, minBlue};
-//        json["max_color"] = {maxRed, maxGreen, maxBlue};
-//
-//        std::ofstream file(filename);
-//        if (file.is_open()) {
-//            file << json.dump(4); // 4 is for pretty printing
-//            file.close();
-//            std::cout << "Color range saved to " << filename << std::endl;
-//        } else {
-//            std::cerr << "Unable to open file for writing: " << filename << std::endl;
-//        }
-//    }
+    void saveColorRange(const std::string& filename) {
+        nlohmann::json json;
+
+        json["min_color"] = {minRed, minGreen, minBlue};
+        json["max_color"] = {maxRed, maxGreen, maxBlue};
+
+        std::ofstream file(filename);
+        if (file.is_open()) {
+            file << json.dump(4); // 4 is for pretty printing
+            file.close();
+            std::cout << "Color range saved to " << filename << std::endl;
+        } else {
+            std::cerr << "Unable to open file for writing: " << filename << std::endl;
+        }
+    }
 
     // Function to get the current color range values
     cv::Scalar getMinColor() const {

@@ -8,5 +8,8 @@
   }, {
     "name" : "boost-asio",
     "version>=" : "1.83.0"
+  }, {
+    "name" : "nlohmann-json",
+    "version>=" : "3.11.2"
   } ]
 }
