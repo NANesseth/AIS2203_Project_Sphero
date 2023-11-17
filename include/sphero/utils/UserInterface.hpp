@@ -145,11 +145,14 @@ private:
             std::cout<<controller<<std::endl;
             if (this -> controller == KEYBOARD){
                 displayBuilder.buildKeyboardMenu();
+                int key;
                 cv::waitKey(1);
                 while (this->controller == KEYBOARD) {
                     // Handle input
-                    kbInput.getKeyboardInput(videoRunning, frameCondition,  this->controller);//skal returnere en string som e slik: "msg,speed,heading"
-                    message = kbInput.getMessage();
+                    key = cv::waitKey(0);
+                    Action action = kbInput.interpretKey(key);
+                    kbInput.performAction(action, videoRunning, frameCondition,  this->controller);//skal returnere en string som e slik: "msg,speed,heading"
+                    message = kbInput.getJsonMessageAsString();
                     std::cout<<"Controller is "<< controller <<std::endl;
                     send_input(message);
                 }
@@ -162,7 +165,7 @@ private:
                     // TODO: implement xbox controller
                     xboxController.run(videoRunning, frameCondition, this->controller);
                     // Get the message from controller
-                    message = xboxController.getMessage();
+                    message = xboxController.getJsonMessageAsString();
 
                     send_input(message);
                     std::this_thread::sleep_for(std::chrono::milliseconds(10));

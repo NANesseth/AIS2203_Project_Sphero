@@ -84,6 +84,17 @@ public:
         return message;
     }
 
+    std::string getJsonMessageAsString(){
+        nlohmann::json message = {
+                {"msg", msg},
+                {"speed", speed},
+                {"heading", heading},
+                {"panPosition", cameraControl.getPanPosition()},
+                {"tiltPosition", cameraControl.getTiltPosition()}
+        };
+        return message.dump();
+    }
+
     float mapJoystickToSteering(int joystickX, int joystickY) {
         // Maximum change in angle per call
         const float maxTurnRate = 10.0; // Can be tuned for finer control
