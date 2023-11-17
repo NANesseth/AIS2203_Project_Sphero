@@ -1,0 +1,2 @@
+add_executable(ColorCalibration_demo ColorCalibration_demo.cpp)
+target_link_libraries(ColorCalibration_demo PRIVATE sphero)

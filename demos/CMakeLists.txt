@@ -1,2 +1,3 @@
 add_subdirectory(taskQueue)
 add_subdirectory(usbCamera)
+add_subdirectory(colorCalibration)

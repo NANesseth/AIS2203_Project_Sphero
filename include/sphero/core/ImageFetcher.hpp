@@ -11,7 +11,7 @@
 
 class ImageFetcher {
 public:
-    virtual ~ImageFetcher() {
+    ~ImageFetcher() {
         stop();
     }
 
@@ -40,7 +40,7 @@ public:
     }
 
 protected:
-    virtual void captureLoop() = 0; // Pure virtual function
+    virtual void captureLoop() = 0; //
 
     std::queue<cv::Mat> frameQueue_;
     std::mutex mutex_;
