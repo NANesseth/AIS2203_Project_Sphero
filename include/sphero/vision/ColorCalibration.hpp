@@ -9,6 +9,7 @@
 
 class ColorCalibrator {
 public:
+
     ColorCalibrator(const std::string& windowName = "Color Calibration")
         : windowName(windowName) {
         cv::namedWindow(windowName);
