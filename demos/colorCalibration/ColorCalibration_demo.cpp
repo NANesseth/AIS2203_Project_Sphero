@@ -16,11 +16,8 @@ int main() {
 
         char key = static_cast<char>(cv::waitKey(1));
         if (key == 's') {
-            // Save the color range to a file when 's' is pressed
-            //calibrator.saveColorRange("saved_color_range.json");
-
-            saveJson
-
+            saveJson("saved_color_range.json", calibrator.getColorValues());
+            std::cout << "Saved color range" << std::endl;
 
         } else if (key == 'q' || key == 27) {
             break;

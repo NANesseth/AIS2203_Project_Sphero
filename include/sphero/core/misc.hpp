@@ -3,10 +3,18 @@
 
 
 struct ColorValues {
-    int min_R, max_R;
-    int min_G, max_G;
-    int min_B, max_B;
+
+    int R_min = 0;
+    int G_min = 0;
+    int B_min = 0;
+
+    int R_max = 255;
+    int G_max = 255;
+    int B_max = 255;
+
 };
+
+
 
 
 #endif//AIS2203_PROJECT_SPHERO_MISC_HPP
