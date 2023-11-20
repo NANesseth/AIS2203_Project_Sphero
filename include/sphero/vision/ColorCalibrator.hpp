@@ -1,8 +1,8 @@
-#ifndef AIS2203_PROJECT_SPHERO_COLORCALIBRATION_HPP
-#define AIS2203_PROJECT_SPHERO_COLORCALIBRATION_HPP
+#ifndef AIS2203_PROJECT_SPHERO_COLORCALIBRATOR_HPP
+#define AIS2203_PROJECT_SPHERO_COLORCALIBRATOR_HPP
 
 #include <opencv2/opencv.hpp>
-#include <nlohmann/json.hpp>
+#include <nlohmann/json.hpp> // Should be removed
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -65,4 +65,4 @@ private:
     int minBlue = 0, maxBlue = 255;
 };
 
-#endif//AIS2203_PROJECT_SPHERO_COLORCALIBRATION_HPP
+#endif//AIS2203_PROJECT_SPHERO_COLORCALIBRATOR_HPP

@@ -28,7 +28,7 @@
 #include "utils/udpClient.hpp"
 
 // Vision
-#include "sphero/vision/ColorCalibration.hpp"
+#include "sphero/vision/ColorCalibrator.hpp"
 #include "sphero/vision/ObjectTracker.hpp"
 
 #endif//AIS2203_PROJECT_SPHERO_SPHERO_HPP

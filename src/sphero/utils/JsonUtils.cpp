@@ -51,3 +51,4 @@ ColorValues fromJson(const nlohmann::json& json){
 
     return colorValues;
 }
+
