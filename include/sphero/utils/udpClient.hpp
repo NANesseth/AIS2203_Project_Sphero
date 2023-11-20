@@ -27,14 +27,8 @@ private:
     std::unique_ptr<boost::asio::io_service> io_service; // Moved to here
     std::unique_ptr<boost::asio::ip::udp::socket> socket; // Moved to here
     boost::asio::ip::udp::endpoint serverEndpoint;
+    boost::array<char, 65536> recv_buf;
 
-    std::string jsonLoader(const std::string& key, std::string json_str){
-        nlohmann::json jsonfile = nlohmann::json::parse(json_str);
-        if (jsonfile.contains(key) && jsonfile[key].is_number_integer()){
-            return jsonfile[key].get<int>();
-        }
-        return jsonfile(str);
-    }
 
     UdpClient(const int port, const boost::asio::ip::udp::endpoint& serverEndpoint)
             : io_service(std::make_unique<boost::asio::io_service>()),
@@ -44,6 +38,8 @@ private:
         std::cout << "Client started at " << ip << ":" << port << "\n";
     }
 
+public:
+
     void sendMessage(const std::string& message) {
         std::unique_lock<std::mutex> lock(mtx);
         std::cout<<"locked thread, sending message"<<std::endl;
@@ -51,17 +47,7 @@ private:
         std::cout<<"unlocked thread, sent message"<<std::endl;
     }
 
-    std::variant<int,cv::Mat> recieveMessage(int topicToRecieve){
-        std::unique_lock<std::mutex> lock(mtx);
-        boost::array<char, 65536> recv_buf;
-        std::string jsonFile = socket->recieve_from(boost::asio::buffer(recv_buf), this->serverEndpoint);
 
-        int len = socket->receive_from(boost::asio::buffer(recv_buf), this->serverEndpoint);
-
-        std::vector<uchar> decode_buf(recv_buf.begin(), recv_buf.begin() + len);
-
-
-    }
 
     cv::Mat receiveFrame() {
         std::cout<<"entered receive frame"<<std::endl;
@@ -76,6 +62,37 @@ private:
         return frame;
     }
 
+    std::variant<std::nullopt_t, cv::Mat, int, std::string> jsonReader(const std::string& key) {
+        socket->receive_from(boost::asio::buffer(recv_buf), this->serverEndpoint);
+        try {
+            std::string json_data(recv_buf.data(), std::find(recv_buf.begin(), recv_buf.end(), '\0'));
+            nlohmann::json jsonfile = nlohmann::json::parse(json_data);
+
+            if (jsonfile.contains(key)) {
+                if (key == "frame" && jsonfile[key].is_string()) {
+                    // Specific case for frame data
+                    std::string encoded_frame_str = jsonfile[key].get<std::string>();
+                    std::vector<uchar> encoded_frame(encoded_frame_str.begin(), encoded_frame_str.end());
+                    cv::Mat frame = cv::imdecode(encoded_frame, cv::IMREAD_GRAYSCALE);
+                    return frame;
+                } else if (jsonfile[key].is_number_integer()) {
+                    return jsonfile[key].get<int>();
+                } else if (jsonfile[key].is_string()) {
+                    return jsonfile[key].get<std::string>();
+                } else {
+                    std::cerr << "Value is of unknown datatype" << std::endl;
+                    return std::nullopt;
+                }
+            } else {
+                std::cerr << "Key not found in JSON" << std::endl;
+                return std::nullopt;
+            }
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Exception in jsonReader: " << e.what() << std::endl;
+            return std::nullopt;
+        }
+    }
 };
 
 #endif //AIS2203_PROJECT_SPHERO_UDPCLIENT_HPP
