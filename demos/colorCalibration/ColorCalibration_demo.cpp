@@ -19,7 +19,7 @@ int main() {
             // Save the color range to a file when 's' is pressed
             //calibrator.saveColorRange("saved_color_range.json");
 
-            saveJson("saved_color_range.json", calibrator.getMinColor(), calibrator.getMaxColor());
+            saveJson
 
 
         } else if (key == 'q' || key == 27) {

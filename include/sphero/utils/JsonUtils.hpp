@@ -1,6 +1,8 @@
 #ifndef AIS2203_PROJECT_SPHERO_JSONUTILS_HPP
 #define AIS2203_PROJECT_SPHERO_JSONUTILS_HPP
 
+#include "sphero/core/misc.hpp"
+
 #include <nlohmann/json.hpp>
 #include <string>
 #include <fstream>
@@ -13,18 +15,12 @@ void saveJson(const std::string& filename, const nlohmann::json& json);
 
 template<typename T>
 void saveJson(const std::string& filename, const T& data) {
-    nlohmann::json json = toJson(data); // Convert data to JSON
-    saveJson(filename, json); // Use the existing saveJson function
+    nlohmann::json json = toJson(data);
+    saveJson(filename, json);
 }
 
 // Color Values
 // =====================================================================================================================
-
-struct ColorValues {
-    int min_R, max_R;
-    int min_G, max_G;
-    int min_B, max_B;
-};
 
 nlohmann::json toJson(const ColorValues& colorValues);
 ColorValues fromJson(const nlohmann::json& json);

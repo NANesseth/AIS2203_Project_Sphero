@@ -1,6 +1,8 @@
 #ifndef AIS2203_PROJECT_SPHERO_COLORCALIBRATOR_HPP
 #define AIS2203_PROJECT_SPHERO_COLORCALIBRATOR_HPP
 
+#include "sphero/core/misc.hpp"
+
 #include <opencv2/opencv.hpp>
 #include <nlohmann/json.hpp> // Should be removed
 #include <string>
