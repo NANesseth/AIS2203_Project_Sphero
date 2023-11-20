@@ -7,6 +7,8 @@
 #include <memory>
 #include <opencv2/opencv.hpp>
 #include <mutex>
+#include <nlohmann/json.hpp>
+#include <variant>
 
 using namespace cv;
 
@@ -25,10 +27,16 @@ private:
     std::unique_ptr<boost::asio::io_service> io_service; // Moved to here
     std::unique_ptr<boost::asio::ip::udp::socket> socket; // Moved to here
     boost::asio::ip::udp::endpoint serverEndpoint;
-    std::string lastMessage;
 
-public:
-    UdpClient(int port, const boost::asio::ip::udp::endpoint& serverEndpoint)
+    std::string jsonLoader(const std::string& key, std::string json_str){
+        nlohmann::json jsonfile = nlohmann::json::parse(json_str);
+        if (jsonfile.contains(key) && jsonfile[key].is_number_integer()){
+            return jsonfile[key].get<int>();
+        }
+        return jsonfile(str);
+    }
+
+    UdpClient(const int port, const boost::asio::ip::udp::endpoint& serverEndpoint)
             : io_service(std::make_unique<boost::asio::io_service>()),
               socket(std::make_unique<boost::asio::ip::udp::socket>(*io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port))),
               serverEndpoint(serverEndpoint) {
@@ -40,8 +48,19 @@ public:
         std::unique_lock<std::mutex> lock(mtx);
         std::cout<<"locked thread, sending message"<<std::endl;
         socket->send_to(boost::asio::buffer(message), serverEndpoint);
-        lastMessage = message;
         std::cout<<"unlocked thread, sent message"<<std::endl;
+    }
+
+    std::variant<int,cv::Mat> recieveMessage(int topicToRecieve){
+        std::unique_lock<std::mutex> lock(mtx);
+        boost::array<char, 65536> recv_buf;
+        std::string jsonFile = socket->recieve_from(boost::asio::buffer(recv_buf), this->serverEndpoint);
+
+        int len = socket->receive_from(boost::asio::buffer(recv_buf), this->serverEndpoint);
+
+        std::vector<uchar> decode_buf(recv_buf.begin(), recv_buf.begin() + len);
+
+
     }
 
     cv::Mat receiveFrame() {
@@ -57,9 +76,6 @@ public:
         return frame;
     }
 
-    std::string getLastMessage() const {
-        return lastMessage;
-    }
 };
 
 #endif //AIS2203_PROJECT_SPHERO_UDPCLIENT_HPP

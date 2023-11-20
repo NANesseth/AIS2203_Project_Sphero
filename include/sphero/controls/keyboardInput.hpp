@@ -15,7 +15,6 @@ class KeyboardInput{
     : speed(initialSpeed), heading(initialHeading), cameraControl(camera_control) {
         }
 
-
     enums::Action interpretKey(int key) {
             using namespace enums;
             const char ESC_KEY = 27;
