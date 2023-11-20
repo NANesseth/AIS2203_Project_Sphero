@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 
+
 nlohmann::json loadJson(const std::string& filename);
 
 void saveJson(const std::string& filename, const nlohmann::json& json);
