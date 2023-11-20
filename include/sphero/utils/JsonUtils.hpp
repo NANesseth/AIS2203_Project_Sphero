@@ -3,10 +3,17 @@
 
 #include <nlohmann/json.hpp>
 #include <string>
+#include <fstream>
+#include <iostream>
 
+nlohmann::json loadJson(const std::string& filename);
 
 void saveJson(const std::string& filename, const nlohmann::json& json);
-nlohmann::json loadJson(const std::string& filename);
+
+void saveJson(const std::string& filename, const T& data) {
+    nlohmann::json json = toJson(data); // Convert data to JSON
+    saveJson(filename, json); // Use the existing saveJson function
+}
 
 // Color Values
 // =====================================================================================================================
