@@ -98,7 +98,6 @@ public:
                     }
                     std::cout << "got frame from queue" << std::endl;
 
-
                     frame = std::move(frameQueue.front());
                     std::cout << "retrieved frame from queue" << std::endl;
                     frameQueue.pop();
