@@ -7,7 +7,7 @@ void saveJson(const std::string& filename, const nlohmann::json& json){
 
     std::ofstream file;
     file.open(filename);
-    file << json;
+    file << json.dump(4);
     file.close();
 }
 
