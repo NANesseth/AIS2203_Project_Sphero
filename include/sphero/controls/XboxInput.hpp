@@ -86,7 +86,7 @@ public:
 
     float mapJoystickToSteering(int joystickX, int joystickY) {
         // Maximum change in angle per call
-        const float maxTurnRate = 10.0; // Can be tuned for finer control
+        const float maxTurnRate = 4.0; // Can be tuned for finer control
 
         float turnRate = 0.0f;
 
@@ -139,7 +139,7 @@ public:
 
     // Scale joystick values from [-32767, 32767] to [-100, 100]
     int scaleJoystickValue(int val) {
-        double scaledVal = (val / 32767.0) * 100.0;
+        double scaledVal = (val / 32767.0) * 180.0; //endra til 180 for å teste
         return static_cast<int>(scaledVal);
     }
 
