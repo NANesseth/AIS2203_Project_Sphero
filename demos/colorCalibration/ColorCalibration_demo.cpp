@@ -19,7 +19,8 @@ int main() {
             saveJson("saved_color_range.json", calibrator.getColorValues());
             std::cout << "Saved color range" << std::endl;
 
-        } else if (key == 'q' || key == 27) {
+        }
+        else if (key == 'q' || key == 27) {
             break;
         }
     }

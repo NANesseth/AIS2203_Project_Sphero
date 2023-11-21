@@ -12,8 +12,6 @@ set(sources
         sphero/utils/Observer.cpp
         sphero/utils/TaskManager.cpp
         sphero/utils/JsonUtils.cpp
-        sphero/utils/TaskQueue.cpp
-        sphero/utils/ThreadPool.cpp
 )
 
 add_library(sphero ${sources})

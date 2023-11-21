@@ -1,5 +1,4 @@
-add_subdirectory(taskQueue)
-add_subdirectory(usbCamera)
 add_subdirectory(colorCalibration)
-add_subdirectory(taskManager)
 add_subdirectory(observer)
+add_subdirectory(taskManager)
+add_subdirectory(usbCamera)

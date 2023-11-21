@@ -1,6 +1,7 @@
 #ifndef AIS2203_PROJECT_SPHERO_IMAGEFETCHER_HPP
 #define AIS2203_PROJECT_SPHERO_IMAGEFETCHER_HPP
 
+//#include "sphero/utils/Observer.hpp"
 
 #include <opencv2/opencv.hpp>
 #include <atomic>
@@ -8,6 +9,13 @@
 #include <mutex>
 #include <condition_variable>
 #include <queue>
+
+class Observer {
+public:
+    virtual void onFrameAvailable(const cv::Mat& frame) = 0;
+    virtual ~Observer() = default;
+};
+
 
 class ImageFetcher {
 public:
@@ -39,6 +47,17 @@ public:
         return true;
     }
 
+    void addObserver(Observer* observer) {
+        std::lock_guard<std::mutex> lock(observers_mutex_);
+        observers_.emplace_back(observer);
+    }
+
+    void removeObserver(Observer* observer) {
+        std::lock_guard<std::mutex> lock(observers_mutex_);
+        observers_.erase(std::remove(observers_.begin(), observers_.end(), observer), observers_.end());
+    }
+
+
 protected:
     virtual void captureLoop() = 0; //
 
@@ -46,6 +65,16 @@ protected:
     std::mutex mutex_;
     std::atomic<bool> stop_{false};
     std::unique_ptr<std::thread> captureThread_;
+
+    std::mutex observers_mutex_;
+    std::vector<Observer*> observers_;
+
+    void notifyObservers(const cv::Mat& frame) {
+        std::lock_guard<std::mutex> lock(observers_mutex_);
+        for (auto& observer : observers_) {
+            observer->onFrameAvailable(frame);
+        }
+    }
 };
 
 

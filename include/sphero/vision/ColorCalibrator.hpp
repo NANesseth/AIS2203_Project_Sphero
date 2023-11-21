@@ -16,9 +16,6 @@ public:
         : windowName(windowName) {
         cv::namedWindow(windowName);
 
-        // Create trackbars for color change
-        // Initial min and max values can be adjusted as needed
-
         cv::createTrackbar("Min Red", windowName, &colorValues_.R_min, 255);
         cv::createTrackbar("Max Red", windowName, &colorValues_.R_max, 255);
 
