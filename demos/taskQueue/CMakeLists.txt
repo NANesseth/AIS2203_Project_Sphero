@@ -1,2 +1,0 @@
-add_executable(taskQueue_demo taskQueue_demo.cpp)
-target_link_libraries(taskQueue_demo PRIVATE sphero)

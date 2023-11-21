@@ -9,6 +9,8 @@ set(sources
         sphero/math/MathUtils.cpp
 
         # Utils
+        sphero/utils/Observer.cpp
+        sphero/utils/TaskManager.cpp
         sphero/utils/JsonUtils.cpp
         sphero/utils/TaskQueue.cpp
         sphero/utils/ThreadPool.cpp

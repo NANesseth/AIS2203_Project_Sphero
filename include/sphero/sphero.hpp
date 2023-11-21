@@ -26,6 +26,8 @@
 #include "utils/displayBuilder.hpp"
 #include "utils/enums.hpp"
 #include "utils/udpClient.hpp"
+#include "utils/TaskManager.hpp"
+#include "utils/Observer.hpp"
 
 // Vision
 #include "sphero/vision/ColorCalibrator.hpp"
