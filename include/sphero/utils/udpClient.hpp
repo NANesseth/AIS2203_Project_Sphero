@@ -7,9 +7,9 @@
 #include <memory>
 #include <opencv2/opencv.hpp>
 #include <mutex>
-#include <nlohmann/json.hpp>
-#include <variant>
 
+#include <variant>
+#include "Json reader.hpp"
 using namespace cv;
 
 inline std::string getLocalIp() {
@@ -30,6 +30,7 @@ private:
     boost::array<char, 65536> recv_buf;
 
 
+public:
     UdpClient(const int port, const boost::asio::ip::udp::endpoint& serverEndpoint)
             : io_service(std::make_unique<boost::asio::io_service>()),
               socket(std::make_unique<boost::asio::ip::udp::socket>(*io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port))),
@@ -37,9 +38,6 @@ private:
         std::string ip = getLocalIp();
         std::cout << "Client started at " << ip << ":" << port << "\n";
     }
-
-public:
-
     void sendMessage(const std::string& message) {
         std::unique_lock<std::mutex> lock(mtx);
         std::cout<<"locked thread, sending message"<<std::endl;
@@ -48,51 +46,22 @@ public:
     }
 
 
-
-    cv::Mat receiveFrame() {
+    std::string receiveData() {
         std::cout<<"entered receive frame"<<std::endl;
         std::unique_lock<std::mutex> lock(mtx);
         boost::array<char, 65536> recv_buf;
         int len = socket->receive_from(boost::asio::buffer(recv_buf), this->serverEndpoint);
         //TODO: make a timeout on the function above. if no frame is recieved, this one is stuck forever. currently running on another thread. is that ok?
         // Decode received frame
-        std::vector<uchar> decode_buf(recv_buf.begin(), recv_buf.begin() + len);
-        cv::Mat frame = cv::imdecode(decode_buf, 1);
+
+        std::string received_data(recv_buf.data(), len);
         std::cout<<"decoded frame"<<std::endl;
-        return frame;
+        return received_data;
     }
 
-    std::variant<std::nullopt_t, cv::Mat, int, std::string> jsonReader(const std::string& key) {
-        socket->receive_from(boost::asio::buffer(recv_buf), this->serverEndpoint);
-        try {
-            std::string json_data(recv_buf.data(), std::find(recv_buf.begin(), recv_buf.end(), '\0'));
-            nlohmann::json jsonfile = nlohmann::json::parse(json_data);
+    //Move to json class later
 
-            if (jsonfile.contains(key)) {
-                if (key == "frame" && jsonfile[key].is_string()) {
-                    // Specific case for frame data
-                    std::string encoded_frame_str = jsonfile[key].get<std::string>();
-                    std::vector<uchar> encoded_frame(encoded_frame_str.begin(), encoded_frame_str.end());
-                    cv::Mat frame = cv::imdecode(encoded_frame, cv::IMREAD_GRAYSCALE);
-                    return frame;
-                } else if (jsonfile[key].is_number_integer()) {
-                    return jsonfile[key].get<int>();
-                } else if (jsonfile[key].is_string()) {
-                    return jsonfile[key].get<std::string>();
-                } else {
-                    std::cerr << "Value is of unknown datatype" << std::endl;
-                    return std::nullopt;
-                }
-            } else {
-                std::cerr << "Key not found in JSON" << std::endl;
-                return std::nullopt;
-            }
-        }
-        catch (const std::exception& e) {
-            std::cerr << "Exception in jsonReader: " << e.what() << std::endl;
-            return std::nullopt;
-        }
-    }
+
 };
 
 #endif //AIS2203_PROJECT_SPHERO_UDPCLIENT_HPP

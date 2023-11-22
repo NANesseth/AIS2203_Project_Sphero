@@ -128,6 +128,7 @@ class KeyboardInput{
             case ESC_KEY: stopflag = true; break;
             default: break;
         }
+        std::cout<<"Controller is "<< controller <<std::endl;
         return stopflag;
     }
 

@@ -13,6 +13,8 @@
 #include "sphero/utils/enums.hpp"
 #include "sphero/utils/DisplayBuilder.hpp"
 #include "sphero/controls/XboxInput.hpp"
+#include "Json reader.hpp"
+#include "Various.hpp"
 
 class UserInterface {
 public:
@@ -46,30 +48,28 @@ public:
     }
 
     void networking() {
+        JsonReader jsonReader;
+        cv::Mat frame;
+
         while(true) {//TODO: make this smarter. need a stopflag
             std::cout << "entered networking" << std::endl;
-            cv::Mat frame;
+
             while (videoRunning.load()) {
+                std::string data = udpClient.receiveData();
+                jsonReader.updateJson(data);
+
                 std::cout << "loaded video running" << std::endl;
-                auto result = udpClient.jsonReader("frame");
-                if (std::holds_alternative<cv::Mat>(result)) {
-                    frame = std::get<cv::Mat>(result);
-                }
-                else{
-                    std::cout<<"jsonReader failed"<<std::endl;
-                }
+
+                frame = various::convertStringToFrame(jsonReader.getFrame());
 
                 std::unique_lock<std::mutex> lock(queueMutex);
-                std::cout << "locked mutex net" << std::endl;
+
                 if(frameQueue.size() >= 10){
                     frameQueue.pop();
                 }
                 frameQueue.push(std::move(frame));
-                std::cout << "frame added to queue" << std::endl;
                 // Notify the display thread that a new frame is available
                 frameCondition.notify_one();
-                std::cout << "notified frame condition" << std::endl;
-
                 std::cout << "frame added to queue" << std::endl;
             }
             while (!videoRunning.load()) {
@@ -134,9 +134,6 @@ private:
 
     CameraControl cameraControl;
 
-
-
-
     void uiLoop() {
         KeyboardInput kbInput(cameraControl);
         CXBOXController xboxController(1);
@@ -156,7 +153,6 @@ private:
                     Action action = kbInput.interpretKey(key);
                     kbInput.performAction(action, videoRunning, frameCondition,  this->controller);//skal returnere en string som e slik: "msg,speed,heading"
                     message = kbInput.getJsonMessageAsString();
-                    std::cout<<"Controller is "<< controller <<std::endl;
                     send_input(message);
                 }
                 displayBuilder.destroyWindow();
@@ -181,7 +177,6 @@ private:
                 cv::waitKey(1);
                 while(this->controller == NOCONTROLLER && !stopflag){
                     stopflag = kbInput.selectController(this->controller);
-                    std::cout<<"controller is "<< controller <<std::endl;
                 }
                 displayBuilder.destroyWindow();
                 }
