@@ -76,7 +76,7 @@ class KeyboardInput{
                     break;
                 case Action::StartVideo:
                     if (!videoRunning.load()) {
-                        msg = "video";
+                        msg = "start_video";
                         videoRunning.store(true);
                     }
                     break;
