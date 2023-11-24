@@ -15,6 +15,7 @@
 #include "sphero/controls/XboxInput.hpp"
 #include "Json reader.hpp"
 #include "Various.hpp"
+#include <typeinfo>
 
 class UserInterface {
 public:
@@ -57,20 +58,16 @@ public:
             while (videoRunning.load()) {
                 std::string data = udpClient.receiveData();
                 jsonReader.updateJson(data);
-
-                std::cout << "loaded video running" << std::endl;
-
                 frame = various::convertStringToFrame(jsonReader.getFrame());
 
                 std::unique_lock<std::mutex> lock(queueMutex);
 
-                if(frameQueue.size() >= 10){
+                if(frameQueue.size() >= 5){
                     frameQueue.pop();
                 }
                 frameQueue.push(std::move(frame));
                 // Notify the display thread that a new frame is available
                 frameCondition.notify_one();
-                std::cout << "frame added to queue" << std::endl;
             }
             while (!videoRunning.load()) {
             std::cout << "Video is not running, thread sleeping for 1 second" << std::endl;
@@ -88,24 +85,24 @@ public:
             if (videoRunning.load()) {
                 cv::Mat frame;
                 {
-                    std::cout << "entered display mut next" << std::endl;
+
                     std::unique_lock<std::mutex> lock(queueMutex);
-                    std::cout << "locked mutex display" << std::endl;
+
                     // Wait for the condition variable to notify that there's a new frame or the video stops running
                     frameCondition.wait(lock, [&]() { return !frameQueue.empty() || !videoRunning; });
                     if (!videoRunning) {
                         break;
                     }
-                    std::cout << "got frame from queue" << std::endl;
 
                     frame = std::move(frameQueue.front());
-                    std::cout << "retrieved frame from queue" << std::endl;
+                    std::cout<<"frameQueue size: "<<frameQueue.size()<<std::endl;
                     frameQueue.pop();
 
+
                 }
-                std::cout << "displaying frame" << std::endl;
+
                 displayFrame(frame);
-                std::cout << "frame displayed" << std::endl;
+
             }
         }
 
@@ -149,10 +146,11 @@ private:
                 cv::waitKey(1);
                 while (this->controller == KEYBOARD) {
                     // Handle input
-                    key = cv::waitKey(0);
+                    key = cv::waitKey(1);
                     Action action = kbInput.interpretKey(key);
                     kbInput.performAction(action, videoRunning, frameCondition,  this->controller);//skal returnere en string som e slik: "msg,speed,heading"
                     message = kbInput.getJsonMessageAsString();
+
                     send_input(message);
                 }
                 displayBuilder.destroyWindow();
@@ -165,8 +163,8 @@ private:
                     xboxController.run(videoRunning, frameCondition, this->controller);
                     // Get the message from controller
                     message = xboxController.getJsonMessageAsString();
-
                     send_input(message);
+
                     std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 }
                 displayBuilder.destroyWindow();
@@ -184,6 +182,7 @@ private:
         }
 
     void displayFrame(cv::Mat& frame) {
+            int fps = 30;
         std::cout << "display"<<std::endl;
         if (!frame.empty()) {
             cv::imshow(windowName, frame);
@@ -191,6 +190,8 @@ private:
         } else {
             std::cerr << "Empty or invalid frame received.\n";
         }
+        //sleep approx 1/fps seconds
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000/fps));
     }
 };
 

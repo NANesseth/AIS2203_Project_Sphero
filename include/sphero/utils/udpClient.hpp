@@ -40,9 +40,8 @@ public:
     }
     void sendMessage(const std::string& message) {
         std::unique_lock<std::mutex> lock(mtx);
-        std::cout<<"locked thread, sending message"<<std::endl;
         socket->send_to(boost::asio::buffer(message), serverEndpoint);
-        std::cout<<"unlocked thread, sent message"<<std::endl;
+
     }
 
 
@@ -51,11 +50,8 @@ public:
         std::unique_lock<std::mutex> lock(mtx);
         boost::array<char, 65536> recv_buf;
         int len = socket->receive_from(boost::asio::buffer(recv_buf), this->serverEndpoint);
-        //TODO: make a timeout on the function above. if no frame is recieved, this one is stuck forever. currently running on another thread. is that ok?
-        // Decode received frame
-
         std::string received_data(recv_buf.data(), len);
-        std::cout<<"decoded frame"<<std::endl;
+        //std::cout<<"decoded frame"<<std::endl;
         return received_data;
     }
 

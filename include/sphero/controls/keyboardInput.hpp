@@ -114,8 +114,6 @@ class KeyboardInput{
             }
         }
 
-
-
     bool selectController(enums::Controller& controller){//TODO: fix this controller stuff
         using namespace enums;
 
