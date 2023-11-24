@@ -86,7 +86,7 @@ public:
 
     std::string getJsonMessageAsString(){
         nlohmann::json message = {
-                {"msg", msg},
+                {"message", msg},
                 {"speed", speed},
                 {"heading", heading},
                 {"panPosition", cameraControl.getPanPosition()},
@@ -160,8 +160,8 @@ public:
                 if(GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A)
                 {
                     if (!videoRunning.load()){
-                        std::cout << "video";
-                        msg = "video";
+                        std::cout << "start_video";
+                        msg = "start_video";
                         videoRunning.store(true);
                     }
                 }

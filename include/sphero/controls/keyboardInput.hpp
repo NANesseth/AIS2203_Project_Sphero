@@ -135,7 +135,7 @@ class KeyboardInput{
 
     std::string getJsonMessageAsString(){
             nlohmann::json message = {
-                    {"msg", msg},
+                    {"message", msg},
                     {"speed", speed},
                     {"heading", heading},
                     {"panPosition", panPosition},
