@@ -41,14 +41,13 @@ public:
     void sendMessage(const std::string& message) {
         std::unique_lock<std::mutex> lock(mtx);
         socket->send_to(boost::asio::buffer(message), serverEndpoint);
-
     }
 
 
-    std::string receiveData() {
+    std::string recieveData() {
         std::cout<<"entered receive frame"<<std::endl;
         std::unique_lock<std::mutex> lock(mtx);
-        boost::array<char, 65536> recv_buf;
+
         int len = socket->receive_from(boost::asio::buffer(recv_buf), this->serverEndpoint);
         std::string received_data(recv_buf.data(), len);
         //std::cout<<"decoded frame"<<std::endl;

@@ -56,7 +56,7 @@ public:
             std::cout << "entered networking" << std::endl;
 
             while (videoRunning.load()) {
-                std::string data = udpClient.receiveData();
+                std::string data = udpClient.recieveData();
                 jsonReader.updateJson(data);
                 frame = various::convertStringToFrame(jsonReader.getFrame());
 
@@ -80,12 +80,11 @@ public:
     void run(){
         uiThread = std::thread(&UserInterface::uiLoop, this);
         networkThread = std::thread(&UserInterface::networking, this);
+        cv::Mat frame;
 
         while(true) {
             if (videoRunning.load()) {
-                cv::Mat frame;
                 {
-
                     std::unique_lock<std::mutex> lock(queueMutex);
 
                     // Wait for the condition variable to notify that there's a new frame or the video stops running
@@ -97,7 +96,6 @@ public:
                     frame = std::move(frameQueue.front());
                     std::cout<<"frameQueue size: "<<frameQueue.size()<<std::endl;
                     frameQueue.pop();
-
 
                 }
 
@@ -188,7 +186,7 @@ private:
             cv::imshow(windowName, frame);
             cv::waitKey(1);
         } else {
-            std::cerr << "Empty or invalid frame received.\n";
+            std::cerr << "Empty or invalid frame recieved.\n";
         }
         //sleep approx 1/fps seconds
         std::this_thread::sleep_for(std::chrono::milliseconds(1000/fps));
