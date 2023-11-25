@@ -1,2 +1,0 @@
-add_executable(observer_demo observer_demo.cpp)
-target_link_libraries(observer_demo PRIVATE sphero)

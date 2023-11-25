@@ -4,7 +4,7 @@
 #include "sphero/core/misc.hpp"
 #include "sphero/core/ImageFetcher.hpp"
 
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
 #include <nlohmann/json.hpp> // Should be removed
 #include <string>
 #include <fstream>
@@ -15,7 +15,7 @@ class ColorCalibrator: public Observer{
 public:
 
     ColorCalibrator(const std::string& windowName = "Color Calibration")
-        : windowName(windowName) {
+        : windowName_(windowName) {
         cv::namedWindow(windowName);
 
         cv::createTrackbar("Min Red", windowName, &colorValues_.R_min, 255);
@@ -41,14 +41,10 @@ public:
                     mask);
 
         cv::bitwise_and(frame, frame, result, mask);
-
-        //cv::imshow(windowName, result);
         {
-            std::lock_guard<std::mutex> lock(mutex_);
+            std::lock_guard<std::mutex> lock(newestFrame_mutex_);
             result.copyTo(newestFrame);
         }
-
-        //cv::waitKey(1);
     }
 
     [[nodiscard]] ColorValues getColorValues() const {
@@ -60,15 +56,18 @@ public:
     }
 
     cv::Mat getNewestFrame() {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::lock_guard<std::mutex> lock(newestFrame_mutex_);
         return newestFrame.clone();
     }
 
 private:
-    std::string windowName;
+    std::string windowName_;
 
-    std::mutex mutex_;
+    std::mutex newestFrame_mutex_;
     cv::Mat newestFrame;
+
+    std::mutex overlay_mutex_;
+    cv::Mat overlay_;
 
     ColorValues colorValues_;
 };
