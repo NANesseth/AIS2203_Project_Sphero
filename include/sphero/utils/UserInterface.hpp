@@ -23,112 +23,95 @@ public:
         cv::namedWindow(windowName);
     }
     ~UserInterface() {
-        videoRunning.store(false);
         if (uiThread.joinable()) {
             uiThread.join();
         }
-        if (networkThread.joinable()) {
-            networkThread.join();
+        if (receiverThread.joinable()) {
+            receiverThread.join();
+        }
+        if (sendingThread.joinable()) {
+            sendingThread.join();
         }
         cv::destroyWindow(windowName);
     }
 
-    void send_input(std::string& input) {
-        if (!input.empty()){
-            if (input != "exit") {
-                udpClient.sendMessage(input);
-                std::cout<<input<<" sent"<<std::endl;
-                if (input == "video") {
-                    videoRunning.store(true);
-                }
-            } else {
-                std::cout << "Exiting application.\n";
-                videoRunning.store(false);
-            }
-        }
-    }
-
-    void networking() {
+    void receiving(){
         JsonReader jsonReader;
-        cv::Mat frame;
+        std::string data;
 
-        while(true) {//TODO: make this smarter. need a stopflag
-            std::cout << "entered networking" << std::endl;
+        while (true){
+            data = udpClient.receiveData();
+            jsonReader.updateJson(data);
+            jsonQueue.push(jsonReader);
+            dataCondition.notify_all();
 
-            while (videoRunning.load()) {
-                std::string data = udpClient.receiveData();
-                jsonReader.updateJson(data);
-                frame = various::convertStringToFrame(jsonReader.getFrame());
-
-                std::unique_lock<std::mutex> lock(queueMutex);
-
-                if(frameQueue.size() >= 5){
-                    frameQueue.pop();
-                }
-                frameQueue.push(std::move(frame));
-                // Notify the display thread that a new frame is available
-                frameCondition.notify_one();
-            }
-            while (!videoRunning.load()) {
-            std::cout << "Video is not running, thread sleeping for 1 second" << std::endl;
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
 
+    void sending(){
+        if (!messageToSend.empty()){
+            if (messageToSend != "exit"){
+                udpClient.sendMessage(messageToSend);
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
 
-    void run(){
+    void run() {
         uiThread = std::thread(&UserInterface::uiLoop, this);
-        networkThread = std::thread(&UserInterface::networking, this);
+        receiverThread = std::thread(&UserInterface::receiving, this);
+        sendingThread = std::thread(&UserInterface::sending, this);
 
         cv::Mat frame;
+        auto hasData = [this]() { return !jsonQueue.empty(); };
 
-        while(true) {
-            if (videoRunning.load()) {
-                {
-                    std::unique_lock<std::mutex> lock(queueMutex);
+        while (true) {
+            {
+                std::unique_lock<std::mutex> lock(queueMutex);
+                dataCondition.wait(lock, hasData);
 
-                    // Wait for the condition variable to notify that there's a new frame or the video stops running
-                    frameCondition.wait(lock, [&]() { return !frameQueue.empty() || !videoRunning; });
-                    if (!videoRunning) {
-                        break;
+                // Process the data from the queue
+                while (!jsonQueue.empty()) {
+
+                    data = jsonQueue.front();
+                    jsonQueue.pop();
+
+                    frame = data.getFrame();
+                    try{
+                        displayFrame(frame);
+                    }
+                    catch(std::exception& e){
+                        std::cout<<"error when displaying frame: " << e.what()<<std::endl;
                     }
 
-                    frame = std::move(frameQueue.front());
-                    std::cout<<"frameQueue size: "<<frameQueue.size()<<std::endl;
-                    frameQueue.pop();
-
                 }
 
-                displayFrame(frame);
-
+                // Print a message when new data is available
+                std::cout << "New data received and processed." << std::endl;
             }
-        }
 
-        if (uiThread.joinable()) {
-            uiThread.join();
         }
-        if (networkThread.joinable()) {
-            networkThread.join();
-        }
-        std::cout<<"threads joined"<<std::endl;
     }
 
 private:
     UdpClient& udpClient;
     const std::string windowName = "Control Window";
     std::thread uiThread;
-    std::thread networkThread;
-    std::atomic<bool> videoRunning = false;
+    std::thread receiverThread;
+    std::thread sendingThread;
 
-    std::queue<cv::Mat> frameQueue;
+    CameraControl cameraControl;
+    JsonReader data;
+    std::queue<JsonReader> jsonQueue;
     std::mutex queueMutex;
-    std::condition_variable frameCondition;
+    std::condition_variable dataCondition;
 
     DisplayBuilder displayBuilder;
     enums::Controller controller;
 
-    CameraControl cameraControl;
+    std::string messageToSend;
+
 
     void uiLoop() {
         KeyboardInput kbInput(cameraControl);
@@ -147,10 +130,9 @@ private:
                     // Handle input
                     key = cv::waitKey(1);
                     Action action = kbInput.interpretKey(key);
-                    kbInput.performAction(action, videoRunning, frameCondition,  this->controller);//skal returnere en string som e slik: "msg,speed,heading"
-                    message = kbInput.getJsonMessageAsString();
+                    kbInput.performAction(action, data,  this->controller);//skal returnere en string som e slik: "msg,speed,heading"
+                    messageToSend = kbInput.getJsonMessageAsString();
 
-                    send_input(message);
                 }
                 displayBuilder.destroyWindow();
             }
@@ -159,10 +141,10 @@ private:
                 cv::waitKey(1);
                 while(this-> controller == XBOX){
                     // TODO: implement xbox controller
-                    xboxController.run(videoRunning, frameCondition, this->controller);
+                    xboxController.run(data, this->controller);
                     // Get the message from controller
-                    message = xboxController.getJsonMessageAsString();
-                    send_input(message);
+                    messageToSend = xboxController.getJsonMessageAsString();
+
 
                     std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 }

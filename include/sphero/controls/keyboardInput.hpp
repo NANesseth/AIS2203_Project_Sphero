@@ -9,6 +9,7 @@
 #include <nlohmann/json.hpp>
 
 
+
 class KeyboardInput{
     public:
         explicit KeyboardInput(CameraControl& camera_control, int initialSpeed = 0, int initialHeading = 0)
@@ -36,84 +37,69 @@ class KeyboardInput{
                 default: return Action::None;
             }
         }
-    int getSpeed() const {
+    const int getSpeed() const {
         return speed;
     }
 
-    int getHeading() const {
+    const int getHeading() const {
         return heading;
     }
 
-    std::string getMsg() const {
-        return msg;
-    }
+    void performAction(enums::Action action, JsonReader& data, enums::Controller& controller){
+        using namespace enums;
+        switch(action){
 
-    bool isStopFlag() const {
-        return stopflag;
-    }
 
-        void performAction(enums::Action action, std::atomic<bool>& videoRunning, std::condition_variable &frameCondition, enums::Controller& controller){
-            switch(action){
-                using namespace enums;
-
-                case Action::Drive: msg = "drive"; break;
-                case Action::DriveReverse: msg = "drive_reverse"; break;
-                case Action::Stop: speed = 0; break;
-                case Action::TurnLeft:
-                    heading = (heading - headingIncrement) % 360;
-                    if (heading < 0) heading += 360;
-                    break;
-                case Action::TurnRight:
-                    heading = (heading + headingIncrement) % 360;
-                    break;
-                case Action::IncreaseSpeed:
-                    speed += speedIncrement;
-                    if (speed > maxSpeed) speed = maxSpeed;
-                    break;
-                case Action::DecreaseSpeed:
-                    speed -= speedIncrement;
-                    if (speed < 0) speed = 0;
-                    break;
-                case Action::StartVideo:
-                    if (!videoRunning.load()) {
-                        msg = "start_video";
-                        videoRunning.store(true);
-                    }
-                    break;
-                case Action::StopVideo:
-                    if (videoRunning.load()) {
-                        msg = "stop_video";
-                        frameCondition.notify_all();
-                        videoRunning.store(false);
-                    }
-                    break;
-                case Action::CameraUp:
-                    tiltPosition += tiltIncrement;
-                    cameraControl.setTiltPosition(tiltPosition);
-                    break;
-                case Action::CameraDown:
-                    tiltPosition -= tiltIncrement;
-                    cameraControl.setTiltPosition(tiltPosition);
-                    break;
-                case Action::CameraLeft:
-                    panPosition -= panIncrement;
-                    cameraControl.setPanPosition(panPosition);
-                    break;
-                case Action::CameraRight:
-                    panPosition += panIncrement;
-                    cameraControl.setPanPosition(panPosition);
-                    break;
-                case Action::Exit:
-                    msg = "exit";
-                    videoRunning.store(false);
-                    controller = NOCONTROLLER;
-                    break;
-                case Action::None:
-                default:
-                    msg = "no input";
-                    break;
-            }
+            case Action::Drive: msg = "drive"; break;
+            case Action::DriveReverse: msg = "drive_reverse"; break;
+            case Action::Stop: speed = 0; break;
+            case Action::TurnLeft:
+                heading = (heading - headingIncrement) % 360;
+                if (heading < 0) heading += 360;
+                break;
+            case Action::TurnRight:
+                heading = (heading + headingIncrement) % 360;
+                break;
+            case Action::IncreaseSpeed:
+                speed += speedIncrement;
+                if (speed > maxSpeed) speed = maxSpeed;
+                break;
+            case Action::DecreaseSpeed:
+                speed -= speedIncrement;
+                if (speed < 0) speed = 0;
+                break;
+            case Action::StartVideo:
+                    msg = "start_video";
+                break;
+            case Action::StopVideo:
+                    msg = "stop_video";
+                break;
+            case Action::CameraUp:
+                tiltPosition += tiltIncrement;
+                cameraControl.setTiltPosition(tiltPosition);
+                break;
+            case Action::CameraDown:
+                tiltPosition -= tiltIncrement;
+                cameraControl.setTiltPosition(tiltPosition);
+                break;
+            case Action::CameraLeft:
+                panPosition -= panIncrement;
+                cameraControl.setPanPosition(panPosition);
+                break;
+            case Action::CameraRight:
+                panPosition += panIncrement;
+                cameraControl.setPanPosition(panPosition);
+                break;
+            case Action::Exit:
+                msg = "exit";
+                controller = NOCONTROLLER;
+                break;
+            case Action::None:
+            default:
+                msg = "no input";
+                break;
         }
+    }
 
     bool selectController(enums::Controller& controller){//TODO: fix this controller stuff
         using namespace enums;

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <nlohmann/json.hpp>
+#include "Various.hpp"
 
 class JsonReader{
 private:
@@ -11,27 +12,40 @@ private:
     std::string frame_s;
     std::string battery_level;
     nlohmann::json jsonFile;
+    cv::Mat frame;
+    bool videoRunning;
+
 public:
+    void updateJson(const std::string& jsonData) {
+        try {
+            jsonFile = nlohmann::json::parse(jsonData);
+        } catch (const nlohmann::json::parse_error& e) {
+            std::cerr << "JSON parsing error: " << e.what() << '\n';
+            return;
+        }
 
+        if (jsonFile.contains("frame")) {
+            frame_s = jsonFile["frame"].get<std::string>();
+            frame = various::convertStringToFrame(frame_s);
+        }
+        if (jsonFile.contains("battery_level")) {
+            battery_level = jsonFile["battery_level"].get<std::string>();
+        }
+        if (jsonFile.contains("videoRunning")) {
+            videoRunning = jsonFile["videoRunning"].get<bool>();
+        }
+    }
 
-      void updateJson(std::string& jsonData) {
-          jsonFile = nlohmann::json::parse(jsonData);
+    cv::Mat getFrame() const {
+      return frame_s;
+    }
 
-          if (jsonFile.contains("frame")) {
-              frame_s = jsonFile["frame"].get<std::string>();
-          }
-          if (jsonFile.contains("battery_level")) {
-              frame_s = jsonFile["frame"].get<std::string>();
-          }
-      }
-      std::string getFrame() const {
-          return frame_s;
-      }
-
-      std::string getBatteryLevel() const {
-          return battery_level;
-      }
-
+    std::string getBatteryLevel() const {
+      return battery_level;
+}
+    bool isVideoRunning() const {
+          return videoRunning;
+    }
 
 
 };

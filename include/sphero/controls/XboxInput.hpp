@@ -1,11 +1,12 @@
 #ifndef AIS2203_PROJECT_SPHERO_XBOXINPUT_HPP
 #define AIS2203_PROJECT_SPHERO_XBOXINPUT_HPP
-#include <windows.h>
+#include "nlohmann/json.hpp"
+#include "sphero/controls/CameraControls.hpp"
 #include <XInput.h>
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <utility>
-#include "sphero/controls/CameraControls.hpp"
+#include <windows.h>
 
 #pragma comment(lib, "XInput.lib")
 
@@ -154,29 +155,22 @@ public:
         return static_cast<int>(scaledVal);
     }
 
-    void run(std::atomic<bool>& videoRunning, std::condition_variable &frameCondition, enums::Controller& controller){
+    void run(JsonReader& data, enums::Controller& controller){
             if(IsConnected())
             {
                 if(GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A)
                 {
-                    if (!videoRunning.load()){
-                        std::cout << "start_video";
-                        msg = "start_video";
-                        videoRunning.store(true);
+                    std::cout << "start_video";
+                    msg = "start_video";
                     }
                 }
 
                 if(GetState().Gamepad.wButtons & XINPUT_GAMEPAD_B)
                 {
-                    if (videoRunning.load()) {
                         msg = "stop_video";
-                        frameCondition.notify_all(); // Wake up any waiting threads
-                        videoRunning.store(false);
-                    }
                 }
                 if(GetState().Gamepad.wButtons & XINPUT_GAMEPAD_START){
                     msg = "exit";
-                    videoRunning.store(false);
                     controller = enums::NOCONTROLLER;
                 }
 
@@ -206,13 +200,12 @@ public:
                     std::cout << "speed: " << speed << std::endl;
 
                 }
-            }
-            else
-            {
-                std::cout << "\n\tERROR! PLAYER 1 - XBOX 360 Controller Not Found!\n";
-                std::cout << "Press Any Key To Exit.";
-                std::cin.get();
-            }
+                else
+                {
+                    std::cout << "\n\tERROR! PLAYER 1 - XBOX 360 Controller Not Found!\n";
+                    std::cout << "Press Any Key To Exit.";
+                    std::cin.get();
+                }
 
     }
 };

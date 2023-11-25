@@ -17,4 +17,8 @@
   }, {
     "name" : "boost-beast",
     "version>=" : "1.83.0"
-  }]}
+  }, {
+    "name" : "boost-function",
+    "version>=" : "1.83.0"
+  } ]
+}
