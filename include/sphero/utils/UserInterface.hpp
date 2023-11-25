@@ -80,6 +80,7 @@ public:
     void run(){
         uiThread = std::thread(&UserInterface::uiLoop, this);
         networkThread = std::thread(&UserInterface::networking, this);
+
         cv::Mat frame;
 
         while(true) {
@@ -183,6 +184,7 @@ private:
             int fps = 30;
         std::cout << "display"<<std::endl;
         if (!frame.empty()) {
+            cv::resize(frame, frame, cv::Size(640, 480));
             cv::imshow(windowName, frame);
             cv::waitKey(1);
         } else {
