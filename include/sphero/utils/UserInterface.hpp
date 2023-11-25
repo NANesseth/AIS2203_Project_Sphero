@@ -48,17 +48,27 @@ public:
         }
     }
 
-    void sending(){
-        while(true){
+    void sending() {
+        while (true) {
+            std::string message;
+            {
+                std::unique_lock<std::mutex> lock(sendMutex);
+                sendCondition.wait(lock, [this](){ return !sendQueue.empty(); });
+                if (!sendQueue.empty()) {
+                    message = sendQueue.front();
+                    sendQueue.pop();
+                }
 
-            if (!messageToSend.empty()){
-                std::cout<<"message not empty"<<std::endl;
-                udpClient.sendMessage(messageToSend);
             }
-            else{
-                std::cout<<"message empty"<<std::endl;
 
+            if (!message.empty()){
+                std::cout << "sending: " << message.size() << "bytes" << std::endl;
+                udpClient.sendMessage(message);
             }
+            else {
+                std::cout << "message empty" << std::endl;
+            }
+
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
@@ -113,7 +123,23 @@ private:
     DisplayBuilder displayBuilder;
     enums::Controller controller;
 
+    std::queue<std::string> sendQueue;
+    std::condition_variable sendCondition;
+    std::mutex sendMutex;
     std::string messageToSend;
+
+    int MAX_QUEUE_SIZE = 10;
+
+    void pushMessage(const std::string& message) {
+        if (!message.empty()) {
+            if (sendQueue.size() >= MAX_QUEUE_SIZE) {
+                sendQueue.pop();
+            }
+            sendQueue.push(message);
+            std::cout << "message to send: " << message << std::endl;
+            sendCondition.notify_all();
+        }
+    }
 
 
     void uiLoop() {
@@ -133,25 +159,25 @@ private:
                     // Handle input
                     key = cv::waitKey(1);
                     Action action = kbInput.interpretKey(key);
-                    kbInput.performAction(action,  this->controller);//skal returnere en string som e slik: "msg,speed,heading"
-                    messageToSend = kbInput.getJsonMessageAsString();
-                    std::cout<<messageToSend<<std::endl;
+                    kbInput.performAction(action,  this->controller);
+                    message = kbInput.getJsonMessageAsString();
 
+                    std::unique_lock<std::mutex> lock(sendMutex);
+                    pushMessage(message);
                 }
                 displayBuilder.destroyWindow();
             }
-            else if (this -> controller == XBOX){
+            else if (this -> controller == XBOX) {
                 displayBuilder.buildXboxMenu();
                 cv::waitKey(1);
-                while(this-> controller == XBOX){
+                while (this->controller == XBOX) {
                     // TODO: implement xbox controller
-                    xboxController.run(data, this->controller);
+                    xboxController.run(controller);
                     // Get the message from controller
-                    messageToSend = xboxController.getJsonMessageAsString();
-
-                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                    message = xboxController.getJsonMessageAsString();
+                    std::unique_lock<std::mutex> lock(sendMutex);
+                    pushMessage(message);
                 }
-                displayBuilder.destroyWindow();
             }
             else{
                 displayBuilder.buildMainMenu();

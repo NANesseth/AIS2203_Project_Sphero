@@ -42,16 +42,25 @@ public:
 
     void sendMessage(const std::string& message) {
 
-        std::unique_lock<std::mutex> lock(mtx);
+        boost::asio::ip::udp::endpoint endpointCopy;
+        std::string messageCopy;
+
+        {
+            std::unique_lock<std::mutex> lock(mtx);
+            endpointCopy = serverEndpoint;
+            messageCopy = message;
+        }
+
         try {
-            bytes_transferred = socket->send_to(boost::asio::buffer(message), serverEndpoint);
-        } catch (const boost::system::system_error& ex) {
+            bytes_transferred = socket->send_to(boost::asio::buffer(messageCopy), endpointCopy);
+        }
+        catch (const boost::system::system_error& ex) {
             std::cout << "Error sending message: " << ex.what() << "\n";
             return;
         }
+
         std::cout << "Bytes sent: " << bytes_transferred << "\n";
     }
-
 
     std::string receiveData() {
         std::cout<<"entered receive frame"<<std::endl;

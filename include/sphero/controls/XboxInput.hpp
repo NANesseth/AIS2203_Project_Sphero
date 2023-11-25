@@ -156,7 +156,7 @@ public:
         return static_cast<int>(scaledVal);
     }
 
-    void run(JsonReader& data, enums::Controller& controller){
+    void run(enums::Controller& controller){
             if(IsConnected())
             {
                 if(GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A)
