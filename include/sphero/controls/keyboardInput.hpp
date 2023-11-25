@@ -110,6 +110,7 @@ class KeyboardInput{
                     break;
                 case Action::None:
                 default:
+                    msg = "no input";
                     break;
             }
         }
