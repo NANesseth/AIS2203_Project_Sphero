@@ -5,14 +5,18 @@
 int main() {
     USBCamera camera(0);
     ColorCalibrator calibrator;
+    camera.addObserver(&calibrator);
 
     camera.start();
 
     cv::Mat frame;
+
+    // Wait for first frame (consider condition variable)
+    while(!camera.getFrame(frame));
+
     while (true) {
-        if (camera.getFrame(frame)) {
-            calibrator.processFrame(frame);
-        }
+        // To show the frame on main thread
+        cv::imshow("Color Calibration", calibrator.getNewestFrame());
 
         char key = static_cast<char>(cv::waitKey(1));
         if (key == 's') {
@@ -26,5 +30,6 @@ int main() {
     }
 
     camera.stop();
+    camera.removeObserver(&calibrator);
     return 0;
 }

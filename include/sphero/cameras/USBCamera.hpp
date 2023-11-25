@@ -31,6 +31,7 @@ protected:
                 std::lock_guard<std::mutex> lock(mutex_);
                 frameQueue_.push(frame);
                 // frameAvailable_.notify_one(); // If using condition variables
+                notifyObservers(frame);
             } else {
                 std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Sleep on failed capture
             }

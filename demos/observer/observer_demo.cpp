@@ -3,6 +3,8 @@
 #include <iostream>
 #include <chrono>
 
+// This demo code no longer shows a working part of the project, and is to be deleted
+
 // Extending SpecificObserver to do something more specific
 // One implementation of SpecificObserver as shown in Observer.hpp
 class TimerObserver: public Observer {

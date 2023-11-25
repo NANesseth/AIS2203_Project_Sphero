@@ -57,7 +57,6 @@ public:
         observers_.erase(std::remove(observers_.begin(), observers_.end(), observer), observers_.end());
     }
 
-
 protected:
     virtual void captureLoop() = 0; //
 
@@ -70,8 +69,16 @@ protected:
     std::vector<Observer*> observers_;
 
     void notifyObservers(const cv::Mat& frame) {
-        std::lock_guard<std::mutex> lock(observers_mutex_);
-        for (auto& observer : observers_) {
+//        std::lock_guard<std::mutex> lock(observers_mutex_);
+//        for (auto& observer : observers_) {
+//            observer->onFrameAvailable(frame);
+//        }
+        std::vector<Observer*> copyObservers;
+        {
+            std::lock_guard<std::mutex> lock(observers_mutex_);
+            copyObservers = observers_;
+        }
+        for (auto& observer : copyObservers) {
             observer->onFrameAvailable(frame);
         }
     }

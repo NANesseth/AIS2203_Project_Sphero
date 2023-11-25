@@ -2,6 +2,7 @@
 #define AIS2203_PROJECT_SPHERO_COLORCALIBRATOR_HPP
 
 #include "sphero/core/misc.hpp"
+#include "sphero/core/ImageFetcher.hpp"
 
 #include <opencv2/opencv.hpp>
 #include <nlohmann/json.hpp> // Should be removed
@@ -9,7 +10,8 @@
 #include <fstream>
 #include <iostream>
 
-class ColorCalibrator {
+// This works as a GUI as of now
+class ColorCalibrator: public Observer{
 public:
 
     ColorCalibrator(const std::string& windowName = "Color Calibration")
@@ -24,7 +26,10 @@ public:
 
         cv::createTrackbar("Min Blue", windowName, &colorValues_.B_min, 255);
         cv::createTrackbar("Max Blue", windowName, &colorValues_.B_max, 255);
+    }
 
+    void onFrameAvailable(const cv::Mat& frame) override {
+        processFrame(frame);
     }
 
     void processFrame(const cv::Mat& frame) {
@@ -37,8 +42,13 @@ public:
 
         cv::bitwise_and(frame, frame, result, mask);
 
-        cv::imshow(windowName, result);
-        cv::waitKey(1);
+        //cv::imshow(windowName, result);
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            result.copyTo(newestFrame);
+        }
+
+        //cv::waitKey(1);
     }
 
     [[nodiscard]] ColorValues getColorValues() const {
@@ -49,8 +59,16 @@ public:
         colorValues_ = colorValues;
     }
 
+    cv::Mat getNewestFrame() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return newestFrame.clone();
+    }
+
 private:
     std::string windowName;
+
+    std::mutex mutex_;
+    cv::Mat newestFrame;
 
     ColorValues colorValues_;
 };
