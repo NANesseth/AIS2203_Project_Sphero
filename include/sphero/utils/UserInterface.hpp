@@ -56,7 +56,7 @@ public:
             std::cout << "entered networking" << std::endl;
 
             while (videoRunning.load()) {
-                std::string data = udpClient.recieveData();
+                std::string data = udpClient.receiveData();
                 jsonReader.updateJson(data);
                 frame = various::convertStringToFrame(jsonReader.getFrame());
 
@@ -188,7 +188,7 @@ private:
             cv::imshow(windowName, frame);
             cv::waitKey(1);
         } else {
-            std::cerr << "Empty or invalid frame recieved.\n";
+            std::cerr << "Empty or invalid frame received.\n";
         }
         //sleep approx 1/fps seconds
         std::this_thread::sleep_for(std::chrono::milliseconds(1000/fps));

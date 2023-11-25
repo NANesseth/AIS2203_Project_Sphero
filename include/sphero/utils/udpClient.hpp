@@ -44,7 +44,7 @@ public:
     }
 
 
-    std::string recieveData() {
+    std::string receiveData() {
         std::cout<<"entered receive frame"<<std::endl;
         std::unique_lock<std::mutex> lock(mtx);
 
