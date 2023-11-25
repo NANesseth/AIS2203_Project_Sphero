@@ -38,7 +38,6 @@ public:
     void receiving(){
         JsonReader jsonReader;
         std::string data;
-
         while (true){
             data = udpClient.receiveData();
             jsonReader.updateJson(data);
@@ -50,12 +49,18 @@ public:
     }
 
     void sending(){
-        if (!messageToSend.empty()){
-            if (messageToSend != "exit"){
+        while(true){
+
+            if (!messageToSend.empty()){
+                std::cout<<"message not empty"<<std::endl;
                 udpClient.sendMessage(messageToSend);
             }
+            else{
+                std::cout<<"message empty"<<std::endl;
+
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     void run() {
@@ -84,9 +89,7 @@ public:
                     catch(std::exception& e){
                         std::cout<<"error when displaying frame: " << e.what()<<std::endl;
                     }
-
                 }
-
                 // Print a message when new data is available
                 std::cout << "New data received and processed." << std::endl;
             }
@@ -130,8 +133,9 @@ private:
                     // Handle input
                     key = cv::waitKey(1);
                     Action action = kbInput.interpretKey(key);
-                    kbInput.performAction(action, data,  this->controller);//skal returnere en string som e slik: "msg,speed,heading"
+                    kbInput.performAction(action,  this->controller);//skal returnere en string som e slik: "msg,speed,heading"
                     messageToSend = kbInput.getJsonMessageAsString();
+                    std::cout<<messageToSend<<std::endl;
 
                 }
                 displayBuilder.destroyWindow();
@@ -145,11 +149,9 @@ private:
                     // Get the message from controller
                     messageToSend = xboxController.getJsonMessageAsString();
 
-
                     std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 }
                 displayBuilder.destroyWindow();
-
             }
             else{
                 displayBuilder.buildMainMenu();

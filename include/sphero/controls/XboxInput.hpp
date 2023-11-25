@@ -7,6 +7,8 @@
 #include <opencv2/opencv.hpp>
 #include <utility>
 #include <windows.h>
+#include "sphero/utils/Json reader.hpp"
+#include "sphero/utils/enums.hpp"
 
 #pragma comment(lib, "XInput.lib")
 
@@ -20,7 +22,6 @@ private:
     int heading = 0;
     static constexpr int maxSpeed = 100;
     std::string msg = "empty";
-
 
     CameraControl cameraControl;
 

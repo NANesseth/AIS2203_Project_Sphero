@@ -6,6 +6,7 @@
 #include <utility>
 #include "sphero/utils/enums.hpp"
 #include "sphero/controls/CameraControls.hpp"
+#include "sphero/utils/Json reader.hpp"
 #include <nlohmann/json.hpp>
 
 
@@ -45,7 +46,7 @@ class KeyboardInput{
         return heading;
     }
 
-    void performAction(enums::Action action, JsonReader& data, enums::Controller& controller){
+    void performAction(enums::Action action, enums::Controller& controller){
         using namespace enums;
         switch(action){
 
@@ -116,7 +117,6 @@ class KeyboardInput{
         std::cout<<"Controller is "<< controller <<std::endl;
         return stopflag;
     }
-
 
     std::string getJsonMessageAsString(){
             nlohmann::json message = {

@@ -37,7 +37,7 @@ public:
     }
 
     cv::Mat getFrame() const {
-      return frame_s;
+      return frame;
     }
 
     std::string getBatteryLevel() const {

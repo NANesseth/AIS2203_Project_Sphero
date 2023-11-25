@@ -28,6 +28,7 @@ private:
     std::unique_ptr<boost::asio::ip::udp::socket> socket; // Moved to here
     boost::asio::ip::udp::endpoint serverEndpoint;
     boost::array<char, 65536> recv_buf;
+    size_t bytes_transferred;
 
 
 public:
@@ -38,9 +39,17 @@ public:
         std::string ip = getLocalIp();
         std::cout << "Client started at " << ip << ":" << port << "\n";
     }
+
     void sendMessage(const std::string& message) {
+
         std::unique_lock<std::mutex> lock(mtx);
-        socket->send_to(boost::asio::buffer(message), serverEndpoint);
+        try {
+            bytes_transferred = socket->send_to(boost::asio::buffer(message), serverEndpoint);
+        } catch (const boost::system::system_error& ex) {
+            std::cout << "Error sending message: " << ex.what() << "\n";
+            return;
+        }
+        std::cout << "Bytes sent: " << bytes_transferred << "\n";
     }
 
 
