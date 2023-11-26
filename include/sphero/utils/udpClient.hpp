@@ -8,6 +8,8 @@
 #include <opencv2/opencv.hpp>
 #include <mutex>
 
+#include <variant>
+#include "Json reader.hpp"
 using namespace cv;
 
 inline std::string getLocalIp() {
@@ -25,10 +27,12 @@ private:
     std::unique_ptr<boost::asio::io_service> io_service; // Moved to here
     std::unique_ptr<boost::asio::ip::udp::socket> socket; // Moved to here
     boost::asio::ip::udp::endpoint serverEndpoint;
-    std::string lastMessage;
+    boost::array<char, 65536> recv_buf;
+    size_t bytes_transferred;
+
 
 public:
-    UdpClient(int port, const boost::asio::ip::udp::endpoint& serverEndpoint)
+    UdpClient(const int port, const boost::asio::ip::udp::endpoint& serverEndpoint)
             : io_service(std::make_unique<boost::asio::io_service>()),
               socket(std::make_unique<boost::asio::ip::udp::socket>(*io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port))),
               serverEndpoint(serverEndpoint) {
@@ -37,29 +41,31 @@ public:
     }
 
     void sendMessage(const std::string& message) {
+
         std::unique_lock<std::mutex> lock(mtx);
-        std::cout<<"locked thread, sending message"<<std::endl;
-        socket->send_to(boost::asio::buffer(message), serverEndpoint);
-        lastMessage = message;
-        std::cout<<"unlocked thread, sent message"<<std::endl;
+        try {
+            bytes_transferred = socket->send_to(boost::asio::buffer(message), serverEndpoint);
+        } catch (const boost::system::system_error& ex) {
+            std::cout << "Error sending message: " << ex.what() << "\n";
+            return;
+        }
+        std::cout << "Bytes sent: " << bytes_transferred << "\n";
     }
 
-    cv::Mat receiveFrame() {
+
+    std::string receiveData() {
         std::cout<<"entered receive frame"<<std::endl;
         std::unique_lock<std::mutex> lock(mtx);
-        boost::array<char, 65536> recv_buf;
+
         int len = socket->receive_from(boost::asio::buffer(recv_buf), this->serverEndpoint);
-        //TODO: make a timeout on the function above. if no frame is recieved, this one is stuck forever. currently running on another thread. is that ok?
-        // Decode received frame
-        std::vector<uchar> decode_buf(recv_buf.begin(), recv_buf.begin() + len);
-        cv::Mat frame = cv::imdecode(decode_buf, 1);
-        std::cout<<"decoded frame"<<std::endl;
-        return frame;
+        std::string received_data(recv_buf.data(), len);
+        //std::cout<<"decoded frame"<<std::endl;
+        return received_data;
     }
 
-    std::string getLastMessage() const {
-        return lastMessage;
-    }
+    //Move to json class later
+
+
 };
 
 #endif //AIS2203_PROJECT_SPHERO_UDPCLIENT_HPP

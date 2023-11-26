@@ -6,6 +6,9 @@
 #include <utility>
 #include "sphero/utils/enums.hpp"
 #include "sphero/controls/CameraControls.hpp"
+#include "sphero/utils/Json reader.hpp"
+#include <nlohmann/json.hpp>
+
 
 
 class KeyboardInput{
@@ -14,96 +17,133 @@ class KeyboardInput{
     : speed(initialSpeed), heading(initialHeading), cameraControl(camera_control) {
         }
 
-        void getKeyboardInput(std::atomic<bool>& videoRunning, std::condition_variable &frameCondition, enums::Controller& controller){
-            int key;
+    enums::Action interpretKey(int key) {
+            using namespace enums;
             const char ESC_KEY = 27;
-            key = cv::waitKey(0);
-
             switch (key) {
-                case 'w': msg = "drive"; break;
-                case 's': msg = "drive_reverse"; break;
-                case ' ': speed = 0; break; //press space to stop driving
-                case 'a':
-                    heading = (heading - headingIncrement) % 360;
-                    if (heading < 0) heading += 360;  // Correct negative values
-                    break;
-                case 'd':
-                    heading = (heading + headingIncrement) % 360;
-                    break;
-                case 'p':
-                    speed += speedIncrement;
-                    if (speed > maxSpeed) speed = maxSpeed;
-                    break;
-                case 'm':
-                    speed -= speedIncrement;
-                    if (speed < 0) speed = 0;
-                    break;
-                case 'v':
-                    if (!videoRunning.load()) {
-                        msg = "video";
-                        videoRunning.store(true);
-                    }
-                    break;
-                case 'c':
-                    if (videoRunning.load()) {
-                        msg = "stop_video";
-                        frameCondition.notify_all(); // Wake up any waiting threads
-                        videoRunning.store(false);
-                    }
-                    break;
-                case 'i': // cam up
-                    std::cout << "Up key pressed\n";
-                    cameraControl.setTiltPosition(cameraControl.getTiltPosition() + tiltIncrement);
-                    break;
-                case 'k': // cam down
-                    cameraControl.setTiltPosition(cameraControl.getTiltPosition() - tiltIncrement);
-                    break;
-                case 'j': // cam left
-                    std::cout << "Left key pressed\n";
-                    cameraControl.setPanPosition(cameraControl.getPanPosition() - panIncrement);
-                    break;
-                case 'l': // cam right
-                    std::cout << "Right key pressed\n";
-                    cameraControl.setPanPosition(cameraControl.getPanPosition() + panIncrement);
-                    break;
-                case ESC_KEY:
-                    msg = "exit";
-                    videoRunning.store(false);
-                    controller = enums::NOCONTROLLER;
-                    break;
-
+                case 'w': return Action::Drive;
+                case 's': return Action::DriveReverse;
+                case ' ': return Action::Stop;
+                case 'a': return Action::TurnLeft;
+                case 'd': return Action::TurnRight;
+                case 'p': return Action::IncreaseSpeed;
+                case 'm': return Action::DecreaseSpeed;
+                case 'v': return Action::StartVideo;
+                case 'c': return Action::StopVideo;
+                case 'i': return Action::CameraUp;
+                case 'k': return Action::CameraDown;
+                case 'j': return Action::CameraLeft;
+                case 'l': return Action::CameraRight;
+                case ESC_KEY: return Action::Exit;
+                default: return Action::None;
             }
         }
+    const int getSpeed() const {
+        return speed;
+    }
+
+    const int getHeading() const {
+        return heading;
+    }
+
+    void performAction(enums::Action action, enums::Controller& controller){
+        using namespace enums;
+        switch(action){
+
+
+            case Action::Drive: msg = "drive"; break;
+            case Action::DriveReverse: msg = "drive_reverse"; break;
+            case Action::Stop: speed = 0; break;
+            case Action::TurnLeft:
+                heading = (heading - headingIncrement) % 360;
+                if (heading < 0) heading += 360;
+                break;
+            case Action::TurnRight:
+                heading = (heading + headingIncrement) % 360;
+                break;
+            case Action::IncreaseSpeed:
+                speed += speedIncrement;
+                if (speed > maxSpeed) speed = maxSpeed;
+                break;
+            case Action::DecreaseSpeed:
+                speed -= speedIncrement;
+                if (speed < 0) speed = 0;
+                break;
+            case Action::StartVideo:
+                    msg = "start_video";
+                break;
+            case Action::StopVideo:
+                    msg = "stop_video";
+                break;
+            case Action::CameraUp:
+                tiltPosition += tiltIncrement;
+                cameraControl.setTiltPosition(tiltPosition);
+                break;
+            case Action::CameraDown:
+                tiltPosition -= tiltIncrement;
+                cameraControl.setTiltPosition(tiltPosition);
+                break;
+            case Action::CameraLeft:
+                panPosition -= panIncrement;
+                cameraControl.setPanPosition(panPosition);
+                break;
+            case Action::CameraRight:
+                panPosition += panIncrement;
+                cameraControl.setPanPosition(panPosition);
+                break;
+            case Action::Exit:
+                msg = "exit";
+                controller = NOCONTROLLER;
+                break;
+            case Action::None:
+            default:
+                msg = "no input";
+                break;
+        }
+    }
 
     bool selectController(enums::Controller& controller){//TODO: fix this controller stuff
+        using namespace enums;
+
         char key;
         const char ESC_KEY = 27;
         key = (char)cv::waitKey(10);
         switch (key) {
-            case '1': controller = enums::KEYBOARD; break;
-            case '2': controller = enums::XBOX; break;
+            case '1': controller = KEYBOARD; break;
+            case '2': controller = XBOX; break;
             case ESC_KEY: stopflag = true; break;
             default: break;
         }
+        std::cout<<"Controller is "<< controller <<std::endl;
         return stopflag;
     }
 
-    std::string getMessage(){
-        std::string message = msg + "," + std::to_string(speed) + "," + std::to_string(heading) + "," + std::to_string(cameraControl.getPanPosition()) + "," + std::to_string(cameraControl.getTiltPosition());
-        return message;
+    std::string getJsonMessageAsString(){
+            nlohmann::json message = {
+                    {"message", msg},
+                    {"speed", speed},
+                    {"heading", heading},
+                    {"panPosition", panPosition},
+                    {"tiltPosition", tiltPosition}
+            };
+            return message.dump();
     }
 
 private:
     int speed = 10;
     static constexpr int speedIncrement = 10;
     static constexpr int maxSpeed = 255;
-    int heading = 0;
-    std::string msg= "empty";
-    static constexpr int headingIncrement = 10;
-    bool stopflag = false;
     static constexpr int panIncrement = 10;
     static constexpr int tiltIncrement = 10;
+    static constexpr int headingIncrement = 10;
+
+    int heading = 0;
+    std::string msg= "empty";
+    bool stopflag = false;
+    int panPosition = 0;
+    int tiltPosition = 0;
     CameraControl& cameraControl;
+
 };
 
 
