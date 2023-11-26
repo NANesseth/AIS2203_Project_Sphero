@@ -47,6 +47,11 @@ public:
         return true;
     }
 
+    void addFrame(const cv::Mat& frame) {
+        std::unique_lock<std::mutex> lock(mutex_);
+        frameQueue_.push(frame);
+    }
+
     void addObserver(Observer* observer) {
         std::lock_guard<std::mutex> lock(observers_mutex_);
         observers_.emplace_back(observer);
@@ -68,19 +73,24 @@ protected:
     std::mutex observers_mutex_;
     std::vector<Observer*> observers_;
 
-    void notifyObservers(const cv::Mat& frame) {
-//        std::lock_guard<std::mutex> lock(observers_mutex_);
-//        for (auto& observer : observers_) {
-//            observer->onFrameAvailable(frame);
-//        }
+
+    void notifyObservers() {
         std::vector<Observer*> copyObservers;
         {
             std::lock_guard<std::mutex> lock(observers_mutex_);
             copyObservers = observers_;
         }
+
+        std::cout << "================= " << frameQueue_.size() << std::endl;
+
+        cv::Mat frame;
+
+        getFrame(frame);
+
         for (auto& observer : copyObservers) {
             observer->onFrameAvailable(frame);
         }
+        std::cout << "================= " << frameQueue_.size() << std::endl;
     }
 };
 

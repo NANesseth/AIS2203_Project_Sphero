@@ -9,15 +9,15 @@
 #include "sphero/controls/keyboardInput.hpp"
 #include "opencv2/opencv.hpp"
 
-class RaspberryCamera : public ImageFetcher {
-
-public:
-    explicit RaspberryCamera() = default;
-
-protected:
-    void captureLoop(){
-
-    }
-};
+//class RaspberryCamera : public ImageFetcher {
+//
+//public:
+//    explicit RaspberryCamera() = default;
+//
+//protected:
+//    void captureLoop(){
+//
+//    }
+//};
 
 #endif //AIS2203_PROJECT_SPHERO_RASPBERRYCAMERA_HPP

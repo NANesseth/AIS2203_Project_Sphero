@@ -27,9 +27,9 @@ protected:
         while (!stop_) {
             cv::Mat frame;
             if (capture.read(frame)) {
-                std::lock_guard<std::mutex> lock(mutex_);
-                frameQueue_.push(frame);
-                notifyObservers(frame);
+                addFrame(frame);
+                notifyObservers();
+
             } else {
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }

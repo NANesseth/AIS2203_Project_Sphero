@@ -190,6 +190,8 @@ private:
                     //bruk currentframe som bildekilde
 
 
+
+
                     //lag en message slik som dei andre kontrollerane for å kjøre roboten
                     std::unique_lock<std::mutex> lock(sendMutex);//bruk ditte til å sende data til roboten.
                     pushMessage(message);
