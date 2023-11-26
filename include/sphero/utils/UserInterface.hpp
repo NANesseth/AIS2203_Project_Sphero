@@ -225,6 +225,8 @@ private:
                     ball = tracker.getResult();
 
                     control.setObjectHeading(ball, screenCenter);
+                    control.setObjectSpeed(ball, screenCenter);
+
                     message = control.getJsonMessageAsString();
 
                     //lag en message slik som dei andre kontrollerane for å kjøre roboten
