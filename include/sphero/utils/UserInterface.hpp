@@ -59,7 +59,6 @@ public:
                     sendQueue.pop();
                     //std::cout<<"element removed from sendQueue"<<"\n";
                 }
-
             }
 
             if (!message.empty()){
@@ -179,6 +178,9 @@ private:
                     std::unique_lock<std::mutex> lock(sendMutex);
                     pushMessage(message);
                 }
+            }
+            else if (this -> controller == AUTO){
+                continue;//Nikolai sin tracker ting
             }
             else{
                 displayBuilder.buildMainMenu();

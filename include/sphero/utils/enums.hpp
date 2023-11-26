@@ -8,8 +8,8 @@ namespace enums{
     enum Controller {
             KEYBOARD,
             XBOX,
-            NOCONTROLLER
-
+            NOCONTROLLER,
+            AUTO
     };
 
     enum class Action{

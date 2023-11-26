@@ -49,10 +49,6 @@ public:
             endpointCopy = serverEndpoint;
             messageCopy = message;
         }
-        //std::cout<<"messageCopy: "<< messageCopy.size()<<std::endl;
-
-        //std::cout<<"endpointCopy: "<< endpointCopy<<std::endl;
-
 
         try {
             //std::cout << "sending: " << messageCopy.size() << "bytes" << std::endl;
@@ -72,7 +68,6 @@ public:
         {
             std::unique_lock<std::mutex> lock(mtx);
             endpointCopy = serverEndpoint;
-
         }
 
         int len = socket->receive_from(boost::asio::buffer(recv_buf), endpointCopy);
