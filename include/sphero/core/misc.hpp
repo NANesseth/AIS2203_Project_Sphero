@@ -1,6 +1,9 @@
 #ifndef AIS2203_PROJECT_SPHERO_MISC_HPP
 #define AIS2203_PROJECT_SPHERO_MISC_HPP
 
+#include <opencv2/opencv.hpp>
+#include <nlohmann/json.hpp>
+#include <string>
 
 struct ColorValues {
 
@@ -14,6 +17,42 @@ struct ColorValues {
 
 };
 
+
+struct BallTrackerResult {
+    cv::Point2f center{};
+    float radius{};
+    bool found{};
+};
+
+
+struct RobotControlValues {
+    int heading = 0;
+    int speed = 10;
+    std::string msg = "empty";
+    int panPosition = 0;
+    int tiltPosition = 0;
+
+    std::string getJsonMessageAsString(){
+        nlohmann::json message = {
+                {"message", msg},
+                {"speed", speed},
+                {"heading", heading},
+                {"panPosition", panPosition},
+                {"tiltPosition", tiltPosition}
+        };
+        return message.dump();
+    }
+
+    void setObjectHeading(BallTrackerResult ball, cv::Point2f screenCenter){
+        if (ball.found) {
+            // Calculate the heading, 0 degrees is straight ahead
+            // positive is to the right, negative to the left
+            heading = static_cast<int>(std::round((ball.center.x - screenCenter.x) / screenCenter.x * 90));
+        } else {
+            heading = 0;
+        }
+    }
+};
 
 
 

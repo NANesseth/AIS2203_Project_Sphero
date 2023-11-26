@@ -13,14 +13,7 @@
 
 // class ObjectTracker : public Observer
 //      class BallTracker : public ObjectTracker
-//      class QubeTracker : public ObjectTracker
-
-
-struct BallTrackerResult {
-    cv::Point2f center{};
-    float radius{};
-    bool found{};
-};
+//      class QubeTracker : public ObjectTracker etc...
 
 class BallTracker : public Observer{
 public:
@@ -67,12 +60,26 @@ public:
         return ball_;
     }
 
+//    cv::Point2f getRelativePosition(int screenWidth, int screenHeight) {
+//        // calculate screen center
+//        cv::Point2f screenCenter(screenWidth / 2, screenHeight / 2);
+//
+//        // compute the relative position
+//        cv::Point2f relativePos = ball_.center - screenCenter;
+//
+//        return relativePos;
+//    }
+
     cv::Point2f getRelativePosition(int screenWidth, int screenHeight) {
         // calculate screen center
         cv::Point2f screenCenter(screenWidth / 2, screenHeight / 2);
 
         // compute the relative position
         cv::Point2f relativePos = ball_.center - screenCenter;
+
+        // normalize the coordinates to range -1 to 1
+        relativePos.x /= (screenWidth / 2);
+        relativePos.y /= (screenHeight / 2);
 
         return relativePos;
     }
@@ -85,11 +92,9 @@ public:
                 newestFrame_.copyTo(frame);
             }
 
-            // Convert to a suitable color space if necessary
-
             // Apply color thresholding to detect the ball
             cv::Mat mask;
-            //            cv::inRange(frame, lowerBound, upperBound, mask);
+
             cv::inRange(frame,
                         cv::Scalar(ballColor_.B_min, ballColor_.G_min, ballColor_.R_min),
                         cv::Scalar(ballColor_.B_max, ballColor_.G_max, ballColor_.R_max),

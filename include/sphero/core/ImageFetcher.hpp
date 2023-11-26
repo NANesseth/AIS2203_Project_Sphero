@@ -81,16 +81,12 @@ protected:
             copyObservers = observers_;
         }
 
-        std::cout << "================= " << frameQueue_.size() << std::endl;
-
         cv::Mat frame;
-
         getFrame(frame);
 
         for (auto& observer : copyObservers) {
             observer->onFrameAvailable(frame);
         }
-        std::cout << "================= " << frameQueue_.size() << std::endl;
     }
 };
 

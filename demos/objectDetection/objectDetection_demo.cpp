@@ -1,7 +1,7 @@
 #include "sphero/cameras/USBCamera.hpp"
-#include "sphero/vision/ColorCalibrator.hpp" // remove
 #include "sphero/utils/JsonUtils.hpp"
 #include "sphero/vision/BallTracker.hpp"
+#include "sphero/vision/ColorCalibrator.hpp"// remove
 
 class GUI: public Observer {
 public:
@@ -48,7 +48,7 @@ int main() {
     catch (std::exception& e){
         std::cout << "Error: " << e.what() << std::endl;
         std::cout << "Using default color range, consider running color calibration first" << std::endl;
-        tracker.setColor(ColorValues{200, 255, 80, 255, 40, 255});
+        tracker.setColor(ColorValues{250, 255, 112, 200, 69, 134});
     }
 
     cv::Mat frame;
@@ -72,7 +72,8 @@ int main() {
 
         if (ball.found){
             cv::circle(frame, ball.center, ball.radius, cv::Scalar(0, 250, 0), 2);
-            relativePosition = ball.center - screenCenter;
+            //relativePosition = ball.center - screenCenter;
+            relativePosition = tracker.getRelativePosition(frame.cols, frame.rows);
             std::cout << "Relative position: " << relativePosition << std::endl;
         }
         cv::imshow("Object Detection", frame);

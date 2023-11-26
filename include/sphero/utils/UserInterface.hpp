@@ -3,6 +3,11 @@
 
 #include "sphero/utils/udpClient.hpp"
 #include "sphero/controls/keyboardInput.hpp"
+
+#include "sphero/cameras/RaspberryCamera.hpp"
+#include "sphero/vision/BallTracker.hpp"
+#include "sphero/utils/JsonUtils.hpp"
+
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <thread>
@@ -181,16 +186,46 @@ private:
             }
 
             else if (this -> controller == AUTO){
+
+                RaspberryCamera camera;
+                BallTracker tracker;
+                camera.addObserver(&tracker);
+
+                camera.start();
+
+                // Initializing ball tracker
+                try{
+                    tracker.setColor(fromJson(loadJson("saved_color_range.json")));
+                }
+                catch (std::exception& e){
+                    std::cout << "Error: " << e.what() << std::endl;
+                    std::cout << "Using default color range, consider running color calibration first" << std::endl;
+                    tracker.setColor(ColorValues{250, 255, 112, 200, 69, 134});
+                }
+
+                BallTrackerResult ball;
+                cv::Point2f screenCenter;
+                {
+                    std::unique_lock<std::mutex> frameLock(frameMutex);
+                    cv::Mat frame = latestFrame.clone();
+                    screenCenter = cv::Point2f(frame.cols / 2, frame.rows / 2);
+                }
+                RobotControlValues control;
+
                 cv::Mat currentFrame;
                 while (this->controller == AUTO) {
                     {
                         std::unique_lock<std::mutex> frameLock(frameMutex);
-                        currentFrame = latestFrame.clone(); // Get the latest frame
+                        currentFrame = latestFrame.clone();
                     }
-                    //bruk currentframe som bildekilde
 
+                    camera.addFrame(currentFrame);
+                    // Ball tracker is automatically notified
 
+                    ball = tracker.getResult();
 
+                    control.setObjectHeading(ball, screenCenter);
+                    message = control.getJsonMessageAsString();
 
                     //lag en message slik som dei andre kontrollerane for å kjøre roboten
                     std::unique_lock<std::mutex> lock(sendMutex);//bruk ditte til å sende data til roboten.
