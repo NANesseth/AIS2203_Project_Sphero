@@ -9,10 +9,10 @@
 #include <thread>
 
 struct BallTrackerResult {
-    cv::Point2f center;
-    float radius;
-    bool found;
-    std::mutex mutex;
+    cv::Point2f center{};
+    float radius{};
+    bool found{};
+    //std::mutex mutex;
 };
 
 class BallTracker : public Observer{
@@ -69,7 +69,7 @@ public:
 //        }
 //        return local_result;
 
-        std::lock_guard<std::mutex> lock(result_.mutex);
+        //std::lock_guard<std::mutex> lock(result_mutex_);
         return result_;
     }
 
@@ -109,7 +109,7 @@ public:
             }
 
             {
-                std::lock_guard<std::mutex> lock(result_.mutex);
+                std::lock_guard<std::mutex> lock(result_mutex_);
                 if (maxRadius > 0) {// Ball found
                     result_.center = maxCenter;
                     result_.radius = maxRadius;

@@ -62,14 +62,14 @@ int main() {
     std::cout << "Observer: Got first frame" << std::endl;
 
     tracker.startTracking();
-    BallTrackerResult ball{};
+    BallTrackerResult ball;
 
 
     while (true) {
         gui.getNewestFrame(frame);
         ball = tracker.getResult(); // Make sure how the tracker gets the frame
 
-        if (result.found){
+        if (ball.found){
             // Draw a circle at 'result.center' with a radius of 'result.radius'
             cv::circle(frame, ball.center, ball.radius, cv::Scalar(0, 250, 0), 2);
         }
