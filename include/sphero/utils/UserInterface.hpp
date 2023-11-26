@@ -180,8 +180,16 @@ private:
                 }
             }
             else if (this -> controller == AUTO){
-                continue;//Nikolai sin tracker ting
+                while (this->controller == AUTO) {
+                    // TODO: implement xbox controller
+                    xboxController.run(controller);
+
+                    cv::Mat frame=jsonQueue.front().getFrame();
+                    std::unique_lock<std::mutex> lock(sendMutex);
+                    pushMessage(message);
+                }
             }
+
             else{
                 displayBuilder.buildMainMenu();
                 cv::waitKey(1);

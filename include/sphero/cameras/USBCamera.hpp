@@ -13,7 +13,7 @@
 
 class USBCamera : public ImageFetcher {
 public:
-    explicit USBCamera(int cameraIndex) : cameraIndex_(cameraIndex) {}
+    explicit USBCamera(int cameraIndex = 0) : cameraIndex_(cameraIndex) {}
 
 protected:
     void captureLoop() override {

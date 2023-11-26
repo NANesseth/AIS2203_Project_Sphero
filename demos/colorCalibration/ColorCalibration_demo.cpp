@@ -3,7 +3,7 @@
 #include "sphero/utils/JsonUtils.hpp"
 
 int main() {
-    USBCamera camera(0);
+    USBCamera camera;
     ColorCalibrator calibrator;
     camera.addObserver(&calibrator);
 
