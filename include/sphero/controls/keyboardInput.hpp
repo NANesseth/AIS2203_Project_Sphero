@@ -97,6 +97,9 @@ class KeyboardInput{
                 break;
             case Action::None:
             default:
+                if (msg == "start_video"){
+                    msg = "no input";
+                }
                 break;
         }
     }

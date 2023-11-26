@@ -41,7 +41,6 @@ public:
     }
 
     void sendMessage(const std::string& message) {
-        std::cout<<"test"<<std::endl;
         boost::asio::ip::udp::endpoint endpointCopy;
         std::string messageCopy;
 
