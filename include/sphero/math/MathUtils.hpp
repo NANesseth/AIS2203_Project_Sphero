@@ -1,4 +1,10 @@
 #ifndef AIS2203_PROJECT_SPHERO_MATHUTILS_HPP
 #define AIS2203_PROJECT_SPHERO_MATHUTILS_HPP
 
+#include <opencv2/opencv.hpp>
+
+// getObjectHeading
+
+
+
 #endif //AIS2203_PROJECT_SPHERO_MATHUTILS_HPP

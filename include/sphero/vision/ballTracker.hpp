@@ -8,11 +8,18 @@
 #include <mutex>
 #include <thread>
 
+// If we want the possibility to track different objects, we can create a class
+// ObjectTracker that inherits from Observer and derive BallTracker from it.
+
+// class ObjectTracker : public Observer
+//      class BallTracker : public ObjectTracker
+//      class QubeTracker : public ObjectTracker
+
+
 struct BallTrackerResult {
     cv::Point2f center{};
     float radius{};
     bool found{};
-    //std::mutex mutex;
 };
 
 class BallTracker : public Observer{
@@ -21,7 +28,6 @@ public:
     }
 
     void onFrameAvailable(const cv::Mat& frame) override {
-        // Update newest frame
         std::lock_guard<std::mutex> lock(newestFrame_mutex_);
         frame.copyTo(newestFrame_);
     }
@@ -35,10 +41,6 @@ public:
 
     void setColor(const ColorValues& ballColor) {
         ballColor_ = ballColor;
-    }
-
-    ColorValues getColor() const {
-        return ballColor_;
     }
 
     void startTracking() {
@@ -61,16 +63,18 @@ public:
     }
 
     BallTrackerResult getResult() {
+        std::lock_guard<std::mutex> lock(result_mutex_);
+        return ball_;
+    }
 
-//        BallTrackerResult local_result;
-//        {
-//            std::lock_guard<std::mutex> lock(result_.mutex);
-//            local_result = result_;
-//        }
-//        return local_result;
+    cv::Point2f getRelativePosition(int screenWidth, int screenHeight) {
+        // calculate screen center
+        cv::Point2f screenCenter(screenWidth / 2, screenHeight / 2);
 
-        //std::lock_guard<std::mutex> lock(result_mutex_);
-        return result_;
+        // compute the relative position
+        cv::Point2f relativePos = ball_.center - screenCenter;
+
+        return relativePos;
     }
 
     void detectBall() {
@@ -111,11 +115,11 @@ public:
             {
                 std::lock_guard<std::mutex> lock(result_mutex_);
                 if (maxRadius > 0) {// Ball found
-                    result_.center = maxCenter;
-                    result_.radius = maxRadius;
-                    result_.found = true;
+                    ball_.center = maxCenter;
+                    ball_.radius = maxRadius;
+                    ball_.found = true;
                 } else {// Ball not found
-                    result_.found = false;
+                    ball_.found = false;
                 }
             }
         }
@@ -128,7 +132,7 @@ private:
     std::thread trackingThread_;
 
     std::mutex result_mutex_;
-    BallTrackerResult result_;
+    BallTrackerResult ball_;
 
     std::mutex newestFrame_mutex_;
     cv::Mat newestFrame_;

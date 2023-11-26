@@ -51,7 +51,6 @@ int main() {
         tracker.setColor(ColorValues{200, 255, 80, 255, 40, 255});
     }
 
-
     cv::Mat frame;
 
     // Wait for first frame (consider condition variable)
@@ -64,19 +63,20 @@ int main() {
     tracker.startTracking();
     BallTrackerResult ball;
 
+    cv::Point2f screenCenter(frame.cols / 2, frame.rows / 2);
+    cv::Point2f relativePosition;
 
     while (true) {
         gui.getNewestFrame(frame);
-        ball = tracker.getResult(); // Make sure how the tracker gets the frame
+        ball = tracker.getResult();
 
         if (ball.found){
-            // Draw a circle at 'result.center' with a radius of 'result.radius'
             cv::circle(frame, ball.center, ball.radius, cv::Scalar(0, 250, 0), 2);
+            relativePosition = ball.center - screenCenter;
+            std::cout << "Relative position: " << relativePosition << std::endl;
         }
-
-
-
         cv::imshow("Object Detection", frame);
+
 
         char key = static_cast<char>(cv::waitKey(1));
         if (key == 'q' || key == 27) {

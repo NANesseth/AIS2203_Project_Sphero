@@ -17,8 +17,7 @@ public:
 
 protected:
     void captureLoop() override {
-        //cv::VideoCapture capture(cameraIndex_);
-        cv::VideoCapture capture(cameraIndex_ + cv::CAP_DSHOW); // Significantly faster initialization
+        cv::VideoCapture capture(cameraIndex_ + cv::CAP_DSHOW);
 
         if (!capture.isOpened()) {
             std::cerr << "Error: Cannot open camera" << std::endl;
@@ -30,10 +29,9 @@ protected:
             if (capture.read(frame)) {
                 std::lock_guard<std::mutex> lock(mutex_);
                 frameQueue_.push(frame);
-                // frameAvailable_.notify_one(); // If using condition variables
                 notifyObservers(frame);
             } else {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Sleep on failed capture
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
         }
     }
