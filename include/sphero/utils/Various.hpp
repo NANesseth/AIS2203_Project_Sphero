@@ -13,7 +13,7 @@ namespace various {
         // Check whether the input string is empty
         if (base64_frame.empty()) {
             std::cerr << "Input base64 string is empty.";
-            return cv::Mat();
+            return {};
         }
 
         // Decode Base64 to binary
@@ -26,7 +26,7 @@ namespace various {
         // Check whether the decoding was successful
         if (decoded.empty()) {
             std::cerr << "Decoding base64 string failed.";
-            return cv::Mat();
+            return {};
         }
 
         // Convert binary data to a cv::Mat
@@ -36,7 +36,7 @@ namespace various {
         // Check if the image created is valid
         if (image.empty()) {
             std::cerr << "Failed to create image from decoded string";
-            return cv::Mat();
+            return {};
         }
 
         return image;

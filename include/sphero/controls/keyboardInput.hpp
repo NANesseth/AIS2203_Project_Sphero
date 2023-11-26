@@ -97,7 +97,9 @@ class KeyboardInput{
                 break;
             case Action::None:
             default:
-                msg = "no input";
+                if (msg == "start_video"){
+                    msg = "no input";
+                }
                 break;
         }
     }
@@ -114,7 +116,7 @@ class KeyboardInput{
             case ESC_KEY: stopflag = true; break;
             default: break;
         }
-        std::cout<<"Controller is "<< controller <<std::endl;
+        //std::cout<<"Controller is "<< controller <<std::endl;
         return stopflag;
     }
 
@@ -145,8 +147,5 @@ private:
     CameraControl& cameraControl;
 
 };
-
-
-
 
 #endif // AIS2203_PROJECT_SPHERO_KEYBOARDINPUT_HPP

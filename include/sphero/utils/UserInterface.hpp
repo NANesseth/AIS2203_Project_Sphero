@@ -6,7 +6,6 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <thread>
-#include <atomic>
 #include <queue>
 #include <mutex>
 #include <condition_variable>
@@ -39,27 +38,38 @@ public:
         JsonReader jsonReader;
         std::string data;
         while (true){
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
             data = udpClient.receiveData();
             jsonReader.updateJson(data);
             jsonQueue.push(jsonReader);
             dataCondition.notify_all();
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
         }
     }
 
-    void sending(){
-        while(true){
-
-            if (!messageToSend.empty()){
-                std::cout<<"message not empty"<<std::endl;
-                udpClient.sendMessage(messageToSend);
+    void sending() {
+        while (true) {
+            std::string message;
+            {
+                std::unique_lock<std::mutex> lock(sendMutex);
+                sendCondition.wait(lock, [this](){ return !sendQueue.empty(); });
+                if (!sendQueue.empty()) {
+                    message = sendQueue.front();
+                    sendQueue.pop();
+                    //std::cout<<"element removed from sendQueue"<<"\n";
+                }
             }
-            else{
-                std::cout<<"message empty"<<std::endl;
 
+            if (!message.empty()){
+                //std::cout<<"sending"<<"\n";
+                udpClient.sendMessage(message);
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            else {
+                std::cout << "message empty" << std::endl;
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }
 
@@ -91,7 +101,7 @@ public:
                     }
                 }
                 // Print a message when new data is available
-                std::cout << "New data received and processed." << std::endl;
+                //std::cout << "New data received and processed." << std::endl;
             }
 
         }
@@ -113,7 +123,23 @@ private:
     DisplayBuilder displayBuilder;
     enums::Controller controller;
 
+    std::queue<std::string> sendQueue;
+    std::condition_variable sendCondition;
+    std::mutex sendMutex;
     std::string messageToSend;
+
+    int MAX_QUEUE_SIZE = 10;
+
+    void pushMessage(const std::string& message) {
+        if (!message.empty()) {
+            if (sendQueue.size() >= MAX_QUEUE_SIZE) {
+                sendQueue.pop();
+            }
+            sendQueue.push(message);
+            //std::cout << "message to send: " << message << std::endl;
+            sendCondition.notify_all();
+        }
+    }
 
 
     void uiLoop() {
@@ -133,25 +159,28 @@ private:
                     // Handle input
                     key = cv::waitKey(1);
                     Action action = kbInput.interpretKey(key);
-                    kbInput.performAction(action,  this->controller);//skal returnere en string som e slik: "msg,speed,heading"
-                    messageToSend = kbInput.getJsonMessageAsString();
-                    std::cout<<messageToSend<<std::endl;
+                    kbInput.performAction(action,  this->controller);
+                    message = kbInput.getJsonMessageAsString();
 
+                    std::unique_lock<std::mutex> lock(sendMutex);
+                    pushMessage(message);
                 }
                 displayBuilder.destroyWindow();
             }
-            else if (this -> controller == XBOX){
+            else if (this -> controller == XBOX) {
                 displayBuilder.buildXboxMenu();
                 cv::waitKey(1);
-                while(this-> controller == XBOX){
+                while (this->controller == XBOX) {
                     // TODO: implement xbox controller
-                    xboxController.run(data, this->controller);
+                    xboxController.run(controller);
                     // Get the message from controller
-                    messageToSend = xboxController.getJsonMessageAsString();
-
-                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                    message = xboxController.getJsonMessageAsString();
+                    std::unique_lock<std::mutex> lock(sendMutex);
+                    pushMessage(message);
                 }
-                displayBuilder.destroyWindow();
+            }
+            else if (this -> controller == AUTO){
+                continue;//Nikolai sin tracker ting
             }
             else{
                 displayBuilder.buildMainMenu();
@@ -166,7 +195,7 @@ private:
 
     void displayFrame(cv::Mat& frame) {
             int fps = 30;
-        std::cout << "display"<<std::endl;
+        //std::cout << "display"<<std::endl;
         if (!frame.empty()) {
             cv::resize(frame, frame, cv::Size(640, 480));
             cv::imshow(windowName, frame);
