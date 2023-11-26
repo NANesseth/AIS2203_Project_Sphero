@@ -43,8 +43,6 @@ public:
             jsonReader.updateJson(data);
             jsonQueue.push(jsonReader);
             dataCondition.notify_all();
-
-
         }
     }
 
@@ -86,24 +84,23 @@ public:
                 std::unique_lock<std::mutex> lock(queueMutex);
                 dataCondition.wait(lock, hasData);
 
-                // Process the data from the queue
                 while (!jsonQueue.empty()) {
-
                     data = jsonQueue.front();
                     jsonQueue.pop();
 
                     frame = data.getFrame();
-                    try{
-                        displayFrame(frame);
+                    {
+                        std::unique_lock<std::mutex> frameLock(frameMutex);
+                        latestFrame = frame.clone(); // Update the latest frame
                     }
-                    catch(std::exception& e){
-                        std::cout<<"error when displaying frame: " << e.what()<<std::endl;
+
+                    try {
+                        displayFrame(frame);
+                    } catch(std::exception& e) {
+                        std::cout << "error when displaying frame: " << e.what() << std::endl;
                     }
                 }
-                // Print a message when new data is available
-                //std::cout << "New data received and processed." << std::endl;
             }
-
         }
     }
 
@@ -127,6 +124,9 @@ private:
     std::condition_variable sendCondition;
     std::mutex sendMutex;
     std::string messageToSend;
+
+    cv::Mat latestFrame;
+    std::mutex frameMutex;
 
     int MAX_QUEUE_SIZE = 10;
 
@@ -179,17 +179,22 @@ private:
                     pushMessage(message);
                 }
             }
-            else if (this -> controller == AUTO){
-                while (this->controller == AUTO) {
-                    // TODO: implement xbox controller
-                    xboxController.run(controller);
 
-                    cv::Mat frame=jsonQueue.front().getFrame();
-                    std::unique_lock<std::mutex> lock(sendMutex);
+            else if (this -> controller == AUTO){
+                cv::Mat currentFrame;
+                while (this->controller == AUTO) {
+                    {
+                        std::unique_lock<std::mutex> frameLock(frameMutex);
+                        currentFrame = latestFrame.clone(); // Get the latest frame
+                    }
+                    //bruk currentframe som bildekilde
+
+
+                    //lag en message slik som dei andre kontrollerane for å kjøre roboten
+                    std::unique_lock<std::mutex> lock(sendMutex);//bruk ditte til å sende data til roboten.
                     pushMessage(message);
                 }
             }
-
             else{
                 displayBuilder.buildMainMenu();
                 cv::waitKey(1);
