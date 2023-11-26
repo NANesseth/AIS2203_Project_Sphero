@@ -97,7 +97,6 @@ class KeyboardInput{
                 break;
             case Action::None:
             default:
-                msg = "no input";
                 break;
         }
     }
@@ -145,8 +144,5 @@ private:
     CameraControl& cameraControl;
 
 };
-
-
-
 
 #endif // AIS2203_PROJECT_SPHERO_KEYBOARDINPUT_HPP
