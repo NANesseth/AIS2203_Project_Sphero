@@ -39,12 +39,13 @@ public:
         JsonReader jsonReader;
         std::string data;
         while (true){
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
             data = udpClient.receiveData();
             jsonReader.updateJson(data);
             jsonQueue.push(jsonReader);
             dataCondition.notify_all();
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
         }
     }
 
@@ -57,12 +58,13 @@ public:
                 if (!sendQueue.empty()) {
                     message = sendQueue.front();
                     sendQueue.pop();
+                    //std::cout<<"element removed from sendQueue"<<"\n";
                 }
 
             }
 
             if (!message.empty()){
-                std::cout << "sending: " << message.size() << "bytes" << std::endl;
+                //std::cout<<"sending"<<"\n";
                 udpClient.sendMessage(message);
             }
             else {
@@ -101,7 +103,7 @@ public:
                     }
                 }
                 // Print a message when new data is available
-                std::cout << "New data received and processed." << std::endl;
+                //std::cout << "New data received and processed." << std::endl;
             }
 
         }
@@ -136,7 +138,7 @@ private:
                 sendQueue.pop();
             }
             sendQueue.push(message);
-            std::cout << "message to send: " << message << std::endl;
+            //std::cout << "message to send: " << message << std::endl;
             sendCondition.notify_all();
         }
     }
@@ -192,7 +194,7 @@ private:
 
     void displayFrame(cv::Mat& frame) {
             int fps = 30;
-        std::cout << "display"<<std::endl;
+        //std::cout << "display"<<std::endl;
         if (!frame.empty()) {
             cv::resize(frame, frame, cv::Size(640, 480));
             cv::imshow(windowName, frame);

@@ -41,7 +41,7 @@ public:
     }
 
     void sendMessage(const std::string& message) {
-
+        std::cout<<"test"<<std::endl;
         boost::asio::ip::udp::endpoint endpointCopy;
         std::string messageCopy;
 
@@ -50,8 +50,13 @@ public:
             endpointCopy = serverEndpoint;
             messageCopy = message;
         }
+        //std::cout<<"messageCopy: "<< messageCopy.size()<<std::endl;
+
+        //std::cout<<"endpointCopy: "<< endpointCopy<<std::endl;
+
 
         try {
+            //std::cout << "sending: " << messageCopy.size() << "bytes" << std::endl;
             bytes_transferred = socket->send_to(boost::asio::buffer(messageCopy), endpointCopy);
         }
         catch (const boost::system::system_error& ex) {
@@ -63,10 +68,15 @@ public:
     }
 
     std::string receiveData() {
-        std::cout<<"entered receive frame"<<std::endl;
-        std::unique_lock<std::mutex> lock(mtx);
+        //std::cout<<"entered receive data"<<std::endl;
+        boost::asio::ip::udp::endpoint endpointCopy;
+        {
+            std::unique_lock<std::mutex> lock(mtx);
+            endpointCopy = serverEndpoint;
 
-        int len = socket->receive_from(boost::asio::buffer(recv_buf), this->serverEndpoint);
+        }
+
+        int len = socket->receive_from(boost::asio::buffer(recv_buf), endpointCopy);
         std::string received_data(recv_buf.data(), len);
         //std::cout<<"decoded frame"<<std::endl;
         return received_data;

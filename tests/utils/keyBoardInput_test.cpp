@@ -32,22 +32,22 @@ TEST_CASE("Test performAction"){
 
     SECTION("TurnLeft action decreases heading"){
         enums::Action action = enums::Action::TurnLeft;
-        kbInput.performAction(action, videoRunning,frameCondition,controller);
+        kbInput.performAction(action, controller);
         REQUIRE(kbInput.getHeading() < initialHeading);
     }
     SECTION("TurnRight action increases heading"){
         enums::Action action = enums::Action::TurnRight;
-        kbInput.performAction(action, videoRunning,frameCondition,controller);
+        kbInput.performAction(action, controller);
         REQUIRE(kbInput.getHeading() > initialHeading);
     }
     SECTION("IncreaseSpeed action increases speed"){
         enums::Action action = enums::Action::IncreaseSpeed;
-        kbInput.performAction(action, videoRunning,frameCondition,controller);
+        kbInput.performAction(action, controller);
         REQUIRE(kbInput.getSpeed() > initialSpeed);
     }
     SECTION("DecreaseSpeed action decreases speed"){
         enums::Action action = enums::Action::DecreaseSpeed;
-        kbInput.performAction(action, videoRunning,frameCondition,controller);
+        kbInput.performAction(action, controller);
         REQUIRE(kbInput.getSpeed() < initialSpeed);
     }
 
