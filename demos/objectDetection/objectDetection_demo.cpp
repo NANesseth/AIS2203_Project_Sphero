@@ -1,5 +1,4 @@
 #include "sphero/cameras/USBCamera.hpp"
-#include "sphero/vision/ColorCalibrator.hpp" // remove
 #include "sphero/utils/JsonUtils.hpp"
 #include "sphero/vision/BallTracker.hpp"
 

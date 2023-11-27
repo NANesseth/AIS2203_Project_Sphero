@@ -8,6 +8,7 @@
 #include <mutex>
 #include <thread>
 
+
 struct BallTrackerResult {
     cv::Point2f center{};
     float radius{};
@@ -25,6 +26,8 @@ public:
         std::lock_guard<std::mutex> lock(newestFrame_mutex_);
         frame.copyTo(newestFrame_);
     }
+
+
 
     ~BallTracker() {
         running_ = false;
@@ -61,15 +64,7 @@ public:
     }
 
     BallTrackerResult getResult() {
-
-//        BallTrackerResult local_result;
-//        {
-//            std::lock_guard<std::mutex> lock(result_.mutex);
-//            local_result = result_;
-//        }
-//        return local_result;
-
-        //std::lock_guard<std::mutex> lock(result_mutex_);
+        std::lock_guard<std::mutex> lock(result_mutex_);
         return result_;
     }
 
@@ -81,14 +76,17 @@ public:
                 newestFrame_.copyTo(frame);
             }
 
-            // Convert to a suitable color space if necessary
+            blurFrame(frame);
 
             // Apply color thresholding to detect the ball
             cv::Mat mask;
             //            cv::inRange(frame, lowerBound, upperBound, mask);
-            cv::inRange(frame,
-                        cv::Scalar(ballColor_.B_min, ballColor_.G_min, ballColor_.R_min),
-                        cv::Scalar(ballColor_.B_max, ballColor_.G_max, ballColor_.R_max),
+
+            cv::cvtColor(frame, hsvFrame, cv::COLOR_BGR2HSV);
+
+            cv::inRange(hsvFrame,
+                        cv::Scalar(colorValues_.H_min, colorValues_.S_min, colorValues_.V_min),
+                        cv::Scalar(colorValues_.H_max, colorValues_.S_max, colorValues_.V_max),
                         mask);
 
             // Find contours
@@ -98,11 +96,25 @@ public:
             // Detect the ball (assuming it's the largest contour)
             float maxRadius = 0;
             cv::Point2f maxCenter;
+            double area, perimeter, circularity, circularityThreshold = 0.7;
             for (const auto& contour : contours) {
                 float radius;
                 cv::Point2f center;
                 cv::minEnclosingCircle(contour, center, radius);
-                if (radius > maxRadius) {
+//                if (radius > maxRadius) {
+//                    maxRadius = radius;
+//                    maxCenter = center;
+//                }
+                // Calculate area and perimeter
+                area = cv::contourArea(contour);
+                perimeter = cv::arcLength(contour, true);
+
+                // Calculate circularity
+                circularity = 4 * CV_PI * (area / (perimeter * perimeter));
+
+                // Only consider the contour if the circularity is high (closer to 1)
+                // circularityThreshold = 0.85; // This value can be adjusted based on your needs
+                if (radius > maxRadius && circularity > circularityThreshold) {
                     maxRadius = radius;
                     maxCenter = center;
                 }
@@ -118,6 +130,7 @@ public:
                     result_.found = false;
                 }
             }
+
         }
         stopTracking();
     }
@@ -133,6 +146,8 @@ private:
     std::mutex newestFrame_mutex_;
     cv::Mat newestFrame_;
 };
+
+
 
 
 #endif//AIS2203_PROJECT_SPHERO_BALLTRACKER_HPP

@@ -16,7 +16,9 @@ int main() {
 
     while (true) {
         // To show the frame on main thread
-        cv::imshow("Color Calibration", calibrator.getNewestFrame());
+        frame = calibrator.getNewestFrame();
+        calibrator.blurFrame(frame);
+        cv::imshow("Color Calibration", frame);
 
         char key = static_cast<char>(cv::waitKey(1));
         if (key == 's') {
