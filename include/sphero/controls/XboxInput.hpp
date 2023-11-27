@@ -25,6 +25,7 @@ private:
 
     CameraControl cameraControl;
 
+
 public:
 
     CXBOXController(int playerNumber)
@@ -81,10 +82,6 @@ public:
         return _controllerState.Gamepad.bLeftTrigger;
     }
 
-    std::string getMessage(){
-        std::string message = msg + "," + std::to_string(speed) + "," + std::to_string(heading) + "," + std::to_string(cameraControl.getPanPosition()) + "," + std::to_string(cameraControl.getTiltPosition());
-        return message;
-    }
 
     std::string getJsonMessageAsString(){
         nlohmann::json message = {
@@ -97,28 +94,29 @@ public:
         return message.dump();
     }
 
-    float mapJoystickToSteering(int joystickX, int joystickY) {
+    int mapJoystickToSteering(int joystickX, int joystickY) {
         // Maximum change in angle per call
-        const float maxTurnRate = 4.0; // Can be tuned for finer control
+        const float maxTurnRate = 3; // Can be tuned for finer control
 
         float turnRate = 0.0f;
 
-        // Calculate turnRate based on how far the joystick is pushed to the side.
-        std::cout << "joystickX: " << joystickX << std::endl;
+        // Calculate turnRate based on how far the joystick is pushed to the side
         if (joystickX > 10000) {
             float normalizedX = ((float)joystickX - 10000) / (32767 - 10000);
+            std::cout << "normalizedX: " << normalizedX << std::endl;
             turnRate = maxTurnRate * normalizedX;
+            std::cout << "turnRate: " << turnRate << std::endl;
             heading += turnRate;
         }
         else if (joystickX < -10000) {
             float normalizedX = ((float)joystickX + 10000) / (32768 - 10000);
+            std::cout << "normalizedX2: " << normalizedX << std::endl;
             turnRate = maxTurnRate * normalizedX;
             heading += turnRate;
         }
 
-        // Correction to keep heading in the range [0, 360)
-        if (heading >= 360.0) heading -= 360.0;
-        else if (heading < 0.0) heading += 360.0;
+        // Wrap heading between 0 and 360
+        heading = heading >= 0 ? heading % 360 : (360 + (heading % 360)) % 360;
 
         return heading;
     }

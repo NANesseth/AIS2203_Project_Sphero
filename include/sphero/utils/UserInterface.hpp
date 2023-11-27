@@ -67,7 +67,7 @@ public:
                 std::cout << "message empty" << std::endl;
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
     }
 
@@ -128,7 +128,7 @@ private:
     cv::Mat latestFrame;
     std::mutex frameMutex;
 
-    int MAX_QUEUE_SIZE = 2;
+    int MAX_QUEUE_SIZE = 1;
 
     void pushMessage(const std::string& message) {
         if (!message.empty()) {
@@ -179,7 +179,7 @@ private:
                         std::unique_lock<std::mutex> lock(sendMutex);
                         pushMessage(message);
                     }
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
                 }
                 displayBuilder.destroyWindow();
