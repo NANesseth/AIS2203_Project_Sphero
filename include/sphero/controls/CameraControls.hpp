@@ -5,7 +5,7 @@
 
 class CameraControl {
 private:
-    int panPosition = 0;
+    int panPosition = -5; // -5 for calibration
     int tiltPosition = 0;
 
 public:
@@ -13,20 +13,24 @@ public:
 
     void setPanPosition(int pan) {
         pan = (pan > 90 ? 90 : (pan < -90 ? -90 : pan));
+        if (pan > -85){ // to make it start straight and not go too far left.
+            pan -= -5;
+        }
         panPosition = pan;
     }
 
     int getPanPosition() const {
-        return -panPosition;  // (-+ 7 for Calibration )Negative to revert inverted pan position
+        return -panPosition;
     }
 
     void setTiltPosition(int tilt) {
         tilt = (tilt > 90 ? 90 : (tilt < -90 ? -90 : tilt));
+
         tiltPosition = tilt;
     }
 
     int getTiltPosition() const {
-        return -tiltPosition; // (+- 7) for calibration
+        return -tiltPosition;
     }
 
 

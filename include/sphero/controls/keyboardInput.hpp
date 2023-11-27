@@ -76,19 +76,19 @@ class KeyboardInput{
                     msg = "stop_video";
                 break;
             case Action::CameraUp:
-                tiltPosition += tiltIncrement;
-                cameraControl.setTiltPosition(tiltPosition);
-                break;
-            case Action::CameraDown:
                 tiltPosition -= tiltIncrement;
                 cameraControl.setTiltPosition(tiltPosition);
                 break;
+            case Action::CameraDown:
+                tiltPosition += tiltIncrement;
+                cameraControl.setTiltPosition(tiltPosition);
+                break;
             case Action::CameraLeft:
-                panPosition -= panIncrement;
+                panPosition += panIncrement;
                 cameraControl.setPanPosition(panPosition);
                 break;
             case Action::CameraRight:
-                panPosition += panIncrement;
+                panPosition -= panIncrement;
                 cameraControl.setPanPosition(panPosition);
                 break;
             case Action::Exit:
