@@ -38,7 +38,7 @@ public:
         JsonReader jsonReader;
         std::string data;
         while (true){
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
             data = udpClient.receiveData();
             jsonReader.updateJson(data);
             jsonQueue.push(jsonReader);
@@ -128,7 +128,7 @@ private:
     cv::Mat latestFrame;
     std::mutex frameMutex;
 
-    int MAX_QUEUE_SIZE = 10;
+    int MAX_QUEUE_SIZE = 2;
 
     void pushMessage(const std::string& message) {
         if (!message.empty()) {
@@ -171,13 +171,18 @@ private:
                 displayBuilder.buildXboxMenu();
                 cv::waitKey(1);
                 while (this->controller == XBOX) {
-                    // TODO: implement xbox controller
+
                     xboxController.run(controller);
                     // Get the message from controller
                     message = xboxController.getJsonMessageAsString();
-                    std::unique_lock<std::mutex> lock(sendMutex);
-                    pushMessage(message);
+                    {
+                        std::unique_lock<std::mutex> lock(sendMutex);
+                        pushMessage(message);
+                    }
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
                 }
+                displayBuilder.destroyWindow();
             }
 
             else if (this -> controller == AUTO){
@@ -207,7 +212,7 @@ private:
         }
 
     void displayFrame(cv::Mat& frame) {
-            int fps = 30;
+            int fps = 144;
         //std::cout << "display"<<std::endl;
         if (!frame.empty()) {
             cv::resize(frame, frame, cv::Size(640, 480));
