@@ -13,8 +13,8 @@
 
 class KeyboardInput{
     public:
-        explicit KeyboardInput(CameraControl& camera_control, int initialSpeed = 0, int initialHeading = 0)
-    : speed(initialSpeed), heading(initialHeading), cameraControl(camera_control) {
+        explicit KeyboardInput( int initialSpeed = 0, int initialHeading = 0)
+    : speed(initialSpeed), heading(initialHeading) {
         }
 
     enums::Action interpretKey(int key) {
@@ -142,10 +142,9 @@ private:
     int heading = 0;
     std::string msg= "empty";
     bool stopflag = false;
-    int panPosition = 0;
+    int panPosition = -5;
     int tiltPosition = 0;
-    CameraControl& cameraControl;
-
+    CameraControl cameraControl;
 };
 
 #endif // AIS2203_PROJECT_SPHERO_KEYBOARDINPUT_HPP

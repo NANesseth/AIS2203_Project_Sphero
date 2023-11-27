@@ -143,7 +143,7 @@ private:
 
 
     void uiLoop() {
-        KeyboardInput kbInput(cameraControl);
+        KeyboardInput kbInput;
         CXBOXController xboxController(1);
         bool stopflag = false;
         std::string message;
