@@ -44,15 +44,12 @@ struct RobotControlValues {
     }
 
 
-
-    // Pure generated code
-
     void setObjectHeading(BallTrackerResult ball, cv::Point2f screenCenter){
         if (ball.found) {
             // Calculate the heading, 0 degrees is straight ahead
             // positive is to the right, negative to the left
 
-            heading = static_cast<int>(std::round((ball.center.x - screenCenter.x) / screenCenter.x * 90));
+            heading = static_cast<int>(std::round((ball.center.x - screenCenter.x) / screenCenter.x * 45));
         } else {
             heading = 0;
         }
@@ -64,7 +61,7 @@ struct RobotControlValues {
             // The larger the ball appears, the slower the robot moves
             // use the ball radius, compare it to the total size of the screen
 
-            speed = static_cast<int>(std::round((screenCenter.x - ball.radius) / screenCenter.x * 255));
+            speed = static_cast<int>(std::round((screenCenter.x - ball.radius) / screenCenter.x * 100));
 
         } else {
             speed = 0;

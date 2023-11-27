@@ -31,7 +31,7 @@ private:
 
 
 int main() {
-    USBCamera camera(0);
+    USBCamera camera;
 
     GUI gui;
     camera.addObserver(&gui);
