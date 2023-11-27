@@ -69,24 +69,27 @@ public:
     }
 
     void detectBall() {
+        float minRadius = 5;
+        float radius, maxRadius;
+        cv::Point2f maxCenter;
+        double area, perimeter, circularity, circularityThreshold = 0.85;
+
         while (running_) {
             cv::Mat frame;// Obtain the frame from your image source
             {
                 std::lock_guard<std::mutex> lock(newestFrame_mutex_);
                 newestFrame_.copyTo(frame);
             }
-
             blurFrame(frame);
 
             // Apply color thresholding to detect the ball
             cv::Mat mask;
-            //            cv::inRange(frame, lowerBound, upperBound, mask);
 
-            cv::cvtColor(frame, hsvFrame, cv::COLOR_BGR2HSV);
+            cv::cvtColor(frame, frame, cv::COLOR_BGR2HSV);
 
-            cv::inRange(hsvFrame,
-                        cv::Scalar(colorValues_.H_min, colorValues_.S_min, colorValues_.V_min),
-                        cv::Scalar(colorValues_.H_max, colorValues_.S_max, colorValues_.V_max),
+            cv::inRange(frame,
+                        cv::Scalar(ballColor_.H_min, ballColor_.S_min, ballColor_.V_min),
+                        cv::Scalar(ballColor_.H_max, ballColor_.S_max, ballColor_.V_max),
                         mask);
 
             // Find contours
@@ -94,17 +97,17 @@ public:
             cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
             // Detect the ball (assuming it's the largest contour)
-            float maxRadius = 0;
-            cv::Point2f maxCenter;
-            double area, perimeter, circularity, circularityThreshold = 0.7;
+            maxRadius = 0;
             for (const auto& contour : contours) {
-                float radius;
+                radius = 0;
                 cv::Point2f center;
                 cv::minEnclosingCircle(contour, center, radius);
-//                if (radius > maxRadius) {
-//                    maxRadius = radius;
-//                    maxCenter = center;
-//                }
+
+                // Continue if radius is lower than minimum radius
+                if (radius < minRadius) {
+                    continue;
+                }
+
                 // Calculate area and perimeter
                 area = cv::contourArea(contour);
                 perimeter = cv::arcLength(contour, true);

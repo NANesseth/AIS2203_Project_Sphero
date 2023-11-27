@@ -2,8 +2,8 @@
 #define AIS2203_PROJECT_SPHERO_SPHERO_HPP
 
 // Cameras
+#include "cameras/PCCamera.hpp"
 #include "cameras/RaspberryCamera.hpp"
-#include "cameras/USBCamera.hpp"
 
 // Controls
 #include "controls/CameraControls.hpp"

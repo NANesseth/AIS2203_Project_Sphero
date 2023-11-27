@@ -1,5 +1,5 @@
-#ifndef AIS2203_PROJECT_SPHERO_USBCAMERA_HPP
-#define AIS2203_PROJECT_SPHERO_USBCAMERA_HPP
+#ifndef AIS2203_PROJECT_SPHERO_PCCAMERA_HPP
+#define AIS2203_PROJECT_SPHERO_PCCAMERA_HPP
 
 #include "sphero/core/ImageFetcher.hpp"
 
@@ -10,10 +10,12 @@
 #include <atomic>
 #include <queue>
 
+// This class can be used for any camera recognized
+// by the computer, even a builtin laptop webcam
 
-class USBCamera : public ImageFetcher {
+class PCCamera: public ImageFetcher {
 public:
-    explicit USBCamera(int cameraIndex) : cameraIndex_(cameraIndex) {}
+    explicit PCCamera(int cameraIndex) : cameraIndex_(cameraIndex) {}
 
 protected:
     void captureLoop() override {
@@ -42,4 +44,4 @@ private:
     int cameraIndex_;
 };
 
-#endif//AIS2203_PROJECT_SPHERO_USBCAMERA_HPP
+#endif//AIS2203_PROJECT_SPHERO_PCCAMERA_HPP

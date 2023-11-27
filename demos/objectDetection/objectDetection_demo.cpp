@@ -1,4 +1,4 @@
-#include "sphero/cameras/USBCamera.hpp"
+#include "sphero/cameras/PCCamera.hpp"
 #include "sphero/utils/JsonUtils.hpp"
 #include "sphero/vision/BallTracker.hpp"
 
@@ -30,7 +30,7 @@ private:
 
 
 int main() {
-    USBCamera camera(0);
+    PCCamera camera(0);
 
     GUI gui;
     camera.addObserver(&gui);
@@ -47,7 +47,7 @@ int main() {
     catch (std::exception& e){
         std::cout << "Error: " << e.what() << std::endl;
         std::cout << "Using default color range, consider running color calibration first" << std::endl;
-        tracker.setColor(ColorValues{200, 255, 80, 255, 40, 255});
+        tracker.setColor(ColorValues{67, 239, 83, 196, 21, 84}); // weak green
     }
 
 

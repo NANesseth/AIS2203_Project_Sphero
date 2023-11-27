@@ -25,30 +25,30 @@ nlohmann::json loadJson(const std::string& filename){
 // Color Values
 // =====================================================================================================================
 
-nlohmann::json toJson(const ColorValues& colorValues){
-
+nlohmann::json toJson(const ColorValues& colorValues) {
     nlohmann::json json;
-    json["R_min"] = colorValues.R_min;
-    json["R_max"] = colorValues.R_max;
-    json["G_min"] = colorValues.G_min;
-    json["G_max"] = colorValues.G_max;
-    json["B_min"] = colorValues.B_min;
-    json["B_max"] = colorValues.B_max;
+    json["H_min"] = colorValues.H_min;
+    json["H_max"] = colorValues.H_max;
+    json["S_min"] = colorValues.S_min;
+    json["S_max"] = colorValues.S_max;
+    json["V_min"] = colorValues.V_min;
+    json["V_max"] = colorValues.V_max;
 
     return json;
 }
 
 
-ColorValues fromJson(const nlohmann::json& json){
 
+ColorValues fromJson(const nlohmann::json& json) {
     ColorValues colorValues;
-    colorValues.R_min = json["R_min"];
-    colorValues.R_max = json["R_max"];
-    colorValues.G_min = json["G_min"];
-    colorValues.G_max = json["G_max"];
-    colorValues.B_min = json["B_min"];
-    colorValues.B_max = json["B_max"];
+    colorValues.H_min = json["H_min"];
+    colorValues.H_max = json["H_max"];
+    colorValues.S_min = json["S_min"];
+    colorValues.S_max = json["S_max"];
+    colorValues.V_min = json["V_min"];
+    colorValues.V_max = json["V_max"];
 
     return colorValues;
 }
+
 

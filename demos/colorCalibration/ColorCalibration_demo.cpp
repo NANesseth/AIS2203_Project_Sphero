@@ -1,9 +1,9 @@
-#include "sphero/cameras/USBCamera.hpp"
-#include "sphero/vision/ColorCalibrator.hpp"
+#include "sphero/cameras/PCCamera.hpp"
 #include "sphero/utils/JsonUtils.hpp"
+#include "sphero/vision/ColorCalibrator.hpp"
 
 int main() {
-    USBCamera camera(0);
+    PCCamera camera(0);
     ColorCalibrator calibrator;
     camera.addObserver(&calibrator);
 
