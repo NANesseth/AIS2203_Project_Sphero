@@ -100,6 +100,7 @@ public:
                     }
 
                     try {
+
                         displayFrame(frame);
                     } catch(std::exception& e) {
                         std::cout << "error when displaying frame: " << e.what() << std::endl;
