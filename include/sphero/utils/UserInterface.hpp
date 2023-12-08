@@ -3,6 +3,11 @@
 
 #include "sphero/utils/udpClient.hpp"
 #include "sphero/controls/keyboardInput.hpp"
+
+#include "sphero/cameras/RaspberryCamera.hpp"
+#include "sphero/vision/BallTracker.hpp"
+#include "sphero/utils/JsonUtils.hpp"
+
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <thread>
@@ -141,7 +146,6 @@ private:
         }
     }
 
-
     void uiLoop() {
         KeyboardInput kbInput;
         CXBOXController xboxController(1);
@@ -228,8 +232,6 @@ private:
                     control.setObjectSpeed(ball, screenCenter);
 
                     message = control.getJsonMessageAsString();
-
-                    //lag en message slik som dei andre kontrollerane for å kjøre roboten.
                     std::unique_lock<std::mutex> lock(sendMutex);//bruk ditte til å sende data til roboten.
                     pushMessage(message);
                 }
@@ -241,9 +243,9 @@ private:
                     stopflag = kbInput.selectController(this->controller);
                 }
                 displayBuilder.destroyWindow();
+                }
             }
         }
-    }
 
     void displayFrame(cv::Mat& frame) {
             int fps = 144;
