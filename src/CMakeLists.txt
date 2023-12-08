@@ -9,11 +9,9 @@ set(sources
         sphero/math/MathUtils.cpp
 
         # Utils
-        sphero/utils/TaskQueue.cpp
-        sphero/utils/ThreadPool.cpp
-
-        ../tests/cameras/RaspberryCamera_test.cpp
-        ../include/sphero/controls/CameraControls.hpp
+        sphero/utils/Observer.cpp
+        sphero/utils/TaskManager.cpp
+        sphero/utils/JsonUtils.cpp
 )
 
 add_library(sphero ${sources})

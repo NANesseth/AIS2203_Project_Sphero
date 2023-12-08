@@ -1,4 +1,4 @@
-# Directly "borrowed" from threepp
+# Fetched from threepp
 function(add_test_executable name)
     add_executable(${name} ${name}.cpp)
     target_link_libraries(${name} PRIVATE sphero Catch2::Catch2WithMain)

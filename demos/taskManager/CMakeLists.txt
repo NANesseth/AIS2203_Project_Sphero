@@ -1,0 +1,2 @@
+add_executable(taskManager_demo taskManager_demo.cpp)
+target_link_libraries(taskManager_demo PRIVATE sphero)
