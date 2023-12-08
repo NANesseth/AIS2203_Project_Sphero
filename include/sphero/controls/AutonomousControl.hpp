@@ -21,7 +21,6 @@ class AutonomousControl {
             return heading;
         }
 
-
         bool selectController(enums::Controller& controller){
             using namespace enums;
 
@@ -75,24 +74,34 @@ class AutonomousControl {
                 }
             }
 
-            if (maxArea > 0) {
+            if (maxArea > 10) {
                 float ballSize = radius*2;
                 float ballPosition = center.x;
                 speed = int(70-ballSize);
-                if(speed < 0) speed = 0;
+                if(speed > maxSpeed){
+                    msg = "drive";
+                    speed = 70;
+                }
+                if(speed < -maxSpeed){
+                    msg = "drive_reverse";
+                    speed = -70;
+                }
+                if(speed < 0){
+                    speed = speed*(-1);
+                }
 
                 std::cout << "Green ball found at: (" << ballPosition << ", " << center.y << ") with size: " << ballSize << " pixels" << std::endl;
-                if (ballPosition < 132.5) {
+                if (ballPosition > 132.5) {
                     heading = (heading + headingIncrement) % 360;
                 }
-                else if (ballPosition > 132.5) {
+                else if (ballPosition < 132.5) {
                     heading = (heading - headingIncrement) % 360;
                     if (heading < 0) heading += 360;
                 }
             }
             else {
                 std::cout << "No green ball found." << std::endl;
-                heading = (heading + headingIncrement) % 360;
+                //heading = (heading + headingIncrement) % 360;
                 speed = 0;
             }
         }
@@ -109,6 +118,7 @@ class AutonomousControl {
     private:
 
         std::tuple<int,int> ballCoordinates;
+        int maxSpeed = 100;
         int speed = 0;
         int heading = 0;
         std::string msg= "video_start";
