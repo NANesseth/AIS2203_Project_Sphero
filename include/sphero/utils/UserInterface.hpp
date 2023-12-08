@@ -193,7 +193,7 @@ private:
             }
 
             else if (this -> controller == AUTO){
-                displayBuilder.buildMainMenu();
+                displayBuilder.buildAutonomousDrivingMenu();
                 cv::waitKey(1);
                 {
                     std::unique_lock<std::mutex> frameLock(frameMutex);
@@ -214,6 +214,7 @@ private:
                     pushMessage(message);
 
                 }
+                displayBuilder.destroyWindow();
             }
             else{
                 displayBuilder.buildMainMenu();
