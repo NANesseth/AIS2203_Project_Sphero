@@ -195,8 +195,6 @@ private:
                 BallTracker tracker;
                 camera.addObserver(&tracker);
 
-                camera.start();
-
                 // Initializing ball tracker
                 try{
                     tracker.setColor(fromJson(loadJson("saved_color_range.json")));
@@ -227,13 +225,16 @@ private:
                     // Ball tracker is automatically notified
 
                     ball = tracker.getResult();
+                    std::cout<<"debug1"<<std::endl;
 
                     control.setObjectHeading(ball, screenCenter);
                     control.setObjectSpeed(ball, screenCenter);
 
                     message = control.getJsonMessageAsString();
+                    std::cout<<"debug2"<<std::endl;
                     std::unique_lock<std::mutex> lock(sendMutex);//bruk ditte til å sende data til roboten.
                     pushMessage(message);
+                    std::cout<<"debug3"<<std::endl;
                 }
             }
             else{

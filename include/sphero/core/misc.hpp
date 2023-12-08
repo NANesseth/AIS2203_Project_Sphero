@@ -28,7 +28,7 @@ struct BallTrackerResult {
 struct RobotControlValues {
     int heading = 0;
     int speed = 10;
-    std::string msg = "empty";
+    std::string msg = "start_video";
     int panPosition = 0;
     int tiltPosition = 0;
 

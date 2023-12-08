@@ -113,6 +113,7 @@ class KeyboardInput{
         switch (key) {
             case '1': controller = KEYBOARD; break;
             case '2': controller = XBOX; break;
+            case '3': controller = AUTO; break;
             case ESC_KEY: stopflag = true; break;
             default: break;
         }
