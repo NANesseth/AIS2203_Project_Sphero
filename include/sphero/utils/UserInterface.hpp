@@ -146,7 +146,6 @@ private:
         }
     }
 
-
     void uiLoop() {
         KeyboardInput kbInput;
         CXBOXController xboxController(1);
