@@ -52,10 +52,10 @@ class AutonomousControl {
             cv::cvtColor(frame, hsvImage, cv::COLOR_BGR2HSV);
 
             // Define the range for green color
-            cv::Scalar lowerGreen(50, 100, 100); // Adjust these values
-            cv::Scalar upperGreen(70, 255, 255); // Adjust these values
+            cv::Scalar lowerGreen(50, 100, 100);
+            cv::Scalar upperGreen(70, 255, 255);
 
-            // Threshold the image to get only green colors
+
             cv::Mat greenMask;
             cv::inRange(hsvImage, lowerGreen, upperGreen, greenMask);
 
@@ -63,7 +63,7 @@ class AutonomousControl {
             std::vector<std::vector<cv::Point>> contours;
             cv::findContours(greenMask, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
 
-            // Find the largest contour and its center
+
             double maxArea = 0;
             cv::Point2f center;
             float radius = 0;
@@ -82,15 +82,15 @@ class AutonomousControl {
 
                 std::cout << "Green ball found at: (" << ballPosition << ", " << center.y << ") with size: " << ballSize << " pixels" << std::endl;
                 if (ballPosition < 132.5) {
-                    heading = heading + headingIncrement;
+                    heading = (heading + headingIncrement) % 360;
                 }
                 else if (ballPosition > 132.5) {
-                    heading = heading - headingIncrement;
+                    heading = (heading - headingIncrement) % 360;
                 }
             }
             else {
                 std::cout << "No green ball found." << std::endl;
-                heading = heading - headingIncrement;
+                heading = (heading - headingIncrement) % 360;
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
             }
         }
