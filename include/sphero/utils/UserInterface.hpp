@@ -3,6 +3,7 @@
 
 #include "sphero/utils/udpClient.hpp"
 #include "sphero/controls/keyboardInput.hpp"
+#include "sphero/controls/AutonomousControl.hpp"
 
 #include "sphero/cameras/RaspberryCamera.hpp"
 #include "sphero/vision/BallTracker.hpp"
@@ -150,6 +151,7 @@ private:
     void uiLoop() {
         KeyboardInput kbInput;
         CXBOXController xboxController(1);
+        AutonomousControl autoControl;
         bool stopflag = false;
         std::string message;
         using namespace enums;
@@ -191,51 +193,26 @@ private:
             }
 
             else if (this -> controller == AUTO){
-
-                RaspberryCamera camera;
-                BallTracker tracker;
-                camera.addObserver(&tracker);
-
-                // Initializing ball tracker
-                try{
-                    tracker.setColor(fromJson(loadJson("saved_color_range.json")));
-                }
-                catch (std::exception& e){
-                    std::cout << "Error: " << e.what() << std::endl;
-                    std::cout << "Using default color range, consider running color calibration first" << std::endl;
-                    tracker.setColor(ColorValues{250, 255, 112, 200, 69, 134});
-                }
-
-                BallTrackerResult ball;
-                cv::Point2f screenCenter;
+                displayBuilder.buildMainMenu();
+                cv::waitKey(1);
                 {
                     std::unique_lock<std::mutex> frameLock(frameMutex);
                     cv::Mat frame = latestFrame.clone();
-                    screenCenter = cv::Point2f(frame.cols / 2, frame.rows / 2);
                 }
-                RobotControlValues control;
-
                 cv::Mat currentFrame;
                 while (this->controller == AUTO) {
                     {
                         std::unique_lock<std::mutex> frameLock(frameMutex);
                         currentFrame = latestFrame.clone();
                     }
+                    autoControl.run(this->controller, currentFrame);
 
-                    camera.addFrame(currentFrame);
-                    // Ball tracker is automatically notified
 
-                    ball = tracker.getResult();
-                    std::cout<<"debug1"<<std::endl;
+                    message = autoControl.getJsonMessageAsString();
 
-                    control.setObjectHeading(ball, screenCenter);
-                    control.setObjectSpeed(ball, screenCenter);
-
-                    message = control.getJsonMessageAsString();
-                    std::cout<<"debug2"<<std::endl;
                     std::unique_lock<std::mutex> lock(sendMutex);//bruk ditte til å sende data til roboten.
                     pushMessage(message);
-                    std::cout<<"debug3"<<std::endl;
+
                 }
             }
             else{

@@ -43,12 +43,12 @@ int main() {
 
     // Initializing ball tracker
     try{
-        tracker.setColor(fromJson(loadJson("saved_color_range.json")));
+        tracker.setColor(fromJson(loadJson("saved_color_range3e.json")));
     }
     catch (std::exception& e){
         std::cout << "Error: " << e.what() << std::endl;
         std::cout << "Using default color range, consider running color calibration first" << std::endl;
-        tracker.setColor(ColorValues{250, 255, 112, 200, 69, 134});
+        tracker.setColor(ColorValues{0, 10, 100, 255, 100, 255});//GREEN
     }
 
     cv::Mat frame;

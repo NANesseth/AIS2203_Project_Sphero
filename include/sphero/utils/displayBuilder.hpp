@@ -41,6 +41,19 @@ public:
             std::cerr << "OpenCV error occurred: " << e.what() << std::endl;
         }
     }
+    void buildAutonomousDrivingMenu() {
+        this -> windowName = "Autonomous driving";
+        frame = blackFrame;
+        addText("ESC - Main menu", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
+        text_y=15;
+
+        try {
+            cv::imshow(windowName, frame);
+            cv::waitKey(1);
+        } catch (const cv::Exception& e) {
+            std::cerr << "OpenCV error occurred: " << e.what() << std::endl;
+        }
+    }
 
     void destroyWindow(){
         blackFrame = cv::Mat::zeros(windowWidth,windowHeight,CV_8UC3);
