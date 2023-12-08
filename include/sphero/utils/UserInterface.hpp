@@ -212,7 +212,7 @@ private:
 
                     std::unique_lock<std::mutex> lock(sendMutex);//bruk ditte til å sende data til roboten.
                     pushMessage(message);
-
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 }
                 displayBuilder.destroyWindow();
             }

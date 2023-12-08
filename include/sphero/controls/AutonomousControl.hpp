@@ -79,6 +79,7 @@ class AutonomousControl {
                 float ballSize = radius*2;
                 float ballPosition = center.x;
                 speed = int(70-ballSize);
+                if(speed < 0) speed = 0;
 
                 std::cout << "Green ball found at: (" << ballPosition << ", " << center.y << ") with size: " << ballSize << " pixels" << std::endl;
                 if (ballPosition < 132.5) {
@@ -86,12 +87,13 @@ class AutonomousControl {
                 }
                 else if (ballPosition > 132.5) {
                     heading = (heading - headingIncrement) % 360;
+                    if (heading < 0) heading += 360;
                 }
             }
             else {
                 std::cout << "No green ball found." << std::endl;
-                heading = (heading - headingIncrement) % 360;
-                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                heading = (heading + headingIncrement) % 360;
+                speed = 0;
             }
         }
 
