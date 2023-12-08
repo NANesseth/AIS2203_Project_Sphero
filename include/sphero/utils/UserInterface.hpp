@@ -21,6 +21,7 @@
 #include "Various.hpp"
 #include <typeinfo>
 
+
 class UserInterface {
 public:
     explicit UserInterface(UdpClient& client) : udpClient(client), controller(enums::Controller::NOCONTROLLER) {
