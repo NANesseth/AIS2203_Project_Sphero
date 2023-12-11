@@ -133,7 +133,7 @@ class KeyboardInput{
     }
 
 private:
-    int speed = 10;
+    int speed = 0;
     static constexpr int speedIncrement = 10;
     static constexpr int maxSpeed = 255;
     static constexpr int panIncrement = 10;
