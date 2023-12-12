@@ -207,7 +207,6 @@ private:
                     }
                     autoControl.run(this->controller, currentFrame);
 
-
                     message = autoControl.getJsonMessageAsString();
 
                     std::unique_lock<std::mutex> lock(sendMutex);//bruk ditte til å sende data til roboten.
@@ -229,6 +228,7 @@ private:
 
     void displayFrame(cv::Mat& frame) {
             int fps = 144;
+
         //std::cout << "display"<<std::endl;
         if (!frame.empty()) {
             cv::resize(frame, frame, cv::Size(640, 480));

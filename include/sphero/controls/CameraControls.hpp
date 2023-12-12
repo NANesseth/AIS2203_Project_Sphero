@@ -5,18 +5,17 @@
 //test
 class CameraControl {
 private:
-    int panPosition = 0; // -5 for calibration
+    int panPosition = 0;
     int tiltPosition = 0;
+    int calibratePan = -6;  //To calibrate the pan IRL
 
 public:
-    CameraControl() : panPosition(-5), tiltPosition(0) {}
+    CameraControl() : panPosition(0), tiltPosition(0) {}
 
     void setPanPosition(int pan) {
+
         pan = (pan > 90 ? 90 : (pan < -90 ? -90 : pan));
-//        if (pan > -85){ // to make it start straight and not go too far left.
-//            pan -= +5;
-//        }
-        panPosition = pan;
+        panPosition = pan - calibratePan;
     }
 
     int getPanPosition() const {
