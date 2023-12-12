@@ -1,7 +1,3 @@
-//
-// Created by Torstein on 08/12/2023.
-//
-
 #ifndef AIS2203_PROJECT_SPHERO_AUTONOMOUS_HPP
 #define AIS2203_PROJECT_SPHERO_AUTONOMOUS_HPP
 #include <iostream>
@@ -28,8 +24,9 @@ class AutonomousControl {
             const char ESC_KEY = 27;
             key = (char)cv::waitKey(10);
             switch (key) {
-                case ESC_KEY: stopflag = true; break;
-                default: break;
+                case ESC_KEY:
+                    controller = Controller::NOCONTROLLER;
+                    msg = "Exit";
             }
             return stopflag;
         }

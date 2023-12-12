@@ -206,13 +206,14 @@ private:
                         currentFrame = latestFrame.clone();
                     }
                     autoControl.run(this->controller, currentFrame);
-
+                    autoControl.selectController(this->controller);
                     message = autoControl.getJsonMessageAsString();
 
                     std::unique_lock<std::mutex> lock(sendMutex);//bruk ditte til å sende data til roboten.
                     pushMessage(message);
                     std::this_thread::sleep_for(std::chrono::milliseconds(20));
                 }
+
                 displayBuilder.destroyWindow();
             }
             else{
