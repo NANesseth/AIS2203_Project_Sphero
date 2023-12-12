@@ -2,7 +2,6 @@
 #define AIS2203_PROJECT_SPHERO_CAMERACONTROLS_HPP
 #include <iostream>
 
-//test
 class CameraControl {
 private:
     int panPosition = 0;
