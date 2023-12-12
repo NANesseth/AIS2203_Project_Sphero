@@ -55,8 +55,8 @@ class AutonomousControl {
             int centerX = width / 2;
             int centerY = height / 2;
 
-            cv::Scalar lower(170, 120, 70); // Lower boundary for red color
-            cv::Scalar upper(180, 255, 255); // Upper boundary for red color
+            cv::Scalar lower(50, 100, 100); // Lower boundary for GREEN color
+            cv::Scalar upper(70, 255, 255); // Upper boundary for GREEN color
 
             cv::Mat greenMask;
             cv::inRange(hsvImage, lower, upper, greenMask);
