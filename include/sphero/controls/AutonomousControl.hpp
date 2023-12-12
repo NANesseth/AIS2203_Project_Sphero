@@ -90,11 +90,11 @@ class AutonomousControl {
                 speed = (70-ballSize);
                 if(speed > maxSpeed){
                     msg = "drive";
-                    speed = 30;
+                    speed = 15;
                 }
                 if(speed < -maxSpeed){
                     msg = "drive_reverse";
-                    speed = 30;
+                    speed = 15;
                 }
                 if(speed < 0){
                     speed = speed*(-1);
@@ -104,7 +104,7 @@ class AutonomousControl {
                 updateControls(ballcenter.x, ballcenter.y, centerX, centerY, tiltPosition, panPosition);
 
                 // Use a proportional constant to control the rate of change
-                float proportionalConstant = 0.1f;
+                float proportionalConstant = 0.05f;
                 headingIncrement = abs(panPosition)*proportionalConstant;
 
                 std::cout << "Red ball found at: (" << ballPositionX << ", " << ballcenter.y << ") with size: " << ballSize << " pixels" << std::endl;
@@ -130,8 +130,10 @@ class AutonomousControl {
             static int scanDirection = 1;
 
             if (panPosition > 70) {
+                tiltPosition = 0;
                 scanDirection = -1;
             } else if (panPosition < -70) {
+                tiltPosition = 0;
                 scanDirection = 1;
             }
 
