@@ -87,27 +87,57 @@ class AutonomousControl {
                 float ballSize = radius*2;
                 int ballPositionX = int(ballcenter.x);
                 int ballPositionY = int(ballcenter.y);
+                speed = (70-ballSize);
+                if(speed > maxSpeed){
+                    msg = "drive";
+                    speed = 30;
+                }
+                if(speed < -maxSpeed){
+                    msg = "drive_reverse";
+                    speed = 30;
+                }
+                if(speed < 0){
+                    speed = speed*(-1);
+                }
+
+
                 updateControls(ballcenter.x, ballcenter.y, centerX, centerY, tiltPosition, panPosition);
 
+                // Use a proportional constant to control the rate of change
+                float proportionalConstant = 0.1f;
+                headingIncrement = abs(panPosition)*proportionalConstant;
 
-                std::cout << "Green ball found at: (" << ballPositionX << ", " << ballcenter.y << ") with size: " << ballSize << " pixels" << std::endl;
-             //   if (ballPositionX > 132.5) {
-             //       heading = (heading + headingIncrement) % 360;
-             //   }
-             //   else if (ballPositionX < 132.5) {
-             //       heading = (heading - headingIncrement) % 360;
-             //       if (heading < 0) heading += 360;
-             //   }
+                std::cout << "Red ball found at: (" << ballPositionX << ", " << ballcenter.y << ") with size: " << ballSize << " pixels" << std::endl;
+                if (panPosition < 0) {
+                    heading = (heading + headingIncrement) % 360;
+                }
+                else if (panPosition > 0) {
+                    heading = heading - headingIncrement;
+                    if (heading < 0) heading += 360;
+                }
             }
             else {
-                std::cout << "No green ball found." << std::endl;
+                std::cout << "No red ball found." << std::endl;
+                scan();
                 //heading = (heading + headingIncrement) % 360;
-                //speed = 0;
+                speed = 0;
             }
         }
 
 
+        void scan()
+        {
+            static int scanDirection = 1;
 
+            if (panPosition > 70) {
+                scanDirection = -1;
+            } else if (panPosition < -70) {
+                scanDirection = 1;
+            }
+
+            panPosition += scanDirection;
+
+        }
 
 
 
@@ -137,19 +167,19 @@ class AutonomousControl {
         void updateControls(float ballX, float ballY, float centerX, float centerY, int &cameraTilt, int &cameraPan) {
             std::cout<<"ballX: "<<ballX<<" ballY: "<<ballY<<" centerX: "<<centerX<<" centerY: "<<centerY<<std::endl;
 
-            float Kp_tilt = 0.04f; // Proportional constant for tilt
+            float Kp_tilt = 0.03f; // Proportional constant for tilt
             float Ki_tilt = 0.00f; // Integral constant for tilt
-            float Kd_tilt = 0.08f; // Derivative constant for tilt
+            float Kd_tilt = 0.2f; // Derivative constant for tilt
 
-            float Kp_pan = 0.04f; // Proportional constant for pan 0.03
-            float Ki_pan = 0.00f; // Integral constant for pan
-            float Kd_pan = 0.2f; // Derivative constant for pan 0.0008
+            float Kp_pan = 0.03f; // Proportional constant for pan 0.03
+            float Ki_pan = 0.001f; // Integral constant for pan
+            float Kd_pan = 0.09f; // Derivative constant for pan 0.0008
 
             float errorX = centerX - ballX; // Calculate error in X
             float errorY = centerY - ballY; // Calculate error in Y
             std::cout<<"errorX: "<<errorX<<" errorY: "<<errorY<<std::endl;
 
-            if(std::abs(errorX) < 50 && std::abs(errorY) < 30) {
+            if(std::abs(errorX) < 30 && std::abs(errorY) < 30) {
                 return;
             }
 
