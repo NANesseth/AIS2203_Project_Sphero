@@ -12,8 +12,8 @@ class JsonReader{
 private:
     std::string jsonDump;
     std::string frame_s;
-    std::string battery_level;
-    std::string distance;
+    int battery_level;
+    int distance;
     nlohmann::json jsonFile;
     bool videoRunning;
     cv::Mat frame;
@@ -109,7 +109,7 @@ public:
         updateFrameParts();
         updateDistance();
     }
-    std::string getBatteryLevel() const {
+    int getBatteryLevel() const {
         return battery_level;
     }
     cv::Mat getFrame() const{
@@ -119,7 +119,7 @@ public:
         return videoRunning;
     }
 
-    std::string getDistance() const{
+    int getDistance() const{
         return distance;
     }
 
