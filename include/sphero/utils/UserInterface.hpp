@@ -45,20 +45,19 @@ public:
         JsonReader jsonReader;
         std::string data;
         while (true) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
             data = udpClient.receiveData();
             jsonReader.updateJson(data);
             {
                 std::unique_lock<std::mutex> lock(queueMutex);
-                if (jsonQueue.size() >= 2) {
+                if (jsonQueue.size() >= 1) {
                     jsonQueue.pop();
                 }
                 jsonQueue.push(jsonReader);
             }
             dataCondition.notify_all();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
-
 
     void sending() {
         while (true) {
@@ -78,8 +77,8 @@ public:
             else {
                 std::cout << "message empty" << std::endl;
             }
-
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
         }
     }
 
