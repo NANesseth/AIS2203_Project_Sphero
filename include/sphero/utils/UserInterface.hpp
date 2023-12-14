@@ -64,12 +64,10 @@ public:
                 if (!sendQueue.empty()) {
                     message = sendQueue.front();
                     sendQueue.pop();
-                    //std::cout<<"element removed from sendQueue"<<"\n";
                 }
             }
 
             if (!message.empty()){
-                //std::cout<<"sending"<<"\n";
                 udpClient.sendMessage(message);
             }
             else {
@@ -145,7 +143,6 @@ private:
                 sendQueue.pop();
             }
             sendQueue.push(message);
-            //std::cout << "message to send: " << message << std::endl;
             sendCondition.notify_all();
         }
     }
