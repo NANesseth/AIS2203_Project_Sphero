@@ -105,8 +105,8 @@ public:
                     distanceToObject = data.getDistance();
                     batteryLevel = data.getBatteryLevel();
                     frame = data.getFrame();
-                    cv::putText(frame, "Battery level: " + std::to_string(batteryLevel), cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 0.3, cv::Scalar(0, 0, 255), 2);
-                    cv::putText(frame, "Distance: " + std::to_string(distanceToObject), cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 0.3, cv::Scalar(0, 0, 255), 2);
+                    cv::putText(frame, "Battery level: " + std::to_string(batteryLevel), cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0), 1, cv::LINE_AA);
+                    cv::putText(frame, "Distance: " + std::to_string(distanceToObject), cv::Point(10, 60), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0), 1, cv::LINE_AA);
                     {
                         std::unique_lock<std::mutex> frameLock(frameMutex);
                         latestFrame = frame.clone(); // Update the latest frame
