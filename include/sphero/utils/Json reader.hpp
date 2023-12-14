@@ -41,6 +41,11 @@ private:
             videoRunning = jsonFile["videoRunning"].get<bool>();
         }
     }
+    void getDistance(){
+        if (jsonFile.contains("distance")){
+            std::cout << jsonFile["distance"].get<std::string>() << std::endl;
+        }
+    }
 
     void updateFrameParts() {
         if (jsonFile.contains("frame_part") && jsonFile.contains("part_number") && jsonFile.contains("total_parts")) {
