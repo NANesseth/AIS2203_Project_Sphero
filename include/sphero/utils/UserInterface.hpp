@@ -50,6 +50,8 @@ public:
             jsonReader.updateJson(data);
             jsonQueue.push(jsonReader);
             dataCondition.notify_all();
+            std::cout << "Battery level is: " << jsonReader.getBatteryLevel() << std::endl;
+            std::cout << "Distance is: " << jsonReader.getDistance() << std::endl;
         }
     }
 

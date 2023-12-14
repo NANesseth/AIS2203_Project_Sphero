@@ -13,6 +13,7 @@ private:
     std::string jsonDump;
     std::string frame_s;
     std::string battery_level;
+    std::string distance;
     nlohmann::json jsonFile;
     bool videoRunning;
     cv::Mat frame;
@@ -32,7 +33,7 @@ private:
 
     void updateBatteryLevel() {
         if (jsonFile.contains("battery_level")) {
-            battery_level = jsonFile["battery_level"].get<std::string>();
+            battery_level = jsonFile["battery_level"].get<float>();
         }
     }
 
@@ -41,9 +42,9 @@ private:
             videoRunning = jsonFile["videoRunning"].get<bool>();
         }
     }
-    void getDistance(){
+    void updateDistance(){
         if (jsonFile.contains("distance")){
-            std::cout << jsonFile["distance"].get<std::string>() << std::endl;
+            distance = jsonFile["distance"].get<int32_t>();
         }
     }
 
@@ -106,6 +107,7 @@ public:
         updateBatteryLevel();
         updateVideoRunning();
         updateFrameParts();
+        updateDistance();
     }
     std::string getBatteryLevel() const {
         return battery_level;
@@ -115,6 +117,10 @@ public:
     }
     bool getVideoRunning() const{
         return videoRunning;
+    }
+
+    std::string getDistance() const{
+        return distance;
     }
 
 

@@ -196,8 +196,6 @@ public:
                         speed = mapTriggerToLtrigger(getLeftTrigger());
                     }
 
-                    std::cout << "speed: " << speed << std::endl;
-
                 }
                 else
                 {
