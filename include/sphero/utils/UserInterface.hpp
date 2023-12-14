@@ -41,19 +41,24 @@ public:
         cv::destroyWindow(windowName);
     }
 
-    void receiving(){
+    void receiving() {
         JsonReader jsonReader;
         std::string data;
-        while (true){
+        while (true) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             data = udpClient.receiveData();
             jsonReader.updateJson(data);
-            jsonQueue.push(jsonReader);
+            {
+                std::unique_lock<std::mutex> lock(queueMutex);
+                if (jsonQueue.size() >= 2) {
+                    jsonQueue.pop();
+                }
+                jsonQueue.push(jsonReader);
+            }
             dataCondition.notify_all();
-            std::cout << "Battery level is: " << jsonReader.getBatteryLevel() << std::endl;
-            std::cout << "Distance is: " << jsonReader.getDistance() << std::endl;
         }
     }
+
 
     void sending() {
         while (true) {
@@ -87,6 +92,7 @@ public:
         auto hasData = [this]() { return !jsonQueue.empty(); };
         int batteryLevel;
         int distanceToObject;
+
         while (true) {
             {
                 std::unique_lock<std::mutex> lock(queueMutex);
@@ -123,7 +129,6 @@ private:
     std::thread receiverThread;
     std::thread sendingThread;
 
-    CameraControl cameraControl;
     JsonReader data;
     std::queue<JsonReader> jsonQueue;
     std::mutex queueMutex;
