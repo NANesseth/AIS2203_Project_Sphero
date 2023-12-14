@@ -86,7 +86,7 @@ public:
         cv::Mat frame;
         auto hasData = [this]() { return !jsonQueue.empty(); };
         int batteryLevel;
-        int distanceToWall;
+        int distanceToObject;
         while (true) {
             {
                 std::unique_lock<std::mutex> lock(queueMutex);
