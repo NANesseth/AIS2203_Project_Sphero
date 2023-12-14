@@ -33,7 +33,7 @@ private:
 
     void updateBatteryLevel() {
         if (jsonFile.contains("battery_level")) {
-            battery_level = jsonFile["battery_level"].get<float>();
+            battery_level = jsonFile["battery_level"].get<uint8_t>();
         }
     }
 
