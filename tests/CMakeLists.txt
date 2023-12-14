@@ -8,5 +8,4 @@ endfunction()
 
 add_subdirectory(cameras)
 add_subdirectory(controls)
-add_subdirectory(math)
 add_subdirectory(utils)

@@ -8,8 +8,8 @@
 #include <opencv2/opencv.hpp>
 #include <mutex>
 
+#include "JsonReader.hpp"
 #include <variant>
-#include "Json reader.hpp"
 using namespace cv;
 
 inline std::string getLocalIp() {
@@ -58,8 +58,8 @@ public:
             std::cout << "Error sending message: " << ex.what() << "\n";
             return;
         }
-
-        std::cout << "Bytes sent: " << bytes_transferred << "\n";
+        std::cout << "sending: " << messageCopy.size() << "bytes" << std::endl;
+        //std::cout << "Bytes sent: " << bytes_transferred << "\n";
     }
 
     std::string receiveData() {

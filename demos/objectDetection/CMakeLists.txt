@@ -1,2 +1,0 @@
-add_executable(objectDetection_demo objectDetection_demo.cpp)
-target_link_libraries(objectDetection_demo PRIVATE sphero)

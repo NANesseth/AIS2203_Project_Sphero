@@ -9,17 +9,17 @@
 #include "sphero/vision/BallTracker.hpp"
 #include "sphero/utils/JsonUtils.hpp"
 
-#include <opencv2/opencv.hpp>
-#include <iostream>
-#include <thread>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
-#include "sphero/utils/enums.hpp"
-#include "sphero/utils/DisplayBuilder.hpp"
-#include "sphero/controls/XboxInput.hpp"
-#include "Json reader.hpp"
+#include "JsonReader.hpp"
 #include "Various.hpp"
+#include "sphero/controls/XboxInput.hpp"
+#include "sphero/utils/DisplayBuilder.hpp"
+#include "sphero/utils/enums.hpp"
+#include <condition_variable>
+#include <iostream>
+#include <mutex>
+#include <opencv2/opencv.hpp>
+#include <queue>
+#include <thread>
 #include <typeinfo>
 
 

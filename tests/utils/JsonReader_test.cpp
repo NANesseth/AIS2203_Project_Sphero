@@ -1,8 +1,8 @@
 //
 // Created by Torstein on 11/12/2023.
 //
-#include "sphero/utils/Json reader.hpp"
 #include "catch2/catch_test_macros.hpp"
+#include "sphero/utils/JsonReader.hpp"
 TEST_CASE("Test updateJson") {
     JsonReader jsonReader;
     cv::Mat testFrame = cv::Mat::zeros(100, 100, CV_8UC3);

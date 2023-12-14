@@ -1,11 +1,11 @@
 #ifndef AIS2203_PROJECT_SPHERO_AUTONOMOUS_HPP
 #define AIS2203_PROJECT_SPHERO_AUTONOMOUS_HPP
+#include "sphero/utils/JsonReader.hpp"
+#include "sphero/utils/enums.hpp"
 #include <iostream>
+#include <nlohmann/json.hpp>
 #include <opencv2/opencv.hpp>
 #include <utility>
-#include "sphero/utils/enums.hpp"
-#include "sphero/utils/Json reader.hpp"
-#include <nlohmann/json.hpp>
 
 class AutonomousControl {
     public:

@@ -1,2 +1,0 @@
-add_executable(USBCamera_demo USBCamera_demo.cpp)
-target_link_libraries(USBCamera_demo PRIVATE sphero)

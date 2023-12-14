@@ -2,13 +2,13 @@
 #define AIS2203_PROJECT_SPHERO_XBOXINPUT_HPP
 #include "nlohmann/json.hpp"
 #include "sphero/controls/CameraControls.hpp"
+#include "sphero/utils/JsonReader.hpp"
+#include "sphero/utils/enums.hpp"
 #include <XInput.h>
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <utility>
 #include <windows.h>
-#include "sphero/utils/Json reader.hpp"
-#include "sphero/utils/enums.hpp"
 
 #pragma comment(lib, "XInput.lib")
 

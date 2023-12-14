@@ -1,2 +1,0 @@
-add_test_executable(RobotControls_test)
-add_test_executable(CameraControls_test CameraControls_test.cpp)
