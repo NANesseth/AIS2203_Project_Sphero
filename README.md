@@ -65,9 +65,10 @@ Have fun and drive safe!
 - Set correct serverIP and serverPort in main.cpp (note: serverIP is the IP of the raspberry pi)
 
 
-### UDP Server Github link
-The UDP server was created on a separate git repo.
-- https://github.com/tostoner/udp_server
+### Github links
+- [Sphero RVR project client](https://github.com/NANesseth/AIS2203_Project_Sphero.git)
+- [UDP server link](https://github.com/tostoner/udp_server)
+- [Sphero RVR python SDK](https://github.com/sphero-inc/sphero-sdk-raspberrypi-python)
 
 ### Screenshots
 #### Main menu
