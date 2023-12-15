@@ -15,11 +15,30 @@ It leverages multithreading and OpenCV, enabling simultaneous transmission and r
 - Collision detection
 - Battery level indicator
 
-### What does not work/ works poorly.
-- "Managable inheritance system" code part for the Client is not implemented.
+### What does not work/ works poorly..
 - GUI and camerafeed windows lock if clicked on with the mouse cursor.
 - The robot is not very good at tracking the ball.
 - Latency on the videofeed is too high.
+
+The following files, tests and demos listed below are not implemented in relation with the Sphero RVR. But is a work in progress of a more advanced autonomous tracking system.
+    
+###### Demos
+    - Color_calibration_demo
+    - Task_manager_demo
+    - Object_detection_demo
+  ###### Files
+    - PCCamera.hpp
+    - RaspberryCamera.hpp
+    - RobotControls.hpp
+    - followObject.hpp
+    - JsonConverter.hpp
+    - JsonUtils.hpp
+    - Observer.hpp
+    - Task.Manager.hpp
+    - Core folder
+    - math folder
+    - vision folder
+
 
 ### How to get it running
 #### Server instructions
