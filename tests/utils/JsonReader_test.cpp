@@ -23,7 +23,6 @@ TEST_CASE("Test updateJson") {
     SECTION("Test updateVideoRunning") {
         REQUIRE(jsonReader.getVideoRunning() == true);
     }
-
 }
 
 TEST_CASE("TEST getDistance"){
