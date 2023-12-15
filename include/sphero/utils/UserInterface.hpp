@@ -247,7 +247,7 @@ private:
             std::cerr << "Empty or invalid frame received.\n";
         }
         //sleep approx 1/fps seconds
-        //std::this_thread::sleep_for(std::chrono::nanoseconds(1));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(1000 / fps));
 
     }
 };

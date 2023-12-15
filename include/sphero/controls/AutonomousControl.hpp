@@ -9,14 +9,6 @@
 
 class AutonomousControl {
     public:
-        const int getSpeed() const {
-            return speed;
-        }
-
-        const int getHeading() const {
-            return heading;
-        }
-
         bool selectController(enums::Controller& controller){
             using namespace enums;
 
@@ -26,7 +18,6 @@ class AutonomousControl {
             switch (key) {
                 case ESC_KEY:
                     controller = Controller::NOCONTROLLER;
-                    msg = "Exit";
             }
             return stopflag;
         }
@@ -42,7 +33,10 @@ class AutonomousControl {
         }
 
         void run(enums::Controller& controller, cv::Mat frame) {
-            msg = "drive";
+            float size1 = 10;
+            float size2 =20;
+            float size3 = 30;
+            float size4 =40;
             cv::Mat hsvImage;
             cv::cvtColor(frame, hsvImage, cv::COLOR_BGR2HSV);
             cv::Rect boundingRect;
@@ -54,6 +48,7 @@ class AutonomousControl {
 
             cv::Scalar lower(170, 120, 70); // Lower boundary for RED color
             cv::Scalar upper(180, 255, 255); // Upper boundary for RED color
+
 
             cv::Mat greenMask;
             cv::inRange(hsvImage, lower, upper, greenMask);
@@ -84,17 +79,23 @@ class AutonomousControl {
                 float ballSize = radius*2;
                 int ballPositionX = int(ballcenter.x);
                 int ballPositionY = int(ballcenter.y);
-                speed = (70-ballSize);
-                if(speed > maxSpeed){
+
+                //fuzzy speedlogic
+                if(ballSize > size1){
                     msg = "drive";
-                    speed = 15;
+                    speed = 20;
                 }
-                if(speed < -maxSpeed){
+                else if(ballSize> size2){
+                    msg = "drive";
+                    speed = 30;
+                }
+                else if(ballSize> size3){
+                    msg = "drive";
+                    speed = 40;
+                }
+                else if(ballSize> size4){
                     msg = "drive_reverse";
-                    speed = 15;
-                }
-                if(speed < 0){
-                    speed = speed*(-1);
+                    speed = 20;
                 }
 
 
@@ -104,7 +105,7 @@ class AutonomousControl {
                 float proportionalConstant = 0.05f;
                 headingIncrement = abs(panPosition)*proportionalConstant;
 
-                std::cout << "Red ball found at: (" << ballPositionX << ", " << ballcenter.y << ") with size: " << ballSize << " pixels" << std::endl;
+                //std::cout << "Red ball found at: (" << ballPositionX << ", " << ballcenter.y << ") with size: " << ballSize << " pixels" << std::endl;
                 if (panPosition < 0) {
                     heading = (heading + headingIncrement) % 360;
                 }
@@ -114,8 +115,8 @@ class AutonomousControl {
                 }
             }
             else {
-                std::cout << "No red ball found." << std::endl;
-                scan();
+                //std::cout << "No red ball found." << std::endl;
+                //scan();
                 //heading = (heading + headingIncrement) % 360;
                 speed = 0;
             }
@@ -139,18 +140,11 @@ class AutonomousControl {
         }
 
 
-
-        cv::Mat getFrameWithMarkedBall(){
-            return markedFrame;
-        }
-
     private:
-
         std::tuple<int,int> ballCoordinates;
-        int maxSpeed = 100;
         int speed = 0;
         int heading = 0;
-        std::string msg= "video_start";
+        std::string msg;
         bool stopflag = false;
         int panPosition = -5;
         int tiltPosition = 0;
@@ -165,50 +159,37 @@ class AutonomousControl {
 
         void updateControls(float ballX, float ballY, float centerX, float centerY, int &cameraTilt, int &cameraPan) {
             std::cout<<"ballX: "<<ballX<<" ballY: "<<ballY<<" centerX: "<<centerX<<" centerY: "<<centerY<<std::endl;
+            float threshold = 5.0f;
+            float Kp_tilt = 0.052f;
+            float Ki_tilt = 0.00f;
+            float Kd_tilt = 0.13f;
 
-            float Kp_tilt = 0.03f; // Proportional constant for tilt
-            float Ki_tilt = 0.00f; // Integral constant for tilt
-            float Kd_tilt = 0.2f; // Derivative constant for tilt
+            float Kp_pan = 0.05f;
+            float Ki_pan = 0.00f;
+            float Kd_pan = 0.13f;
 
-            float Kp_pan = 0.03f; // Proportional constant for pan 0.03
-            float Ki_pan = 0.001f; // Integral constant for pan
-            float Kd_pan = 0.09f; // Derivative constant for pan 0.0008
+            float errorX = centerX - ballX;
+            float errorY = centerY - ballY;
 
-            float errorX = centerX - ballX; // Calculate error in X
-            float errorY = centerY - ballY; // Calculate error in Y
-            std::cout<<"errorX: "<<errorX<<" errorY: "<<errorY<<std::endl;
-
-            if(std::abs(errorX) < 30 && std::abs(errorY) < 30) {
+            if(std::abs(errorX) < threshold && std::abs(errorY) < threshold) {
                 return;
             }
 
-            float dErrorX = errorX - oldErrorX; // Derivative of error for X
-            float dErrorY = errorY - oldErrorY; // Derivative of error for Y
+            float dErrorX = errorX - oldErrorX;
+            float dErrorY = errorY - oldErrorY;
 
-            integralErrorX += errorX; // Integral of error for X
-            integralErrorY += errorY; // Integral of error for Y
+            integralErrorX += errorX;
+            integralErrorY += errorY;
 
             // PID control for tilt and pan
             cameraTilt -= round((Kp_tilt * errorY) + (Ki_tilt * integralErrorY) + (Kd_tilt * dErrorY));
             cameraPan  += round((Kp_pan * errorX) + (Ki_pan * integralErrorX) + (Kd_pan * dErrorX));
 
-            oldErrorX = errorX; //Save current error for next calculation
-            oldErrorY = errorY; //Save current error for next calculation
+            oldErrorX = errorX;
+            oldErrorY = errorY;
 
             std::cout<<"tilt: "<<cameraTilt<<" pan: "<<cameraPan<<std::endl;
 
-            // Clamp values to range
-            if(cameraTilt > 90) {
-                cameraTilt = 90;
-            } else if(cameraTilt < -90) {
-                cameraTilt = -90;
-            }
-
-            if(cameraPan > 90) {
-                cameraPan = 90;
-            } else if(cameraPan < -90) {
-                cameraPan = -90;
-            }
         }
 };
 
