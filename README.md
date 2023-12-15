@@ -29,14 +29,11 @@ The following files, tests and demos listed below are not implemented in relatio
   ###### Files
     - PCCamera.hpp
     - RaspberryCamera.hpp
-    - RobotControls.hpp
-    - followObject.hpp
     - JsonConverter.hpp
     - JsonUtils.hpp
     - Observer.hpp
     - Task.Manager.hpp
     - Core folder
-    - math folder
     - vision folder
 
 
