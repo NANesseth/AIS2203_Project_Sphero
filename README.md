@@ -55,6 +55,6 @@ https://github.com/tostoner/udp_server
 #### Xbox menu
 ![XboxMenu.png](Screenshots/XboxMenu.png)
 #### Program running
-![RunningClient.jpg](Screenshots/RunningClient.png)
+![RunningClient.png](Screenshots/runningClient.png)
 
 
