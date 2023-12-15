@@ -8,20 +8,23 @@ The server, located on the Rasperry pi, mounted on the Sphero RVR, is responsibl
 The client is also responsible for displaying the videofeed from the server.
 The program includes three different controlling methods to control the robot. Keyboard, Xbox controller and autonomous driving. Autonomous driving is currently set to follow a red color.
 ### What works.
-- Duplex communication between Robot and client
+- Duplex UDP communication between Server and Client utilizing a JSON format.
 - Keyboard Controls
 - Xbox Controls
 - Autonomous driving(following a ball)
-- "live" videofeed with approx. 1 second delay
+- Multithreading
+- "live" videofeed.
 - Simple GUI implemented with openCV
 - Collision detection
+- Distance indicator
 - Battery level indicator
+- PID controller for camera in autonomous driving
 
 ### What does not work/ works poorly.
 - GUI and camerafeed windows lock if clicked on with the mouse cursor.
 - The robot could be better at tracking the ball but works.
 - Latency on the videofeed could also be improved but is >0.5s at 160x120p.
-
+- PID controller for camera in autonomous driving is not optimal and could be improved.
 The following files, tests and demos listed below are not implemented in relation with the Sphero RVR. But is a work in progress of a more advanced autonomous tracking system.
     
 ###### Demos
