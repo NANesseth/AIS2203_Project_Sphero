@@ -236,7 +236,7 @@ private:
         }
 
     void displayFrame(cv::Mat& frame) {
-            int fps = 144;
+            //int fps = 144;
 
         //std::cout << "display"<<std::endl;
         if (!frame.empty()) {
@@ -247,7 +247,8 @@ private:
             std::cerr << "Empty or invalid frame received.\n";
         }
         //sleep approx 1/fps seconds
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000/fps));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
     }
 };
 
