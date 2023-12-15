@@ -3,38 +3,15 @@
 
 #include "sphero/core/misc.hpp"
 #include "sphero/core/ImageFetcher.hpp"
+#include "sphero/core/ImageProcessor.hpp"
 
 #include <opencv2/opencv.hpp>
 #include <mutex>
 #include <thread>
 
 
-struct BallTrackerResult {
-    cv::Point2f center{};
-    float radius{};
-    bool found{};
-    //std::mutex mutex;
-};
-
-class BallTracker : public Observer{
+class BallTracker : public ImageProcessor{
 public:
-    BallTracker(): running_(false) { /* May be smart to initialize default ball colors */
-    }
-
-    void onFrameAvailable(const cv::Mat& frame) override {
-        // Update newest frame
-        std::lock_guard<std::mutex> lock(newestFrame_mutex_);
-        frame.copyTo(newestFrame_);
-    }
-
-
-
-    ~BallTracker() {
-        running_ = false;
-        if (trackingThread_.joinable()) {
-            trackingThread_.join();
-        }
-    }
 
     void setColor(const ColorValues& ballColor) {
         ballColor_ = ballColor;
@@ -44,45 +21,26 @@ public:
         return ballColor_;
     }
 
-    void startTracking() {
-        if (trackingThread_.joinable())
-            trackingThread_.join();
-
-        running_ = true;
-        trackingThread_ = std::thread([this]() {
-            this->detectBall();
-        });
-
-        trackingThread_.detach();
-    }
-
-    void stopTracking() {
-        running_ = false;
-        if (trackingThread_.joinable()) {
-            trackingThread_.join();
-        }
-    }
-
     BallTrackerResult getResult() {
         std::lock_guard<std::mutex> lock(result_mutex_);
         return result_;
     }
 
-    void detectBall() {
+    void processImage() override {
         float minRadius = 5;
         float radius, maxRadius;
         cv::Point2f maxCenter;
         double area, perimeter, circularity, circularityThreshold = 0.85;
+        cv::Mat frame;
 
         while (running_) {
-            cv::Mat frame;// Obtain the frame from your image source
+
             {
                 std::lock_guard<std::mutex> lock(newestFrame_mutex_);
                 newestFrame_.copyTo(frame);
             }
             blurFrame(frame);
 
-            // Apply color thresholding to detect the ball
             cv::Mat mask;
 
             cv::cvtColor(frame, frame, cv::COLOR_BGR2HSV);
@@ -135,19 +93,20 @@ public:
             }
 
         }
-        stopTracking();
+        stop();
     }
 
 private:
     ColorValues ballColor_;
-    std::atomic<bool> running_;
-    std::thread trackingThread_;
 
     std::mutex result_mutex_;
     BallTrackerResult result_;
 
-    std::mutex newestFrame_mutex_;
-    cv::Mat newestFrame_;
+//    std::atomic<bool> running_;
+//    std::thread trackingThread_;
+//
+//    std::mutex newestFrame_mutex_;
+//    cv::Mat newestFrame_;
 };
 
 

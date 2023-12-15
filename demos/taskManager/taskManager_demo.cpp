@@ -2,6 +2,9 @@
 
 #include <iostream>
 
+// This is a demo of the TaskManager class
+// However, we have moved away from this implementation in the main project
+
 void task_1(){
     // Simulate work
     std::cout << "Task 1: start" << std::endl;

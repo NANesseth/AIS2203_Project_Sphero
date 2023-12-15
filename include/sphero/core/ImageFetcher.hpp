@@ -12,11 +12,12 @@
 
 class Observer {
 public:
-    void blurFrame(cv::Mat& frame){
-        cv::GaussianBlur(frame, frame, cv::Size(9, 9), 0);
-    }
     virtual void onFrameAvailable(const cv::Mat& frame) = 0;
     virtual ~Observer() = default;
+
+    static void blurFrame(cv::Mat& frame, int value = 9){
+        cv::GaussianBlur(frame, frame, cv::Size(value, value), 0);
+    }
 };
 
 

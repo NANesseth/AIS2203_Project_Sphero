@@ -3,19 +3,15 @@
 
 #include "sphero/core/misc.hpp"
 #include "sphero/core/ImageFetcher.hpp"
+#include "sphero/core/ImageProcessor.hpp"
 
-//#include <opencv2/opencv.hpp>
-#include <nlohmann/json.hpp> // Should be removed
-#include <string>
-#include <fstream>
-#include <iostream>
 
 // This works as a GUI as of now
-class ColorCalibrator: public Observer {
+class ColorCalibrator: public ImageProcessor {
 public:
 
     ColorCalibrator(const std::string& windowName = "Color Calibration")
-        : windowName_(windowName) {
+        : windowName_(windowName), ImageProcessor() {
         cv::namedWindow(windowName);
 
         // HSV trackbars
@@ -29,25 +25,24 @@ public:
         cv::createTrackbar("Max Value", windowName, &colorValues_.V_max, 255);
     }
 
-    void onFrameAvailable(const cv::Mat& frame) override {
-        processFrame(frame);
-    }
+    void processImage () override {
+        while(running_){
+            if(!newestFrame_.empty()){
+                cv::Mat frame, hsvFrame, mask, result;
+                {
+                    std::lock_guard<std::mutex> lock(newestFrame_mutex_);
+                    newestFrame_.copyTo(frame);
+                }
 
-    void processFrame(const cv::Mat& frame) {
-        cv::Mat hsvFrame, mask, result;
+                cv::cvtColor(frame, hsvFrame, cv::COLOR_BGR2HSV);
 
-        // Convert to HSV
-        cv::cvtColor(frame, hsvFrame, cv::COLOR_BGR2HSV);
+                cv::inRange(hsvFrame,
+                            cv::Scalar(colorValues_.H_min, colorValues_.S_min, colorValues_.V_min),
+                            cv::Scalar(colorValues_.H_max, colorValues_.S_max, colorValues_.V_max),
+                            mask);
 
-        cv::inRange(hsvFrame,
-                    cv::Scalar(colorValues_.H_min, colorValues_.S_min, colorValues_.V_min),
-                    cv::Scalar(colorValues_.H_max, colorValues_.S_max, colorValues_.V_max),
-                    mask);
-
-        cv::bitwise_and(frame, frame, result, mask);
-        {
-            std::lock_guard<std::mutex> lock(newestFrame_mutex_);
-            result.copyTo(newestFrame);
+                mask.copyTo(newestMask_);
+            }
         }
     }
 
@@ -59,21 +54,20 @@ public:
         colorValues_ = colorValues;
     }
 
-    cv::Mat getNewestFrame() {
+    void getNewestMask(cv::Mat& mask){
+        newestMask_.copyTo(mask);
+    }
+
+    bool isNewestFrameEmpty() {
         std::lock_guard<std::mutex> lock(newestFrame_mutex_);
-        return newestFrame.clone();
+        return newestMask_.empty();
     }
 
 private:
+    ColorValues colorValues_;
     std::string windowName_;
 
-    std::mutex newestFrame_mutex_;
-    cv::Mat newestFrame;
-
-    std::mutex overlay_mutex_;
-    cv::Mat overlay_;
-
-    ColorValues colorValues_; // Update this structure to have H, S, and V fields
+    cv::Mat newestMask_;
 };
 
 
