@@ -49,12 +49,12 @@ https://github.com/tostoner/udp_server
 
 ### Screenshots
 #### Main menu
-![MainMenu.png](Screenshots/MainMenu.png)
+![MainMenu](Screenshots/MainMenu.png)
 #### Keyboard menu
-![KeyboardInput.png](Screenshots/KeyboardInput.png)
+![KeyboardInput](Screenshots/KeyboardInput.png)
 #### Xbox menu
-![XboxMenu.png](Screenshots/XboxMenu.png)
+![XboxMenu](Screenshots/XboxKeybindings.png)
 #### Program running
-![RunningClient.png](Screenshots/runningClient.png)
+![RunningClient](Screenshots/runningClient.png)
 
 
