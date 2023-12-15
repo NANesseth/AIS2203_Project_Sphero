@@ -1,3 +1,2 @@
-add_test_executable(ThreadPool_test)
 add_test_executable(keyBoardInput_test keyBoardInput_test.cpp)
 add_test_executable(JsonReader_test JsonReader_test.cpp)

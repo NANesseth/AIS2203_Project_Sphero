@@ -9,7 +9,7 @@ TEST_CASE("Test updateJson") {
     std::string frame_as_string;
 
     nlohmann::json jsonData = {
-            {"battery_level", "58%"},
+            {"battery_level", 58},
             {"frame_part", frame_as_string},
             {"part_number", 0},
             {"total_parts", 1},
@@ -18,10 +18,20 @@ TEST_CASE("Test updateJson") {
     std::string data = jsonData.dump();
     jsonReader.updateJson(data);
     SECTION("Test updateBatteryLevel") {
-        REQUIRE(jsonReader.getBatteryLevel() == "58%");
+        REQUIRE(jsonReader.getBatteryLevel() == 58);
     }
     SECTION("Test updateVideoRunning") {
         REQUIRE(jsonReader.getVideoRunning() == true);
     }
 
+}
+
+TEST_CASE("TEST getDistance"){
+    JsonReader jsonReader;
+    nlohmann::json jsonData = {
+            {"distance", 100}
+    };
+    std::string data = jsonData.dump();
+    jsonReader.updateJson(data);
+    REQUIRE(jsonReader.getDistance() == 100);
 }

@@ -30,6 +30,9 @@ public:
     int getTiltPosition() const {
         return -tiltPosition;
     }
+    int getPanCalibration() const {
+        return calibratePan;
+    }
 
 
 };

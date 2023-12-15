@@ -5,7 +5,7 @@ TEST_CASE("TEST setPanPosition") {
     CameraControl cameraControl;
     int pan = 10;
     cameraControl.setPanPosition(pan);
-    REQUIRE(cameraControl.getPanPosition() == -pan);
+    REQUIRE(cameraControl.getPanPosition() == -pan+cameraControl.getPanCalibration());
 }
 
 TEST_CASE("TEST setTiltPosition") {
@@ -19,21 +19,21 @@ TEST_CASE("TEST setPanPosition with too high value") {
     CameraControl cameraControl;
     int pan = 100;
     cameraControl.setPanPosition(pan);
-    REQUIRE(cameraControl.getPanPosition() == -90);
+    REQUIRE(cameraControl.getPanPosition() == -90+cameraControl.getPanCalibration());
 }
 
 TEST_CASE("TEST setPanPosition with too low value") {
     CameraControl cameraControl;
     int pan = -100;
     cameraControl.setPanPosition(pan);
-    REQUIRE(cameraControl.getPanPosition() == 90);
+    REQUIRE(cameraControl.getPanPosition() == 90+cameraControl.getPanCalibration());
 }
 
 TEST_CASE("TEST getPanPosition") {
     CameraControl cameraControl;
     int pan = 10;
     cameraControl.setPanPosition(pan);
-    REQUIRE(cameraControl.getPanPosition() == -pan);
+    REQUIRE(cameraControl.getPanPosition() == -pan+cameraControl.getPanCalibration());
 }
 
 TEST_CASE("TEST getTiltPosition") {
