@@ -4,12 +4,14 @@ Robot control - exam project for NTNU AIS2203
 ## Introduction
 This project focuses on remotely controlling the Sphero RVR in real-time utilizing UDP communication protocols. 
 It leverages multithreading and OpenCV, enabling simultaneous transmission and reception of data, as well as real-time display of images within the graphical user interface.
-Autonomous driving is currently set to follow a red color.
+The server, located on the Rasperry pi, mounted on the Sphero RVR, is responsible for receiving and transmitting data to the client(this repo). The client sends and receives data from the server, and is responsible for displaying the GUI and sending commands to the server.
+The client is also responsible for displaying the videofeed from the server.
+The program includes three different controlling methods to control the robot. Keyboard, Xbox controller and autonomous driving. Autonomous driving is currently set to follow a red color.
 ### What works.
 - Duplex communication between Robot and client
 - Keyboard Controls
 - Xbox Controls
-- Autonomous ball tracking (can be better)
+- Autonomous driving(following a ball)
 - "live" videofeed with approx. 1 second delay
 - Simple GUI implemented with openCV
 - Collision detection
@@ -17,8 +19,8 @@ Autonomous driving is currently set to follow a red color.
 
 ### What does not work/ works poorly.
 - GUI and camerafeed windows lock if clicked on with the mouse cursor.
-- The robot is not very good at tracking the ball.
-- Latency on the videofeed is too high.
+- The robot could be better at tracking the ball but works.
+- Latency on the videofeed could also be improved but is >0.5s at 160x120p.
 
 The following files, tests and demos listed below are not implemented in relation with the Sphero RVR. But is a work in progress of a more advanced autonomous tracking system.
     
