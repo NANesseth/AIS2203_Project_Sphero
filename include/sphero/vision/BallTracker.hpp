@@ -3,101 +3,51 @@
 
 #include "sphero/core/misc.hpp"
 #include "sphero/core/ImageFetcher.hpp"
+#include "sphero/core/ImageProcessor.hpp"
 
 #include <opencv2/opencv.hpp>
 #include <mutex>
 #include <thread>
 
-// If we want the possibility to track different objects, we can create a class
-// ObjectTracker that inherits from Observer and derive BallTracker from it.
 
-// class ObjectTracker : public Observer
-//      class BallTracker : public ObjectTracker
-//      class QubeTracker : public ObjectTracker etc...
-
-class BallTracker : public Observer{
+class BallTracker : public ImageProcessor{
 public:
-    BallTracker(): running_(false) { /* May be smart to initialize default ball colors */
-    }
-
-    void onFrameAvailable(const cv::Mat& frame) override {
-        std::lock_guard<std::mutex> lock(newestFrame_mutex_);
-        frame.copyTo(newestFrame_);
-    }
-
-    ~BallTracker() {
-        running_ = false;
-        if (trackingThread_.joinable()) {
-            trackingThread_.join();
-        }
-    }
 
     void setColor(const ColorValues& ballColor) {
         ballColor_ = ballColor;
     }
 
-    void startTracking() {
-        if (trackingThread_.joinable())
-            trackingThread_.join();
-
-        running_ = true;
-        trackingThread_ = std::thread([this]() {
-            this->detectBall();
-        });
-
-        trackingThread_.detach();
-    }
-
-    void stopTracking() {
-        running_ = false;
-        if (trackingThread_.joinable()) {
-            trackingThread_.join();
-        }
+    ColorValues getColor() const {
+        return ballColor_;
     }
 
     BallTrackerResult getResult() {
         std::lock_guard<std::mutex> lock(result_mutex_);
-        return ball_;
+        return result_;
     }
 
-//    cv::Point2f getRelativePosition(int screenWidth, int screenHeight) {
-//        // calculate screen center
-//        cv::Point2f screenCenter(screenWidth / 2, screenHeight / 2);
-//
-//        // compute the relative position
-//        cv::Point2f relativePos = ball_.center - screenCenter;
-//
-//        return relativePos;
-//    }
+    void processImage() override {
+        float minRadius = 5;
+        float radius, maxRadius;
+        cv::Point2f maxCenter;
+        double area, perimeter, circularity, circularityThreshold = 0.85;
+        cv::Mat frame;
 
-    cv::Point2f getRelativePosition(int screenWidth, int screenHeight) {
-        // calculate screen center
-        cv::Point2f screenCenter(screenWidth / 2, screenHeight / 2);
-
-        // compute the relative position
-        cv::Point2f relativePos = ball_.center - screenCenter;
-
-        // normalize the coordinates to range -1 to 1
-        relativePos.x /= (screenWidth / 2);
-        relativePos.y /= (screenHeight / 2);
-
-        return relativePos;
-    }
-
-    void detectBall() {
         while (running_) {
-            cv::Mat frame;// Obtain the frame from your image source
+
             {
                 std::lock_guard<std::mutex> lock(newestFrame_mutex_);
                 newestFrame_.copyTo(frame);
             }
+            blurFrame(frame);
 
-            // Apply color thresholding to detect the ball
             cv::Mat mask;
 
+            cv::cvtColor(frame, frame, cv::COLOR_BGR2HSV);
+
             cv::inRange(frame,
-                        cv::Scalar(ballColor_.B_min, ballColor_.G_min, ballColor_.R_min),
-                        cv::Scalar(ballColor_.B_max, ballColor_.G_max, ballColor_.R_max),
+                        cv::Scalar(ballColor_.H_min, ballColor_.S_min, ballColor_.V_min),
+                        cv::Scalar(ballColor_.H_max, ballColor_.S_max, ballColor_.V_max),
                         mask);
 
             // Find contours
@@ -105,13 +55,27 @@ public:
             cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
             // Detect the ball (assuming it's the largest contour)
-            float maxRadius = 0;
-            cv::Point2f maxCenter;
+            maxRadius = 0;
             for (const auto& contour : contours) {
-                float radius;
+                radius = 0;
                 cv::Point2f center;
                 cv::minEnclosingCircle(contour, center, radius);
-                if (radius > maxRadius) {
+
+                // Continue if radius is lower than minimum radius
+                if (radius < minRadius) {
+                    continue;
+                }
+
+                // Calculate area and perimeter
+                area = cv::contourArea(contour);
+                perimeter = cv::arcLength(contour, true);
+
+                // Calculate circularity
+                circularity = 4 * CV_PI * (area / (perimeter * perimeter));
+
+                // Only consider the contour if the circularity is high (closer to 1)
+                // circularityThreshold = 0.85; // This value can be adjusted based on your needs
+                if (radius > maxRadius && circularity > circularityThreshold) {
                     maxRadius = radius;
                     maxCenter = center;
                 }
@@ -120,28 +84,32 @@ public:
             {
                 std::lock_guard<std::mutex> lock(result_mutex_);
                 if (maxRadius > 0) {// Ball found
-                    ball_.center = maxCenter;
-                    ball_.radius = maxRadius;
-                    ball_.found = true;
+                    result_.center = maxCenter;
+                    result_.radius = maxRadius;
+                    result_.found = true;
                 } else {// Ball not found
-                    ball_.found = false;
+                    result_.found = false;
                 }
             }
+
         }
-        stopTracking();
+        stop();
     }
 
 private:
     ColorValues ballColor_;
-    std::atomic<bool> running_;
-    std::thread trackingThread_;
 
     std::mutex result_mutex_;
-    BallTrackerResult ball_;
+    BallTrackerResult result_;
 
-    std::mutex newestFrame_mutex_;
-    cv::Mat newestFrame_;
+//    std::atomic<bool> running_;
+//    std::thread trackingThread_;
+//
+//    std::mutex newestFrame_mutex_;
+//    cv::Mat newestFrame_;
 };
+
+
 
 
 #endif//AIS2203_PROJECT_SPHERO_BALLTRACKER_HPP

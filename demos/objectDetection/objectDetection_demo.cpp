@@ -1,39 +1,16 @@
-#include "sphero/cameras/USBCamera.hpp"
+#include "sphero/cameras/PCCamera.hpp"
+#include "sphero/vision/ColorCalibrator.hpp" // remove
 #include "sphero/utils/JsonUtils.hpp"
 #include "sphero/vision/BallTracker.hpp"
-#include "sphero/vision/ColorCalibrator.hpp"// remove
+#include "sphero/vision/LiveFrameDisplay.hpp"
 
-class GUI: public Observer {
-public:
-    void onFrameAvailable(const cv::Mat& frame) override {
-        updateNewestFrame(frame);
-    }
-
-    void updateNewestFrame(const cv::Mat& frame) {
-        std::lock_guard<std::mutex> lock(newestFrame_mutex_);
-        frame.copyTo(newestFrame_);
-    }
-
-    void getNewestFrame(cv::Mat& frame){
-        std::lock_guard<std::mutex> lock(newestFrame_mutex_);
-        newestFrame_.copyTo(frame);
-    }
-
-    bool isNewestFrameEmpty() {
-        std::lock_guard<std::mutex> lock(newestFrame_mutex_);
-        return newestFrame_.empty();
-    }
-
-private:
-    std::mutex newestFrame_mutex_;
-    cv::Mat newestFrame_;
-};
-
+// It is recommended to run the ColorCalibration_demo first to get the color range of the ball.
+// If not, the default color range will be used.
 
 int main() {
-    USBCamera camera;
+    PCCamera camera;
 
-    GUI gui;
+    LiveFrameDisplay gui;
     camera.addObserver(&gui);
 
     BallTracker tracker;
@@ -41,14 +18,14 @@ int main() {
 
     camera.start();
 
-    // Initializing ball tracker
+    // Move this to the constructor of BallTracker
     try{
-        tracker.setColor(fromJson(loadJson("saved_color_range3e.json")));
+        tracker.setColor(fromJson(loadJson("saved_color_range.json")));
     }
     catch (std::exception& e){
         std::cout << "Error: " << e.what() << std::endl;
         std::cout << "Using default color range, consider running color calibration first" << std::endl;
-        tracker.setColor(ColorValues{0, 10, 100, 255, 100, 255});//GREEN
+        tracker.setColor(ColorValues{67, 239, 83, 196, 21, 84}); // weak green
     }
 
     cv::Mat frame;
@@ -60,24 +37,27 @@ int main() {
     while(gui.isNewestFrameEmpty());
     std::cout << "Observer: Got first frame" << std::endl;
 
-    tracker.startTracking();
+    tracker.start();
     BallTrackerResult ball;
 
-    cv::Point2f screenCenter(frame.cols / 2, frame.rows / 2);
-    cv::Point2f relativePosition;
+    // Merge (main)
+    //cv::Point2f screenCenter(frame.cols / 2, frame.rows / 2);
+    //cv::Point2f relativePosition;
 
     while (true) {
         gui.getNewestFrame(frame);
-        ball = tracker.getResult();
+        ball = tracker.getResult(); // Make sure how the tracker gets the frame
 
         if (ball.found){
+            // Draw a circle at 'result.center' with a radius of 'result.radius'
             cv::circle(frame, ball.center, ball.radius, cv::Scalar(0, 250, 0), 2);
+
+            // Merge (main)
             //relativePosition = ball.center - screenCenter;
-            relativePosition = tracker.getRelativePosition(frame.cols, frame.rows);
-            std::cout << "Relative position: " << relativePosition << std::endl;
+            //relativePosition = tracker.getRelativePosition(frame.cols, frame.rows);
+            //std::cout << "Relative position: " << relativePosition << std::endl;
         }
         cv::imshow("Object Detection", frame);
-
 
         char key = static_cast<char>(cv::waitKey(1));
         if (key == 'q' || key == 27) {
@@ -85,7 +65,7 @@ int main() {
         }
     }
 
-    tracker.stopTracking();
+    tracker.stop();
 
     camera.stop();
     camera.removeObserver(&gui);

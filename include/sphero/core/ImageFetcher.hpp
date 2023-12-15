@@ -14,6 +14,10 @@ class Observer {
 public:
     virtual void onFrameAvailable(const cv::Mat& frame) = 0;
     virtual ~Observer() = default;
+
+    static void blurFrame(cv::Mat& frame, int value = 9){
+        cv::GaussianBlur(frame, frame, cv::Size(value, value), 0);
+    }
 };
 
 
@@ -61,6 +65,8 @@ public:
         std::lock_guard<std::mutex> lock(observers_mutex_);
         observers_.erase(std::remove(observers_.begin(), observers_.end(), observer), observers_.end());
     }
+
+
 
 protected:
     virtual void captureLoop() = 0; //

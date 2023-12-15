@@ -3,47 +3,46 @@
 
 #include "sphero/core/misc.hpp"
 #include "sphero/core/ImageFetcher.hpp"
+#include "sphero/core/ImageProcessor.hpp"
 
-//#include <opencv2/opencv.hpp>
-#include <nlohmann/json.hpp> // Should be removed
-#include <string>
-#include <fstream>
-#include <iostream>
 
 // This works as a GUI as of now
-class ColorCalibrator: public Observer{
+class ColorCalibrator: public ImageProcessor {
 public:
 
     ColorCalibrator(const std::string& windowName = "Color Calibration")
-        : windowName_(windowName) {
+        : windowName_(windowName), ImageProcessor() {
         cv::namedWindow(windowName);
 
-        cv::createTrackbar("Min Red", windowName, &colorValues_.R_min, 255);
-        cv::createTrackbar("Max Red", windowName, &colorValues_.R_max, 255);
+        // HSV trackbars
+        cv::createTrackbar("Min Hue", windowName, &colorValues_.H_min, 180);
+        cv::createTrackbar("Max Hue", windowName, &colorValues_.H_max, 180);
 
-        cv::createTrackbar("Min Green", windowName, &colorValues_.G_min, 255);
-        cv::createTrackbar("Max Green", windowName, &colorValues_.G_max, 255);
+        cv::createTrackbar("Min Saturation", windowName, &colorValues_.S_min, 255);
+        cv::createTrackbar("Max Saturation", windowName, &colorValues_.S_max, 255);
 
-        cv::createTrackbar("Min Blue", windowName, &colorValues_.B_min, 255);
-        cv::createTrackbar("Max Blue", windowName, &colorValues_.B_max, 255);
+        cv::createTrackbar("Min Value", windowName, &colorValues_.V_min, 255);
+        cv::createTrackbar("Max Value", windowName, &colorValues_.V_max, 255);
     }
 
-    void onFrameAvailable(const cv::Mat& frame) override {
-        processFrame(frame);
-    }
+    void processImage () override {
+        while(running_){
+            if(!newestFrame_.empty()){
+                cv::Mat frame, hsvFrame, mask, result;
+                {
+                    std::lock_guard<std::mutex> lock(newestFrame_mutex_);
+                    newestFrame_.copyTo(frame);
+                }
 
-    void processFrame(const cv::Mat& frame) {
-        cv::Mat mask, result;
+                cv::cvtColor(frame, hsvFrame, cv::COLOR_BGR2HSV);
 
-        cv::inRange(frame,
-                    cv::Scalar(colorValues_.B_min, colorValues_.G_min, colorValues_.R_min),
-                    cv::Scalar(colorValues_.B_max, colorValues_.G_max, colorValues_.R_max),
-                    mask);
+                cv::inRange(hsvFrame,
+                            cv::Scalar(colorValues_.H_min, colorValues_.S_min, colorValues_.V_min),
+                            cv::Scalar(colorValues_.H_max, colorValues_.S_max, colorValues_.V_max),
+                            mask);
 
-        cv::bitwise_and(frame, frame, result, mask);
-        {
-            std::lock_guard<std::mutex> lock(newestFrame_mutex_);
-            result.copyTo(newestFrame);
+                mask.copyTo(newestMask_);
+            }
         }
     }
 
@@ -55,21 +54,21 @@ public:
         colorValues_ = colorValues;
     }
 
-    cv::Mat getNewestFrame() {
+    void getNewestMask(cv::Mat& mask){
+        newestMask_.copyTo(mask);
+    }
+
+    bool isNewestFrameEmpty() {
         std::lock_guard<std::mutex> lock(newestFrame_mutex_);
-        return newestFrame.clone();
+        return newestMask_.empty();
     }
 
 private:
+    ColorValues colorValues_;
     std::string windowName_;
 
-    std::mutex newestFrame_mutex_;
-    cv::Mat newestFrame;
-
-    std::mutex overlay_mutex_;
-    cv::Mat overlay_;
-
-    ColorValues colorValues_;
+    cv::Mat newestMask_;
 };
+
 
 #endif//AIS2203_PROJECT_SPHERO_COLORCALIBRATOR_HPP

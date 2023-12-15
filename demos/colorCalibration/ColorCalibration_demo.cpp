@@ -1,22 +1,42 @@
-#include "sphero/cameras/USBCamera.hpp"
-#include "sphero/vision/ColorCalibrator.hpp"
+#include "sphero/cameras/PCCamera.hpp"
 #include "sphero/utils/JsonUtils.hpp"
+#include "sphero/vision/ColorCalibrator.hpp"
+#include "sphero/vision/LiveFrameDisplay.hpp"
 
 int main() {
-    USBCamera camera;
+    PCCamera camera;
+
+    LiveFrameDisplay gui;
+    camera.addObserver(&gui);
+
     ColorCalibrator calibrator;
     camera.addObserver(&calibrator);
 
     camera.start();
 
-    cv::Mat frame;
+    cv::Mat frame, mask, result;
 
     // Wait for first frame (consider condition variable)
     while(!camera.getFrame(frame));
+    while(gui.isNewestFrameEmpty());
+
+    calibrator.start();
+    while(calibrator.isNewestFrameEmpty());
 
     while (true) {
-        // To show the frame on main thread
-        cv::imshow("Color Calibration", calibrator.getNewestFrame());
+        gui.getNewestFrame(frame);
+        calibrator.getNewestMask(mask);
+
+        try{
+
+            result = cv::Mat::zeros(frame.size(), frame.type());
+            cv::bitwise_and(frame, frame, result, mask);
+            cv::imshow("Color Calibration", result);
+        }
+        catch(std::exception &e){
+            std::cout << "Error: " << e.what() << std::endl;
+            cv::imshow("Color Calibration", frame);
+        }
 
         char key = static_cast<char>(cv::waitKey(1));
         if (key == 's') {
