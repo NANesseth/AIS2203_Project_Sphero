@@ -15,7 +15,7 @@ It leverages multithreading and OpenCV, enabling simultaneous transmission and r
 - Collision detection
 - Battery level indicator
 
-### What does not work/ works poorly..
+### What does not work/ works poorly.
 - GUI and camerafeed windows lock if clicked on with the mouse cursor.
 - The robot is not very good at tracking the ball.
 - Latency on the videofeed is too high.
@@ -58,6 +58,7 @@ The following files, tests and demos listed below are not implemented in relatio
 - This project is easiest built using vcpkg.
 - Call CMake with `-DCMAKE_TOOLCHAIN_FILE=[path to vcpkg]/scripts/buildsystems/vcpkg.cmake` (using manifest mode).
 - See [vcpkg.json](vcpkg.json) for available features.
+- Set correct serverIP and serverPort in main.cpp (note: serverIP is the IP of the raspberry pi)
 
 
 ### UDP Server Github link
