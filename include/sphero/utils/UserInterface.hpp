@@ -3,6 +3,7 @@
 
 #include "sphero/utils/udpClient.hpp"
 #include "sphero/controls/keyboardInput.hpp"
+#include "sphero/controls/AutonomousControl.hpp"
 
 #include "sphero/cameras/RaspberryCamera.hpp"
 #include "sphero/vision/BallTracker.hpp"
@@ -20,6 +21,7 @@
 #include "Json reader.hpp"
 #include "Various.hpp"
 #include <typeinfo>
+
 
 class UserInterface {
 public:
@@ -39,15 +41,21 @@ public:
         cv::destroyWindow(windowName);
     }
 
-    void receiving(){
+    void receiving() {
         JsonReader jsonReader;
         std::string data;
-        while (true){
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        while (true) {
             data = udpClient.receiveData();
             jsonReader.updateJson(data);
-            jsonQueue.push(jsonReader);
+            {
+                std::unique_lock<std::mutex> lock(queueMutex);
+                if (jsonQueue.size() >= 1) {
+                    jsonQueue.pop();
+                }
+                jsonQueue.push(jsonReader);
+            }
             dataCondition.notify_all();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
 
@@ -60,19 +68,17 @@ public:
                 if (!sendQueue.empty()) {
                     message = sendQueue.front();
                     sendQueue.pop();
-                    //std::cout<<"element removed from sendQueue"<<"\n";
                 }
             }
 
             if (!message.empty()){
-                //std::cout<<"sending"<<"\n";
                 udpClient.sendMessage(message);
             }
             else {
                 std::cout << "message empty" << std::endl;
             }
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }
 
@@ -83,6 +89,8 @@ public:
 
         cv::Mat frame;
         auto hasData = [this]() { return !jsonQueue.empty(); };
+        int batteryLevel;
+        int distanceToObject;
 
         while (true) {
             {
@@ -93,7 +101,11 @@ public:
                     data = jsonQueue.front();
                     jsonQueue.pop();
 
+                    distanceToObject = data.getDistance();
+                    batteryLevel = data.getBatteryLevel();
                     frame = data.getFrame();
+                    cv::putText(frame, "Battery level: " + std::to_string(batteryLevel) + "%", cv::Point(10, 10), cv::FONT_HERSHEY_SIMPLEX, 0.40, cv::Scalar(0, 255, 0), 1, cv::LINE_AA);
+                    cv::putText(frame, "Distance: " + std::to_string(distanceToObject), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.40, cv::Scalar(0, 255, 0), 1, cv::LINE_AA);
                     {
                         std::unique_lock<std::mutex> frameLock(frameMutex);
                         latestFrame = frame.clone(); // Update the latest frame
@@ -117,7 +129,6 @@ private:
     std::thread receiverThread;
     std::thread sendingThread;
 
-    CameraControl cameraControl;
     JsonReader data;
     std::queue<JsonReader> jsonQueue;
     std::mutex queueMutex;
@@ -134,7 +145,7 @@ private:
     cv::Mat latestFrame;
     std::mutex frameMutex;
 
-    int MAX_QUEUE_SIZE = 10;
+    int MAX_QUEUE_SIZE = 1;
 
     void pushMessage(const std::string& message) {
         if (!message.empty()) {
@@ -142,15 +153,14 @@ private:
                 sendQueue.pop();
             }
             sendQueue.push(message);
-            //std::cout << "message to send: " << message << std::endl;
             sendCondition.notify_all();
         }
     }
 
-
     void uiLoop() {
-        KeyboardInput kbInput(cameraControl);
+        KeyboardInput kbInput;
         CXBOXController xboxController(1);
+        AutonomousControl autoControl;
         bool stopflag = false;
         std::string message;
         using namespace enums;
@@ -177,63 +187,43 @@ private:
                 displayBuilder.buildXboxMenu();
                 cv::waitKey(1);
                 while (this->controller == XBOX) {
-                    // TODO: implement xbox controller
+
                     xboxController.run(controller);
                     // Get the message from controller
                     message = xboxController.getJsonMessageAsString();
-                    std::unique_lock<std::mutex> lock(sendMutex);
-                    pushMessage(message);
+                    {
+                        std::unique_lock<std::mutex> lock(sendMutex);
+                        pushMessage(message);
+                    }
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
                 }
+                displayBuilder.destroyWindow();
             }
 
             else if (this -> controller == AUTO){
-
-                RaspberryCamera camera;
-                BallTracker tracker;
-                camera.addObserver(&tracker);
-
-                camera.start();
-
-                // Initializing ball tracker
-                try{
-                    tracker.setColor(fromJson(loadJson("saved_color_range.json")));
-                }
-                catch (std::exception& e){
-                    std::cout << "Error: " << e.what() << std::endl;
-                    std::cout << "Using default color range, consider running color calibration first" << std::endl;
-                    tracker.setColor(ColorValues{250, 255, 112, 200, 69, 134});
-                }
-
-                BallTrackerResult ball;
-                cv::Point2f screenCenter;
+                displayBuilder.buildAutonomousDrivingMenu();
+                cv::waitKey(1);
                 {
                     std::unique_lock<std::mutex> frameLock(frameMutex);
                     cv::Mat frame = latestFrame.clone();
-                    screenCenter = cv::Point2f(frame.cols / 2, frame.rows / 2);
                 }
-                RobotControlValues control;
-
                 cv::Mat currentFrame;
                 while (this->controller == AUTO) {
                     {
                         std::unique_lock<std::mutex> frameLock(frameMutex);
                         currentFrame = latestFrame.clone();
                     }
+                    autoControl.run(this->controller, currentFrame);
+                    autoControl.selectController(this->controller);
+                    message = autoControl.getJsonMessageAsString();
 
-                    camera.addFrame(currentFrame);
-                    // Ball tracker is automatically notified
-
-                    ball = tracker.getResult();
-
-                    control.setObjectHeading(ball, screenCenter);
-                    control.setObjectSpeed(ball, screenCenter);
-
-                    message = control.getJsonMessageAsString();
-
-                    //lag en message slik som dei andre kontrollerane for å kjøre roboten
                     std::unique_lock<std::mutex> lock(sendMutex);//bruk ditte til å sende data til roboten.
                     pushMessage(message);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(20));
                 }
+
+                displayBuilder.destroyWindow();
             }
             else{
                 displayBuilder.buildMainMenu();
@@ -247,7 +237,8 @@ private:
         }
 
     void displayFrame(cv::Mat& frame) {
-            int fps = 30;
+            int fps = 144;
+
         //std::cout << "display"<<std::endl;
         if (!frame.empty()) {
             cv::resize(frame, frame, cv::Size(640, 480));
@@ -257,7 +248,8 @@ private:
             std::cerr << "Empty or invalid frame received.\n";
         }
         //sleep approx 1/fps seconds
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000/fps));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(1000 / fps));
+
     }
 };
 

@@ -21,19 +21,34 @@ public:
     }
 
     void buildXboxMenu() {
-        this -> windowName = "Xbox Controller Menu";
+        this->windowName = "Xbox Controller Menu";
         frame = blackFrame;
 
+        // Specify the path to the image file in your project folder
+        std::string imagePath = "../../Screenshots/XboxKeybindings.png";
 
-        addText("RT - Drive forward", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
-        addText("Lt - Drive Backwards", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
-        addText("Left joystick for steering", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
-        addText("Right joystick for camera control", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
-        addText("A - Video ON", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
-        addText("B - Video OFF", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
-        addText("ESC - exit to Main Menu", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
+        // Read the image from the file
+        cv::Mat image = cv::imread(imagePath);
 
+        if (image.empty()) {
+            std::cerr << "Error loading image from file: " << imagePath << std::endl;
+            return;
+        }
+
+        try {
+            // Display the image in the window
+            cv::imshow(windowName, image);
+            cv::waitKey(1);
+        } catch (const cv::Exception &e) {
+            std::cerr << "OpenCV error occurred: " << e.what() << std::endl;
+        }
+    }
+    void buildAutonomousDrivingMenu() {
+        this -> windowName = "Autonomous driving";
+        frame = blackFrame;
+        addText("ESC - Main menu", cv::Point(5, text_y), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
         text_y=15;
+
         try {
             cv::imshow(windowName, frame);
             cv::waitKey(1);

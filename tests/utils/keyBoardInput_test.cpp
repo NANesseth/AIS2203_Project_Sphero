@@ -4,16 +4,22 @@
 #include "sphero/controls/CameraControls.hpp"
 
 TEST_CASE("test getJsonMessage") {
-    CameraControl camCont;
-    KeyboardInput kbInput(camCont);
+    KeyboardInput kbInput;
     std::string msg = kbInput.getJsonMessageAsString();
 
-    REQUIRE(msg == "{\"heading\":0,\"msg\":\"empty\",\"panPosition\":0,\"speed\":0,\"tiltPosition\":0}");
+    nlohmann::json expectedJson = {
+            {"message", "empty"},
+            {"speed", 0},
+            {"heading", 0},
+            {"panPosition", -5},
+            {"tiltPosition", 0}
+    };
+    std::string expectedString = expectedJson.dump();
+    REQUIRE(msg == expectedString);
 }
 
 TEST_CASE("Test interpretKey"){
-    CameraControl camCont;
-    KeyboardInput kbInput(camCont);
+    KeyboardInput kbInput;
     int key = 27;
     enums::Action action = kbInput.interpretKey(key);
 
@@ -21,11 +27,9 @@ TEST_CASE("Test interpretKey"){
 }
 
 TEST_CASE("Test performAction"){
-
-    int initialSpeed = 100;
-    int initialHeading = 100;
-    CameraControl camCont;
-    KeyboardInput kbInput(camCont, initialSpeed,initialHeading);
+    int initialSpeed;
+    int initialHeading;
+    KeyboardInput kbInput(initialSpeed = 100, initialHeading = 100);
     std::atomic<bool> videoRunning(false);
     std::condition_variable frameCondition;
     enums::Controller controller = enums::Controller::KEYBOARD;
@@ -52,5 +56,10 @@ TEST_CASE("Test performAction"){
     }
 
 }
-//TODO: implement more sections for performAction
-//TODO: add a test for selectController.
+
+TEST_CASE("Test selectController"){
+    KeyboardInput kbInput;
+    enums::Controller controller = enums::Controller::KEYBOARD;
+    bool stopflag = kbInput.selectController(controller);
+    REQUIRE(stopflag == false);
+}
