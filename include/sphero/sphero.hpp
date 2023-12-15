@@ -7,16 +7,12 @@
 
 // Controls
 #include "controls/CameraControls.hpp"
-#include "controls/followObject.hpp"
 #include "controls/keyboardInput.hpp"
-#include "controls/RobotControls.hpp"
 #include "controls/XboxInput.hpp"
 
 // Core
 #include "core/ImageFetcher.hpp"
 
-// Math
-#include "math/MathUtils.hpp"
 
 // Utils
 #include "utils/JsonUtils.hpp"
