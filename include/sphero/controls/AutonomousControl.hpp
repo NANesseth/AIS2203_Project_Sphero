@@ -35,8 +35,8 @@ class AutonomousControl {
         void run(enums::Controller& controller, cv::Mat frame) {
             float size1 = 10;
             float size2 =20;
-            float size3 = 30;
-            float size4 =40;
+            float size3 = 50;
+            float size4 =90;
             cv::Mat hsvImage;
             cv::cvtColor(frame, hsvImage, cv::COLOR_BGR2HSV);
             cv::Rect boundingRect;
@@ -81,19 +81,19 @@ class AutonomousControl {
                 int ballPositionY = int(ballcenter.y);
 
                 //fuzzy speedlogic
-                if(ballSize > size1){
-                    msg = "drive";
-                    speed = 20;
-                }
-                else if(ballSize> size2){
-                    msg = "drive";
-                    speed = 30;
-                }
-                else if(ballSize> size3){
+                if(ballSize < size1){
                     msg = "drive";
                     speed = 40;
                 }
-                else if(ballSize> size4){
+                else if(ballSize < size2 && ballSize < size3){
+                    msg = "drive";
+                    speed = 30;
+                }
+                else if(ballSize < size3 && ballSize < size4){
+                    msg = "drive";
+                    speed = 40;
+                }
+                else if(ballSize > size4){
                     msg = "drive_reverse";
                     speed = 20;
                 }
@@ -184,7 +184,7 @@ class AutonomousControl {
             // PID control for tilt and pan
             cameraTilt -= round((Kp_tilt * errorY) + (Ki_tilt * integralErrorY) + (Kd_tilt * dErrorY));
             cameraPan  += round((Kp_pan * errorX) + (Ki_pan * integralErrorX) + (Kd_pan * dErrorX));
-
+            if (cameraTilt > 45) cameraTilt = 45;
             oldErrorX = errorX;
             oldErrorY = errorY;
 
