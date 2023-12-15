@@ -67,9 +67,7 @@ Have fun and drive safe!
 
 ### UDP Server Github link
 The UDP server was created on a separate git repo.
-easily git pull 
-
-https://github.com/tostoner/udp_server
+- https://github.com/tostoner/udp_server
 
 ### Screenshots
 #### Main menu
