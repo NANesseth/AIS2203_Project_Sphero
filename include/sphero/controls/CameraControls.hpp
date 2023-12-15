@@ -22,7 +22,7 @@ public:
     }
 
     void setTiltPosition(int tilt) {
-        tilt = (tilt > 40 ? 40 : (tilt < -40 ? -40 : tilt));
+        tilt = (tilt > 90 ? 90 : (tilt < -45 ? -45 : tilt));
 
         tiltPosition = tilt;
     }
