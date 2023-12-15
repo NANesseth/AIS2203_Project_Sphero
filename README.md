@@ -1,8 +1,9 @@
 # AIS2203_Project_Sphero
 Robot control - exam project for NTNU AIS2203
 
-## Current state of the project
-The project is currently in a state where the robot can be controlled by a remote computer over UDP. 
+## Introduction
+This project focuses on remotely controlling the Sphero RVR in real-time utilizing UDP communication protocols. 
+It leverages multithreading and OpenCV, enabling simultaneous transmission and reception of data, as well as real-time display of images within the graphical user interface.
 
 ### What works.
 - Duplex communication between Robot and client
@@ -21,16 +22,15 @@ The project is currently in a state where the robot can be controlled by a remot
 - Latency on the videofeed is too high.
 
 ### How to get it running
-
 #### Server instructions
 - Follow Sphero instructions to setup raspberry pi and Sphero RVR. (https://sdk.sphero.com/raspberry-pi-setup)
 - Once the setup instructions are followed and a wifi and SSH connection is established, connect to the raspberry and run the following commands:
   - sudo apt-get update
   - sudo apt-get install git
-  - sudo apt-get install python3-opencv (or pip install opencv-python)
-  - pip install qwiic
-  - pip install numpy
-  - pip install pi_servo_hat
+  - pip3 install opencv-python (or sudo apt-get install python3-opencv)
+  - pip3 install qwiic
+  - pip3 install numpy
+  - pip3 install pi_servo_hat
 
 - Download the udp server on the raspberry pi. (https://github.com/tostoner/udp_server)
 - Run Main.py using sudo and python3. (sudo python3 Main.py)
@@ -50,9 +50,11 @@ https://github.com/tostoner/udp_server
 ### Screenshots
 #### Main menu
 ![MainMenu.png](Screenshots/MainMenu.png)
-#### KeyboardInput
+#### Keyboard menu
 ![KeyboardInput.png](Screenshots/KeyboardInput.png)
 #### Xbox menu
 ![XboxMenu.png](Screenshots/XboxMenu.png)
+#### Program running
+![RunningClient.jpg](Screenshots/RunningClient.JPG)
 
 
