@@ -1,9 +1,9 @@
-#include "sphero/cameras/USBCamera.hpp"
+#include "sphero/cameras/PCCamera.hpp"
 #include "sphero/vision/ObjectTracker.hpp"
 #include <opencv2/highgui.hpp>
 
 int main() {
-    USBCamera camera(0);
+    PCCamera camera(0);
     camera.start();
 
     cv::namedWindow("Camera Feed", cv::WINDOW_AUTOSIZE);

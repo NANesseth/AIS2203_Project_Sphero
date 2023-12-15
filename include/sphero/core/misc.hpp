@@ -7,13 +7,13 @@
 
 struct ColorValues {
 
-    int R_min = 0;
-    int G_min = 0;
-    int B_min = 0;
+    int H_min = 0;   // Hue minimum
+    int S_min = 0;   // Saturation minimum
+    int V_min = 0;   // Value minimum
 
-    int R_max = 255;
-    int G_max = 255;
-    int B_max = 255;
+    int H_max = 180; // Hue maximum (in OpenCV, Hue range is 0-180)
+    int S_max = 255; // Saturation maximum
+    int V_max = 255; // Value maximum
 
 };
 

@@ -11,21 +11,22 @@
 #include <iostream>
 
 // This works as a GUI as of now
-class ColorCalibrator: public Observer{
+class ColorCalibrator: public Observer {
 public:
 
     ColorCalibrator(const std::string& windowName = "Color Calibration")
         : windowName_(windowName) {
         cv::namedWindow(windowName);
 
-        cv::createTrackbar("Min Red", windowName, &colorValues_.R_min, 255);
-        cv::createTrackbar("Max Red", windowName, &colorValues_.R_max, 255);
+        // HSV trackbars
+        cv::createTrackbar("Min Hue", windowName, &colorValues_.H_min, 180);
+        cv::createTrackbar("Max Hue", windowName, &colorValues_.H_max, 180);
 
-        cv::createTrackbar("Min Green", windowName, &colorValues_.G_min, 255);
-        cv::createTrackbar("Max Green", windowName, &colorValues_.G_max, 255);
+        cv::createTrackbar("Min Saturation", windowName, &colorValues_.S_min, 255);
+        cv::createTrackbar("Max Saturation", windowName, &colorValues_.S_max, 255);
 
-        cv::createTrackbar("Min Blue", windowName, &colorValues_.B_min, 255);
-        cv::createTrackbar("Max Blue", windowName, &colorValues_.B_max, 255);
+        cv::createTrackbar("Min Value", windowName, &colorValues_.V_min, 255);
+        cv::createTrackbar("Max Value", windowName, &colorValues_.V_max, 255);
     }
 
     void onFrameAvailable(const cv::Mat& frame) override {
@@ -33,11 +34,14 @@ public:
     }
 
     void processFrame(const cv::Mat& frame) {
-        cv::Mat mask, result;
+        cv::Mat hsvFrame, mask, result;
 
-        cv::inRange(frame,
-                    cv::Scalar(colorValues_.B_min, colorValues_.G_min, colorValues_.R_min),
-                    cv::Scalar(colorValues_.B_max, colorValues_.G_max, colorValues_.R_max),
+        // Convert to HSV
+        cv::cvtColor(frame, hsvFrame, cv::COLOR_BGR2HSV);
+
+        cv::inRange(hsvFrame,
+                    cv::Scalar(colorValues_.H_min, colorValues_.S_min, colorValues_.V_min),
+                    cv::Scalar(colorValues_.H_max, colorValues_.S_max, colorValues_.V_max),
                     mask);
 
         cv::bitwise_and(frame, frame, result, mask);
@@ -69,7 +73,8 @@ private:
     std::mutex overlay_mutex_;
     cv::Mat overlay_;
 
-    ColorValues colorValues_;
+    ColorValues colorValues_; // Update this structure to have H, S, and V fields
 };
+
 
 #endif//AIS2203_PROJECT_SPHERO_COLORCALIBRATOR_HPP

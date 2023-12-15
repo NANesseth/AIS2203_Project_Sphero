@@ -1,7 +1,7 @@
-#include "sphero/cameras/USBCamera.hpp"
+#include "sphero/cameras/PCCamera.hpp"
+#include "sphero/vision/ColorCalibrator.hpp" // remove
 #include "sphero/utils/JsonUtils.hpp"
 #include "sphero/vision/BallTracker.hpp"
-#include "sphero/vision/ColorCalibrator.hpp"// remove
 
 class GUI: public Observer {
 public:
@@ -31,7 +31,7 @@ private:
 
 
 int main() {
-    USBCamera camera;
+    PCCamera camera(0);
 
     GUI gui;
     camera.addObserver(&gui);
@@ -48,8 +48,9 @@ int main() {
     catch (std::exception& e){
         std::cout << "Error: " << e.what() << std::endl;
         std::cout << "Using default color range, consider running color calibration first" << std::endl;
-        tracker.setColor(ColorValues{250, 255, 112, 200, 69, 134});
+        tracker.setColor(ColorValues{67, 239, 83, 196, 21, 84}); // weak green
     }
+
 
     cv::Mat frame;
 
@@ -63,21 +64,24 @@ int main() {
     tracker.startTracking();
     BallTrackerResult ball;
 
+    // Merge (main)
     cv::Point2f screenCenter(frame.cols / 2, frame.rows / 2);
     cv::Point2f relativePosition;
 
     while (true) {
         gui.getNewestFrame(frame);
-        ball = tracker.getResult();
+        ball = tracker.getResult(); // Make sure how the tracker gets the frame
 
         if (ball.found){
+            // Draw a circle at 'result.center' with a radius of 'result.radius'
             cv::circle(frame, ball.center, ball.radius, cv::Scalar(0, 250, 0), 2);
+
+            // Merge (main)
             //relativePosition = ball.center - screenCenter;
             relativePosition = tracker.getRelativePosition(frame.cols, frame.rows);
             std::cout << "Relative position: " << relativePosition << std::endl;
         }
         cv::imshow("Object Detection", frame);
-
 
         char key = static_cast<char>(cv::waitKey(1));
         if (key == 'q' || key == 27) {

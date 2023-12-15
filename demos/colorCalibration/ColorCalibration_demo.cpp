@@ -1,9 +1,9 @@
-#include "sphero/cameras/USBCamera.hpp"
-#include "sphero/vision/ColorCalibrator.hpp"
+#include "sphero/cameras/PCCamera.hpp"
 #include "sphero/utils/JsonUtils.hpp"
+#include "sphero/vision/ColorCalibrator.hpp"
 
 int main() {
-    USBCamera camera;
+    PCCamera camera(0);
     ColorCalibrator calibrator;
     camera.addObserver(&calibrator);
 
@@ -16,7 +16,9 @@ int main() {
 
     while (true) {
         // To show the frame on main thread
-        cv::imshow("Color Calibration", calibrator.getNewestFrame());
+        frame = calibrator.getNewestFrame();
+        calibrator.blurFrame(frame);
+        cv::imshow("Color Calibration", frame);
 
         char key = static_cast<char>(cv::waitKey(1));
         if (key == 's') {
