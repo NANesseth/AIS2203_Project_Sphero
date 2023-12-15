@@ -56,6 +56,8 @@ The following files, tests and demos listed below are not implemented in relatio
 - Download the udp server on the raspberry pi. (https://github.com/tostoner/udp_server)
 - Run Main.py using sudo and python3. (sudo python3 Main.py)
 
+After the server is running and finished initializing, the green lights should appear on the Sphero RVR which indicates that the RVR is ready to connect to the client.
+Have fun and drive safe!
 #### Client instructions
 - This project is easiest built using vcpkg.
 - Call CMake with `-DCMAKE_TOOLCHAIN_FILE=[path to vcpkg]/scripts/buildsystems/vcpkg.cmake` (using manifest mode).
