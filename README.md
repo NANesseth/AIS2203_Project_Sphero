@@ -42,7 +42,7 @@ It leverages multithreading and OpenCV, enabling simultaneous transmission and r
 
 
 ### UDP Server Github link
-The UDP server was created on a seperate git repo.
+The UDP server was created on a separate git repo.
 easily git pull 
 
 https://github.com/tostoner/udp_server
@@ -55,6 +55,6 @@ https://github.com/tostoner/udp_server
 #### Xbox menu
 ![XboxMenu.png](Screenshots/XboxMenu.png)
 #### Program running
-![RunningClient.jpg](Screenshots/RunningClient.JPG)
+![RunningClient.jpg](Screenshots/RunningClient.png)
 
 
