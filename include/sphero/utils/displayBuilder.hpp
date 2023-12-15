@@ -10,12 +10,10 @@
 
 class DisplayBuilder{
 public:
-    // Constructor with an optional window name
     DisplayBuilder(const std::string& name = "Display Window") : windowName(name){
 
     }
 
-    // Destructor
     ~DisplayBuilder() {
         cv::destroyWindow(windowName);
     }
@@ -24,10 +22,9 @@ public:
         this->windowName = "Xbox Controller Menu";
         frame = blackFrame;
 
-        // Specify the path to the image file in your project folder
         std::string imagePath = "../../Screenshots/XboxKeybindings.png";
 
-        // Read the image from the file
+
         cv::Mat image = cv::imread(imagePath);
 
         if (image.empty()) {
@@ -36,7 +33,6 @@ public:
         }
 
         try {
-            // Display the image in the window
             cv::imshow(windowName, image);
             cv::waitKey(1);
         } catch (const cv::Exception &e) {

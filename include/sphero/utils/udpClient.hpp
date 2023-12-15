@@ -24,8 +24,8 @@ inline std::string getLocalIp() {
 class UdpClient {
 private:
     std::mutex mtx;
-    std::unique_ptr<boost::asio::io_service> io_service; // Moved to here
-    std::unique_ptr<boost::asio::ip::udp::socket> socket; // Moved to here
+    std::unique_ptr<boost::asio::io_service> io_service;
+    std::unique_ptr<boost::asio::ip::udp::socket> socket;
     boost::asio::ip::udp::endpoint serverEndpoint;
     boost::array<char, 65536> recv_buf;
     size_t bytes_transferred;

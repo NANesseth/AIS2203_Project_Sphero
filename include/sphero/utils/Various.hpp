@@ -10,7 +10,7 @@
 namespace various {
 
     cv::Mat convertStringToFrame(const std::string& base64_frame) {
-        // Check whether the input string is empty
+
         if (base64_frame.empty()) {
             std::cerr << "Input base64 string is empty.";
             return {};
@@ -23,7 +23,7 @@ namespace various {
                 &decoded[0], base64_frame.data(), base64_frame.size());
         decoded.resize(result.first); // resize to actual decoded size
 
-        // Check whether the decoding was successful
+
         if (decoded.empty()) {
             std::cerr << "Decoding base64 string failed.";
             return {};
@@ -33,7 +33,6 @@ namespace various {
         std::vector<uchar> data(decoded.begin(), decoded.end());
         cv::Mat image = cv::imdecode(data, cv::IMREAD_UNCHANGED);
 
-        // Check if the image created is valid
         if (image.empty()) {
             std::cerr << "Failed to create image from decoded string";
             return {};

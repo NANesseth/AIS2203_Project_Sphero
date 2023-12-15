@@ -3,7 +3,6 @@ set(sources
         sphero/cameras/RaspberryCamera.cpp
 
         # Controls
-        sphero/controls/RobotControls.cpp
 
         # Math
         sphero/math/MathUtils.cpp

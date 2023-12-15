@@ -4,7 +4,7 @@ Robot control - exam project for NTNU AIS2203
 ## Introduction
 This project focuses on remotely controlling the Sphero RVR in real-time utilizing UDP communication protocols. 
 It leverages multithreading and OpenCV, enabling simultaneous transmission and reception of data, as well as real-time display of images within the graphical user interface.
-
+Autonomous driving is currently set to follow a red color.
 ### What works.
 - Duplex communication between Robot and client
 - Keyboard Controls

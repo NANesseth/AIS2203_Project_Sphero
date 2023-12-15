@@ -172,7 +172,7 @@ private:
                 int key;
                 cv::waitKey(1);
                 while (this->controller == KEYBOARD) {
-                    // Handle input
+
                     key = cv::waitKey(1);
                     Action action = kbInput.interpretKey(key);
                     kbInput.performAction(action,  this->controller);
@@ -189,7 +189,6 @@ private:
                 while (this->controller == XBOX) {
 
                     xboxController.run(controller);
-                    // Get the message from controller
                     message = xboxController.getJsonMessageAsString();
                     {
                         std::unique_lock<std::mutex> lock(sendMutex);
@@ -218,7 +217,7 @@ private:
                     autoControl.selectController(this->controller);
                     message = autoControl.getJsonMessageAsString();
 
-                    std::unique_lock<std::mutex> lock(sendMutex);//bruk ditte til å sende data til roboten.
+                    std::unique_lock<std::mutex> lock(sendMutex);
                     pushMessage(message);
                     std::this_thread::sleep_for(std::chrono::milliseconds(20));
                 }
@@ -238,8 +237,6 @@ private:
 
     void displayFrame(cv::Mat& frame) {
             int fps = 144;
-
-        //std::cout << "display"<<std::endl;
         if (!frame.empty()) {
             cv::resize(frame, frame, cv::Size(640, 480));
             cv::imshow(windowName, frame);
@@ -247,7 +244,6 @@ private:
         } else {
             std::cerr << "Empty or invalid frame received.\n";
         }
-        //sleep approx 1/fps seconds
         //std::this_thread::sleep_for(std::chrono::milliseconds(1000 / fps));
 
     }

@@ -12,7 +12,6 @@
 
 #pragma comment(lib, "XInput.lib")
 
-// XBOX Controller Class Definition
 class CXBOXController
 {
 private:
@@ -30,7 +29,6 @@ public:
 
     CXBOXController(int playerNumber)
         : _controllerNum(playerNumber - 1), cameraControl() {
-        // initialize cameraControl in constructor
     }
 
     XINPUT_STATE GetState() {
@@ -95,10 +93,8 @@ public:
     }
 
     int mapJoystickToSteering(int joystickX, int joystickY) {
-        // Maximum change in angle per call
         const float maxTurnRate = 5; // Can be tuned for finer control
-
-        float turnRate = 0.0f;
+        float turnRate;
 
         // Calculate turnRate based on how far the joystick is pushed to the side
         if (joystickX > 10000) {
@@ -115,7 +111,7 @@ public:
             heading += turnRate;
         }
 
-        // Wrap heading between 0 and 360
+        // Keep heading between 0 and 360
         heading = heading >= 0 ? heading % 360 : (360 + (heading % 360)) % 360;
 
         return heading;
@@ -177,24 +173,23 @@ public:
                 if(IsConnected())
                 {
                     bool stopflag = false;
-                    // Map the joystick X and Y to steering
+                    // Map joystick X and Y to steering
                     this->heading = mapJoystickToSteering(getLeftJoystickX(), getLeftJoystickY());
 
                     float acceleration = mapTriggerToRtrigger(getRightTrigger());
 
-                    // Map the L trigger to deceleration
+
+
+                    // Map L trigger to deceleration
                     float deceleration = mapTriggerToLtrigger(getLeftTrigger());
-
-                    // Update camera control after getting joystick inputs
-                    updateCameraControl();
-
-                    // Map the R trigger to acceleration
+                    // Map R trigger to acceleration
                     if(acceleration > deceleration){
                         speed  = mapTriggerToRtrigger(getRightTrigger());
                     }
                     else{
                         speed = mapTriggerToLtrigger(getLeftTrigger());
                     }
+                    updateCameraControl();
 
                 }
                 else

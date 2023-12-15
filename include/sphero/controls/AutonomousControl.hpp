@@ -53,7 +53,6 @@ class AutonomousControl {
             cv::Mat greenMask;
             cv::inRange(hsvImage, lower, upper, greenMask);
 
-            // Find contours
             std::vector<std::vector<cv::Point>> contours;
             cv::findContours(greenMask, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
 
@@ -71,10 +70,6 @@ class AutonomousControl {
             }
 
             if (maxArea > 10) {
-
-                // Draw green box around object
-                cv::rectangle(frame, boundingRect.tl(), boundingRect.br(), cv::Scalar(0, 255, 0));
-                frame.copyTo(markedFrame);
 
                 float ballSize = radius*2;
                 int ballPositionX = int(ballcenter.x);
@@ -149,8 +144,6 @@ class AutonomousControl {
         int panPosition = -5;
         int tiltPosition = 0;
         int headingIncrement = 1;
-        cv::Mat markedFrame;
-
         float oldErrorX = 0;
         float oldErrorY = 0;
         float integralErrorX = 0;
