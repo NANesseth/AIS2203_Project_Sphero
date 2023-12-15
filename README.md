@@ -52,7 +52,7 @@ https://github.com/tostoner/udp_server
 ![MainMenu.png](Screenshots/MainMenu.png)
 #### KeyboardInput
 ![KeyboardInput.png](Screenshots/KeyboardInput.png)
-#### XboxMenu
+#### Xbox menu
 ![XboxMenu.png](Screenshots/XboxMenu.png)
 
 
