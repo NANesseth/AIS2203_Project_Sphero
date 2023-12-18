@@ -36,14 +36,6 @@ protected:
              } else {
                  std::this_thread::sleep_for(std::chrono::milliseconds(10));
              }
-//            if (capture.read(frame)) {
-//                std::lock_guard<std::mutex> lock(mutex_);
-//                frameQueue_.push(frame);
-//                // frameAvailable_.notify_one(); // If using condition variables
-//                notifyObservers();
-//            } else {
-//                std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Sleep on failed capture
-//            }
         }
     }
 

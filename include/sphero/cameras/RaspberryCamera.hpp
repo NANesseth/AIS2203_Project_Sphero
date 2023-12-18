@@ -9,6 +9,8 @@
 #include "sphero/controls/keyboardInput.hpp"
 #include "opencv2/opencv.hpp"
 
+// Not implemented yet
+
 class RaspberryCamera : public ImageFetcher {
 
 public:

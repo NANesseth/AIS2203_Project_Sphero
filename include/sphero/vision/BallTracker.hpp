@@ -30,7 +30,7 @@ public:
         float minRadius = 5;
         float radius, maxRadius;
         cv::Point2f maxCenter;
-        double area, perimeter, circularity, circularityThreshold = 0.85;
+        double area, perimeter, circularity, circularityThreshold = 0.45;
         cv::Mat frame;
 
         while (running_) {

@@ -3,6 +3,12 @@
 #include "sphero/vision/ColorCalibrator.hpp"
 #include "sphero/vision/LiveFrameDisplay.hpp"
 
+
+
+// This demo lets the user calibrate the color range of the ball using sliders for the HSV values
+// Press 's' to save the color range to a json file
+// Press 'q' or 'esc' to quit
+
 int main() {
     PCCamera camera;
 

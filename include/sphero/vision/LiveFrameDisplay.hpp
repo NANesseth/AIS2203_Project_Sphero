@@ -1,7 +1,7 @@
 #ifndef AIS2203_PROJECT_SPHERO_LIVEFRAMEDISPLAY_HPP
 #define AIS2203_PROJECT_SPHERO_LIVEFRAMEDISPLAY_HPP
 
-# include "sphero/utils/Observer.hpp"
+# include "sphero/core/ImageFetcher.hpp"
 
 # include <opencv2/opencv.hpp>
 # include <mutex>

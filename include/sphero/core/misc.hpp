@@ -25,6 +25,7 @@ struct BallTrackerResult {
 };
 
 
+// Not fully implemented, but planned to be used for translating the ball position to robot control values
 struct RobotControlValues {
     int heading = 0;
     int speed = 10;

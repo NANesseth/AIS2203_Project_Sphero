@@ -1,9 +1,9 @@
 #include "sphero/cameras/PCCamera.hpp"
-#include "sphero/vision/ColorCalibrator.hpp" // remove
 #include "sphero/utils/JsonUtils.hpp"
 #include "sphero/vision/BallTracker.hpp"
 #include "sphero/vision/LiveFrameDisplay.hpp"
 
+// This demo lets the user track a ball using the BallTracker class and a color range.
 // It is recommended to run the ColorCalibration_demo first to get the color range of the ball.
 // If not, the default color range will be used.
 
@@ -44,9 +44,13 @@ int main() {
         gui.getNewestFrame(frame);
         ball = tracker.getResult(); // Make sure how the tracker gets the frame
 
-        if (ball.found){
+        if (ball.found) {
             cv::circle(frame, ball.center, ball.radius, cv::Scalar(0, 250, 0), 2);
+            std::cout << "Ball found at: " << ball.center << std::endl;
+        } else {
+            std::cout << "Ball not found" << std::endl;
         }
+
         cv::imshow("Object Detection", frame);
 
         char key = static_cast<char>(cv::waitKey(1));

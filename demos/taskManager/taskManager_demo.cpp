@@ -3,7 +3,7 @@
 #include <iostream>
 
 // This is a demo of the TaskManager class
-// However, we have moved away from this implementation in the main project
+// However, we have moved away from this implementation in the main project, and it is only here for our own reference
 
 void task_1(){
     // Simulate work
