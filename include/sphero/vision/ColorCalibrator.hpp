@@ -26,6 +26,8 @@ public:
     }
 
     void processImage () override {
+
+        // Could be replaced with a condition variable instead of a busy wait
         while(running_){
             if(!newestFrame_.empty()){
                 cv::Mat frame, hsvFrame, mask, result;

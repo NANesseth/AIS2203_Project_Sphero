@@ -3,6 +3,7 @@
 
 # include "sphero/core/ImageFetcher.hpp"
 
+// For the types of observers that does more work and needs to be run in a separate thread
 class ImageProcessor: public Observer {
 public:
     ImageProcessor(): running_(false) {}

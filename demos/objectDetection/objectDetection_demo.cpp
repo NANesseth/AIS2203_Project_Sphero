@@ -40,22 +40,12 @@ int main() {
     tracker.start();
     BallTrackerResult ball;
 
-    // Merge (main)
-    //cv::Point2f screenCenter(frame.cols / 2, frame.rows / 2);
-    //cv::Point2f relativePosition;
-
     while (true) {
         gui.getNewestFrame(frame);
         ball = tracker.getResult(); // Make sure how the tracker gets the frame
 
         if (ball.found){
-            // Draw a circle at 'result.center' with a radius of 'result.radius'
             cv::circle(frame, ball.center, ball.radius, cv::Scalar(0, 250, 0), 2);
-
-            // Merge (main)
-            //relativePosition = ball.center - screenCenter;
-            //relativePosition = tracker.getRelativePosition(frame.cols, frame.rows);
-            //std::cout << "Relative position: " << relativePosition << std::endl;
         }
         cv::imshow("Object Detection", frame);
 

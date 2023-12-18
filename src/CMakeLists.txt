@@ -2,13 +2,7 @@ set(sources
         # Cameras
         sphero/cameras/RaspberryCamera.cpp
 
-        # Controls
-
-        # Math
-        sphero/math/MathUtils.cpp
-
         # Utils
-        sphero/utils/Observer.cpp
         sphero/utils/TaskManager.cpp
         sphero/utils/JsonUtils.cpp
 )

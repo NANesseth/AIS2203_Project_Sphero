@@ -1,14 +1,13 @@
 #ifndef AIS2203_PROJECT_SPHERO_IMAGEFETCHER_HPP
 #define AIS2203_PROJECT_SPHERO_IMAGEFETCHER_HPP
 
-//#include "sphero/utils/Observer.hpp"
-
 #include <opencv2/opencv.hpp>
 #include <atomic>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
 #include <queue>
+
 
 class Observer {
 public:
